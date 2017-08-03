@@ -1,0 +1,27 @@
+<div class='playerHud'>
+    <label>Health: </label><span [textContent]="hud.health"></span><br>
+    <label>Lives: </label><span [textContent]="hud.lives"></span><br>
+    <label>Bombs: </label><span [textContent]="hud.bombs"></span><br>
+    <label>Blue: </label><span [textContent]="hud.blue"></span><br>
+    <label>Green: </label><span [textContent]="hud.green"></span><br>
+    <label>Yellow: </label><span [textContent]="hud.yellow"></span><br>
+    <label>Purple: </label><span [textContent]="hud.purple"></span><br>
+</div>
+
+<div class='board'
+*ngIf='showBoard'
+[style.width.px] = "boardWidth"
+[style.top.px] = "topVal"
+[style.left.px] = "leftVal">
+    <app-tile
+    *ngFor = "let tile of tiles"
+    [class] = "'id'+tile.id+' col'+tile.column+' row'+tile.row"
+    [style.background-position-y.px]="tile.bgy"
+    [style.background-position-x.px]="tile.bgx"
+    [tileInstance] = 'tile'
+    [style.width.px]="tile.size"
+    [style.height.px]="tile.size">
+    </app-tile>
+</div>
+
+

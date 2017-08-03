@@ -1,20 +1,18 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
-
+import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
+import { GameComponent } from './the-game/the-game.component';
+import { TileComponent } from './the-game/tile/tile.component';
+import { GameController } from './the-game/game-controller';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    GameComponent,
+    TileComponent
   ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpModule
-  ],
-  providers: [],
+  imports: [BrowserModule],
+  providers: [GameController],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

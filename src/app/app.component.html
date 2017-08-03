@@ -1,3 +1,5 @@
-<h1>
-  {{title}}
-</h1>
+<div class = 'pre-game-interface' *ngIf='!gameActive'></div>
+<the-game *ngIf='gameActive'></the-game>
+
+
+
