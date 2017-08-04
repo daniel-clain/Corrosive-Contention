@@ -15,7 +15,7 @@ app.get('/', function(req, res){
 
 
 
-searchingForGame = function(socket){  
+searchingForGame = function(socket){
   playersCurrentlySearchingForGames.push(socket)
   if(playersCurrentlySearchingForGames.length === numberOfPlayersInEachGame){
     newGame()
@@ -44,7 +44,7 @@ playerMoveUpdate = function(socket, packet){
 
   for(var j = 0; j < game.players.length; j++){
     game.players[j].socketInstance.emit('sentFromServer', {
-      eventName: 'player move update', 
+      eventName: 'player move update',
       data: packet.data
     })
   }
@@ -62,7 +62,7 @@ bombAndEssenceTileUpdate = function(socket, packet){
 
   for(var j = 0; j < game.players.length; j++){
     game.players[j].socketInstance.emit('sentFromServer', {
-      eventName: 'bomb and essence tile update', 
+      eventName: 'bomb and essence tile update',
       data: packet.data
     })
   }
@@ -74,7 +74,7 @@ processPacketFromServer = function(socket, packet){
   if(packet.eventName === 'searching for game'){
     console.log('player is searching for game');
     searchingForGame(socket);
-  }  
+  }
   if(packet.eventName === 'ready for game to start'){
     console.log('player is ready for game to start');
     readyToStart(socket);
@@ -90,7 +90,7 @@ processPacketFromServer = function(socket, packet){
 
 
 
-  
+
 }
 
 
@@ -132,7 +132,7 @@ newGame = function(){
     playersCurrentlySearchingForGames[i].emit('sentFromServer', {eventName: 'game found', data: gameObject})
   }
 
-  
+
   for(q=0; q < gameObject.players.length; q++){
     gameObject.players[q].socketInstance = playersCurrentlySearchingForGames[q]
   }

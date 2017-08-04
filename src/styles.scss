@@ -44,8 +44,8 @@ app-tile{
     top: -10%;
     background-repeat: no-repeat;
     background-position: center;
-    z-index: 40; 
-    transition: top 0.6s, left 0.6s;
+    z-index: 40;
+    transition: top 0.4s, left 0.4s;
     &.down{
         background: url('assets/facing_down.png');
         background-size: cover;
@@ -90,7 +90,6 @@ app-tile{
 
 .tree{
     position: absolute;
-    background: url('assets/tree.png');
     background-size: cover;
     width: 110%;
     height: 115%;
@@ -100,7 +99,7 @@ app-tile{
 }
 
 .playerHud{
-    background: url('assets/hud_bg.png') no-repeat;    
+    background: url('assets/hud_bg.png') no-repeat;
     position: absolute;
     right: 0px;
     width: 250px;
@@ -139,14 +138,14 @@ app-tile{
         background: url('assets/essence-blue.png') no-repeat;
     }
 }
-.oneBomb{    
+.oneBomb{
     width: 30px;
     height: 30px;
     background-size: cover;
     position: absolute;
     top: 37px;
     left: 37px;
-    background-image: url('assets/originalVolatileEssence.png');
+    background-image: url('assets/bomb.png');
 
 }
 
@@ -170,13 +169,13 @@ app-tile{
     left: 17px;
     z-index: 20;
     background-image: url('assets/multiSplatter.gif');
-    
+
 
 }
 
 
 
-.centerBombExplode{    
+.centerBombExplode{
     width: 230%;
     height: 230%;
     background-size: cover;
@@ -185,7 +184,7 @@ app-tile{
     left: -70%;
     z-index: 50;
     background-image: url('assets/multiSplatter.gif');
-    
+
 
 }
 
@@ -198,7 +197,7 @@ app-tile{
     left: -22px;
     z-index: 20;
     background-image: url('assets/redSplatter.gif');
-    
+
 
 }
 
@@ -209,7 +208,7 @@ app-tile{
     position: absolute;
     top: 22%;
     left: 22%;
-    background-image: url('assets/originalVolatileEssence.png');
+    background-image: url('assets/bomb.png');
     transition: top 0.2s, left 0.2s;
     z-index: 40;
 

@@ -89,7 +89,7 @@ export class TileComponent implements OnInit {
     this.essenceColour = essenceColour
     this.activeEssence.bgx = x
     this.activeEssence.bgy = y
-    
+
     this.cdRef.detectChanges();
   }
 
@@ -108,7 +108,7 @@ export class TileComponent implements OnInit {
       this.cdRef.detach();
       this.treeExplode = false;
       this.cdRef.detectChanges();
-    },800)
+    },400)
     this.cdRef.detectChanges();
   }
 
@@ -142,7 +142,7 @@ export class TileComponent implements OnInit {
   }
 
   setTreeType(type){
-    this.treeType = type
+    this.treeType = type;
   }
 
   setPlayerFacingDirection(direction){

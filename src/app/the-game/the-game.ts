@@ -5,16 +5,16 @@ import { GameController } from './game-controller';
 import { WindowDimensions, TileData, ServerGameObject, Player, EssenceColours, BombItems, Bomb } from '../type-definitions/type-definitions'
 import { TileComponent } from './tile/tile.component'
 import { GameComponent } from './the-game.component'
+import { TileService } from './tile/tile-service'
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/observable/fromEvent';
 
-export class TheGame {
+export class TheGame extends TileService {
 
   gameCols = 30
   gameRows = 20
   tileSize = 120
   treeInitialPercentageCoverage = 40
-
   setupObject
   tileDataObject
   boardWidth: number
@@ -29,7 +29,7 @@ export class TheGame {
   gameConfig
   gameComponent: GameComponent
   keyboardObservable: Observable<any>
-  tiles: Tile[] = []
+
   player = new Player();
   playerMaxHealth = 2
   playerMaxLives = 3
@@ -44,19 +44,20 @@ export class TheGame {
   moveCycle
   moveCycleContinue:Boolean = false
   ableToMove: Boolean = true
-  
-  
+
+
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     let windowDimensions: WindowDimensions = {
-      height: event.target.innerHeight, 
+      height: event.target.innerHeight,
       width: event.target.innerWidth
     }
     this.windowResizeSubject.next(windowDimensions)
   }
 
-  constructor(private gameController: GameController) {
+  constructor(public gameController: GameController) {
+    super()
 
   /********** SETUP LISTENERS FOR: GAME COMPONENT, TILE COMPONENT, SERVER EVENTS, KEYBOARD EVENTS AND GAME READY ***********************/
 
@@ -69,12 +70,13 @@ export class TheGame {
 
     Observable.fromEvent(document,'keypress').map(e => e['code']).subscribe(code => {if(code === 'Backquote')this.backQuoteHeld = true})
 
-    
+
     this.gameController.watchForBombExplosions().subscribe(tile => this.checkIfExplosionHitPlayer(tile))
 
     this.bombExplodeSound = new Audio('../../assets/acid-burn.mp3');
     this.bombExplodeSound.autoplay = false;
     this.bombExplodeSound.preload = 'auto';
+
 
   }
 
@@ -102,14 +104,14 @@ export class TheGame {
          playerNumber: this.serverGameData.yourPlayerNumber
       }
     })
-    
+
   }
 
   listenForGameBoardReady(): Subject<any>{
     return this.gameBoardReadySubject;
   }
-  
-  
+
+
   createTileInstance(tileComponentInstance: TileComponent){
     this.tiles.push(new Tile(tileComponentInstance, this.gameController))
     if(this.tiles.length === this.gameCols*this.gameRows){
@@ -123,7 +125,7 @@ export class TheGame {
     if(loot) this.addLootItems(loot);
     this.player.tileId = startTile.id;
     this.moveBoard(this.player.tileId)
-    
+
   }
   addLootItems(loot){
     if(loot.numberOfBombs){
@@ -263,8 +265,8 @@ export class TheGame {
     }else {
       playerTile.tileComponent.setPlayerFacingDirection(this.player.facing);
     }
-    
-        
+
+
 
     if(movingOut && movingIn){
       clearTimeout(this.moveCycle)
@@ -276,7 +278,7 @@ export class TheGame {
         if(this.moveCycleContinue){
           this.playerMove()
         }
-      }, 510);
+      }, 410);
 
       playerTile.playerLeaveTile();
       console.log('player move')
@@ -298,13 +300,13 @@ export class TheGame {
       this.ableToMove=true
     }
   }
-  
+
   playerUseAbility(abilityName){
     if(abilityName === 'Siphon Tree'){
       this.siphonTree()
     }
     if(abilityName === 'Throw Bomb'){
-      if(this.player.bombs >= 1){ 
+      if(this.player.bombs >= 1){
         this.throwBomb()
         this.player.bombs--
         this.gameComponent.updateBombs(this.player.bombs)
@@ -326,7 +328,7 @@ export class TheGame {
         if(fiftyPercentChanceForBombToDrop){
           let bombs = BombItems.oneBomb
           let fivePercentChanceForThreeBombs: Boolean = this.percentageChance(5)
-          if(fivePercentChanceForThreeBombs)  bombs = BombItems.threeBombs 
+          if(fivePercentChanceForThreeBombs)  bombs = BombItems.threeBombs
           targetTile.bombItemEnterTile(bombs);
         }
         let seventyPercentChanceForEssenceToDrop: Boolean = this.percentageChance(70)
@@ -382,7 +384,7 @@ export class TheGame {
           if(fiftyPercentChanceForBombToDrop){
             let bombs = BombItems.oneBomb
             let fivePercentChanceForThreeBombs: Boolean = this.percentageChance(1)
-            if(fivePercentChanceForThreeBombs)  bombs = BombItems.threeBombs 
+            if(fivePercentChanceForThreeBombs)  bombs = BombItems.threeBombs
             tilesInExplosionRadius[i].bombItemEnterTile(bombs);
           }
           let seventyPercentChanceForEssenceToDrop: Boolean = this.percentageChance(20)
@@ -394,7 +396,7 @@ export class TheGame {
           }
       }
       if(tilesInExplosionRadius[i].id !== tile.id) tilesInExplosionRadius[i].explosion()
-      
+
     }
     bomb.exploded = true
     return bomb
@@ -435,7 +437,7 @@ export class TheGame {
           playerNumber: this.serverGameData.yourPlayerNumber
         }
       })
-      
+
     }
   }
 
@@ -445,7 +447,7 @@ export class TheGame {
   }
 
 
-  
+
 
 
   /********** END ***********************/
@@ -454,98 +456,6 @@ export class TheGame {
 
   /********** DIFFERENT WAYS TO GET A TILE ***********************/
 
-
-  getRandomTile(): Tile{
-    return this.tiles[Math.round(Math.random()*(this.tiles.length - 1))]
-  }
-
-  getTileByPlayerStartLocation(playerNumber: number): Tile{
-      let describedLocation
-      switch(playerNumber){
-      case 1: describedLocation = 'top left'; break;
-      case 2: describedLocation = 'bottom right'; break;
-      case 3: describedLocation = 'top right'; break;
-      case 4: describedLocation = 'bottom left'; break;
-      }
-      return this.getTileByDescribedLocation(describedLocation)
-  }
-
-  getTileByDescribedLocation(location: string): Tile{
-    let columnAndRow
-    switch(location){
-      case 'top left': columnAndRow = {row: 3, col: 3}; break;
-      case 'bottom right': columnAndRow = {row: this.gameRows-3, col: this.gameCols-3}; break;
-      case 'top right': columnAndRow = {row: 3, col: this.gameCols-3}; break;
-      case 'bottom left': columnAndRow = {row: this.gameRows-3, col: 3}; break;
-    }
-    return this.getTileByColumnAndRow(columnAndRow.col, columnAndRow.row)
-  }
-
-  getTileByColumnAndRow(column, row): Tile{
-    for(let i = 0; this.tiles.length; i++){
-      if(this.tiles[i].column === column && this.tiles[i].row === row){
-        return this.tiles[i];
-      }
-    }
-  }
-
-  getTileRelativeToAnotherTile(baseTileId: number, direction: string): Tile{
-    let baseTile = this.getTileById(baseTileId)
-    if(direction === 'up'){
-      if(baseTile.row === 1){
-        console.log('no above tile')
-      }else{
-        return this.getTileByColumnAndRow(baseTile.column, baseTile.row - 1)
-      }
-    }
-    if(direction === 'down'){
-      if(baseTile.row === this.gameRows){
-        console.log('no below tile')
-      }else{
-        return this.getTileByColumnAndRow(baseTile.column, baseTile.row + 1)
-      }
-    }
-    if(direction === 'left'){
-      if(baseTile.column === 1){
-        console.log('no left tile')
-      }else{
-        return this.getTileByColumnAndRow(baseTile.column - 1, baseTile.row)
-      }
-    }
-    if(direction === 'right'){
-      if(baseTile.column === this.gameCols){
-        console.log('no right tile')
-      }else{
-        return this.getTileByColumnAndRow(baseTile.column + 1, baseTile.row)
-      }
-    }
-  }
-
-  getTileById(id): Tile{
-    for(let i = 0; this.tiles.length; i++){
-      if(this.tiles[i].id === id){
-        return this.tiles[i];
-      }
-    }
-  }
-
-  getTilesWithXRadius(radius: number, centerTile: Tile): Tile[]{
-    let matchingTiles: Tile[] = []
-    for(let i = 0; i < this.tiles.length; i++){
-      let ok = true;
-      if(this.tiles[i].column >= (centerTile.column - radius)){
-        if(this.tiles[i].column <= (centerTile.column + radius)){
-          if(this.tiles[i].row >= (centerTile.row - radius)){
-            if(this.tiles[i].row <= centerTile.row + radius){
-              matchingTiles.push(this.tiles[i])
-            }
-          }
-        }
-      }
-    }
-
-    return matchingTiles
-  }
 
   /********** END ***********************/
 
@@ -591,8 +501,8 @@ export class TheGame {
 
   percentageChance(percentage: number): Boolean{
     return Math.random()*100<percentage?true:false
-  } 
-  
+  }
+
   moveBoard(focusTileId){
     let focusTile = this.getTileById(focusTileId);
     let numOfTilesToTheLeft = focusTile.column - 1
@@ -601,7 +511,7 @@ export class TheGame {
     let numOfTilesAbove = focusTile.row - 1
     let tileSpaceAbove = numOfTilesAbove*this.tileSize
     this.topVal = this.windowHeight/2 - this.tileSize/2 -tileSpaceAbove
-    
+
     let delay = setTimeout(()=>{
       this.gameComponent.leftVal = this.leftVal
       this.gameComponent.topVal = this.topVal
@@ -612,7 +522,7 @@ export class TheGame {
     return this.mouseEventSubject
   }
 
-  
+
 
   /********** END ***********************/
 
