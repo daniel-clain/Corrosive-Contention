@@ -10,3 +10,11 @@ when key is released move event will stop firing
 
 player can press and release to quickly restart the move interval so that there is no interval
 - to stop the payer from doing this, every time a move order is issues a timer goes on that the player cant issue another move command for another half a seccond
+
+
+
+test
+
+
+
+
