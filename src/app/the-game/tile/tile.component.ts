@@ -1,46 +1,12 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
-import { GameController } from '../game-controller';
-import { BombItems, EssenceColours } from '../../type-definitions/type-definitions';
+import { GameService } from '../game-service';
+import { BombItem, EssenceColour, Direction } from '../../type-definitions/type-definitions';
 
 
 
 @Component({
   selector: 'app-tile',
-  template: `
-    <div class='player' 
-        [style.visibility] = "playerInTile?'visible':'hidden'"
-        [ngClass]="{
-          'left': playerFacing==='left', 
-          'right': playerFacing==='right', 
-          'down': playerFacing==='down', 
-          'up': playerFacing==='up',
-          'movingRight': movingFrom==='right',
-          'movingUp': movingFrom==='up',
-          'movingDown': movingFrom==='down',
-          'movingLeft': movingFrom==='left'
-      }"></div>
-    <div class='tree' [style.visibility] = "treeInTile?'visible':'hidden'"
-        [ngStyle]="{'background-image': 'url(assets/c-tree' + treeType + '.png)'}"></div>
-    <div class = 'essence'
-        [ngClass]="essenceColour"
-        [style.background-position-y.px]="activeEssence.bgy + 20"
-        [style.background-position-x.px]="activeEssence.bgx + 20">{{numberOfBombs}}
-    </div>
-    <div class = 'bombContainer'
-        [ngClass]="numberOfBombItems">
-    </div>
-    <div class="treeExplosion" *ngIf = "treeExplode"></div>
-    
-    <div class="centerBombExplode" *ngIf = "centerBombExplode"></div>
-    <div class="bombExplosion" *ngIf = "bombExplode"></div>
-    <div class="bombInTile"  [style.visibility] = "bombInTile?'visible':'hidden'"
-      [ngClass]="{
-        'movingRight': bombMovingFrom==='right',
-        'movingUp': bombMovingFrom==='up',
-        'movingDown': bombMovingFrom==='down',
-        'movingLeft': bombMovingFrom==='left'
-      }"></div>
-  `
+  templateUrl: 'tile.component.html'
 })
 export class TileComponent implements OnInit {
 
@@ -53,23 +19,24 @@ export class TileComponent implements OnInit {
   numberOfBombItems: string
   essenceColour: string
   treeType: number = 0
-  playerSpeed: number = 0.8
   treeExplode: Boolean
   bombExplode: Boolean
   playerFacing: string = 'down'
-  movingFrom: string
-  bombMovingFrom: string
+  movingFromVal: string
+  movingToVal: string
+  bombMovingFromVal: string
+  bombMovingToVal: string
   centerBombExplode: Boolean
   @Input()tileInstance;
   activeEssence: ActiveEssence = new ActiveEssence();
 
 
 
-  constructor(private gameController: GameController, private cdRef:ChangeDetectorRef) {
+  constructor(private gameService: GameService, private cdRef:ChangeDetectorRef) {
   }
 
   ngOnInit(){
-    this.gameController.registerTileComponent(this)
+    this.gameService.registerTileComponent(this)
   }
   setPlayerDisplay(val: Boolean){
     this.cdRef.detach();
@@ -83,10 +50,10 @@ export class TileComponent implements OnInit {
   }
 
 
-  setEssenceDisplay(val: Boolean, essenceColour: string, x: number, y: number){
+  setEssenceDisplay(val: Boolean, essenceColour: EssenceColour, x: number, y: number){
     this.cdRef.detach();
     this.essenceInTile = val;
-    this.essenceColour = essenceColour
+    this.essenceColour = EssenceColour[essenceColour]
     this.activeEssence.bgx = x
     this.activeEssence.bgy = y
 
@@ -94,10 +61,10 @@ export class TileComponent implements OnInit {
   }
 
 
-  setBombItemDisplay(val: Boolean, bombs: BombItems){
+  setBombItemDisplay(val: Boolean, bombs: BombItem){
     this.cdRef.detach();
     this.bombItemInTile = val;
-    this.numberOfBombItems = BombItems[bombs]
+    this.numberOfBombItems = BombItem[bombs]
     this.cdRef.detectChanges();
   }
 
@@ -145,33 +112,56 @@ export class TileComponent implements OnInit {
     this.treeType = type;
   }
 
-  setPlayerFacingDirection(direction){
+  setPlayerFacingDirection(direction: Direction){
       this.cdRef.detach();
-      this.playerFacing = direction;
+      this.playerFacing = Direction[direction];
       this.cdRef.detectChanges();
   }
 
 
-  moving(direction){
+  movingFrom(direction: Direction){
     this.cdRef.detach();
-    this.movingFrom = direction
+      this.setPlayerFacingDirection(direction);
+    this.movingFromVal = Direction[direction]
     this.cdRef.detectChanges();
     setTimeout(() => {
       this.cdRef.detach();
-      this.movingFrom = null;
+      this.movingFromVal = null;
       this.cdRef.detectChanges();
     },1)
   }
 
-  bombMoving(direction){
+
+  movingTo(direction: Direction){
     this.cdRef.detach();
-    this.bombMovingFrom = direction
+    this.playerFacing = Direction[direction];
+    this.movingToVal = Direction[direction]
     this.cdRef.detectChanges();
     setTimeout(() => {
       this.cdRef.detach();
-      this.bombMovingFrom = null;
+      this.movingToVal = null;
+      this.cdRef.detectChanges();
+    },400)
+  }
+  bombMovingFrom(direction: Direction){
+    this.cdRef.detach();
+    this.bombMovingFromVal = Direction[direction]
+    this.cdRef.detectChanges();
+    setTimeout(() => {
+      this.cdRef.detach();
+      this.bombMovingFromVal = null;
       this.cdRef.detectChanges();
     },1)
+  }
+  bombMovingTo(direction: Direction){
+    this.cdRef.detach();
+    this.bombMovingToVal = Direction[direction]
+    this.cdRef.detectChanges();
+    setTimeout(() => {
+      this.cdRef.detach();
+      this.bombMovingToVal = null;
+      this.cdRef.detectChanges();
+    },200)
   }
 
 

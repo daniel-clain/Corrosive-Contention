@@ -1,6 +1,6 @@
 * I want to separate common functionality into separate classes, things like getTileBy#particular method#, also all the events ariving from the server, they should all be in one place. I want all these separate classes to "extends" my main game class but i dont know how to do it without that weir error about prototype and can not be undefined.
 
-* Is there a better way to manage tile explosion hitting a player so that it doesnt have to involve gameController, what is the defined purpose/role of gameController
+* Is there a better way to manage tile explosion hitting a player so that it doesnt have to involve gameService, what is the defined purpose/role of gameService
 
 
 

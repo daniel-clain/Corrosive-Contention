@@ -17,8 +17,7 @@ app-tile{
     width: 100px;
     height: 100px;
     background: url('assets/grass.jpg');
-    border-radius: 2px;
-    border: ridge 1px rgba(37, 30, 30, 0.28);
+    box-shadow: inset 0 0 4px 0px #476a34;
     box-sizing: border-box;
     vertical-align: top;
     position: relative;
@@ -26,76 +25,105 @@ app-tile{
 }
 
 .board{
-    background: black;
+    background: #335309;
     display: block;
     font-size: 0px;
     position: absolute;
-    transition: top .5s, left .5s;
+    transition: top .4s linear, left .4s linear;
     box-shadow: 0 0 30px 11px;
 }
 
 .player{
-    position: absolute;
-    background: url('assets/facing_down.png');
-    background-size: cover;
-    width: 70%;
-    height: 110%;
-    left: 15%;
-    top: -10%;
-    background-repeat: no-repeat;
-    background-position: center;
     z-index: 40;
-    transition: top 0.4s, left 0.4s;
-    &.down{
+    transition: top 0.4s linear, left 0.4s linear;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0%;
+    top: 0%;
+
+    .playerModel{
+        position: absolute;
         background: url('assets/facing_down.png');
         background-size: cover;
+        width: 70%;
+        height: 110%;
+        left: 15%;
+        top: -10%;
+        background-repeat: no-repeat;
+        background-position: center;
+
+        &.down{
+            background: url('assets/facing_down.png');
+            background-size: cover;
+        }
+        &.up{
+            background: url('assets/facing_up.png');
+            background-size: cover;
+        }
+        &.right{
+            background: url('assets/facing_right.png');
+            width: 124%;
+            left: -6%;
+            height: 98%;
+            top: -8%;
+            background-size: cover;
+        }
+        &.left{
+            background: url('assets/facing_left.png');
+            width: 124%;
+            left: -6%;
+            height: 98%;
+            top: -8%;
+            background-size: cover;
+        }
     }
-    &.up{
-        background: url('assets/facing_up.png');
-        background-size: cover;
-    }
-    &.right{
-        background: url('assets/facing_right.png');
-        width: 124%;
-        left: -6%;
-        height: 98%;
-        top: -8%;
-        background-size: cover;
-    }
-    &.left{
-        background: url('assets/facing_left.png');
-        width: 124%;
-        left: -6%;
-        height: 98%;
-        top: -8%;
-        background-size: cover;
-    }
-    &.movingDown{
-        top: -112%;
+    
+    
+    &.fromTop{
+        top: -100%;
         transition: top 0s, left 0s;
     }
-    &.movingUp{
-        top: 102%;
+    &.fromBottom{
+        top: 100%;
         transition: top 0s, left 0s;
     }
-    &.movingRight{
-        left: -108%;
+    &.fromLeft{
+        left: -100%;
         transition: top 0s, left 0s;
     }
-    &.movingLeft{
-        left: 96%;
+    &.fromRight{
+        left: 100%;
         transition: top 0s, left 0s;
+    }
+
+    &.toTop{
+        top: -100%;
+    }
+    &.toBottom{
+        top: 100%;
+    }
+    &.toLeft{
+        left: -100%;
+    }
+    &.toRight{
+        left: 100%;
     }
 }
 
 .tree{
-    position: absolute;
-    background-size: cover;
-    width: 110%;
-    height: 115%;
-    left: -5%;
-    top: -18%;
     z-index: 40;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    .treeModel{
+        position: absolute;
+        background-size: cover;
+        width: 110%;
+        height: 115%;
+        left: -5%;
+        top: -18%;
+    }
 }
 
 .playerHud{
@@ -201,33 +229,52 @@ app-tile{
 
 }
 
-.bombInTile{
-    width: 55%;
-    height: 57%;
-    background-size: cover;
-    position: absolute;
-    top: 22%;
-    left: 22%;
-    background-image: url('assets/bomb.png');
-    transition: top 0.2s, left 0.2s;
+.bombInTile{    
     z-index: 40;
+    transition: top 0.2s linear, left 0.2s linear;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    .bombModel{        
+        width: 55%;
+        height: 57%;
+        background-size: cover;
+        position: absolute;
+        top: 22%;
+        left: 22%;
+        background-image: url('assets/bomb.png');
+    }
 
+    &.fromTop{
+        top: -100%;
+        transition: top 0s, left 0s;
+    }
+    &.fromBottom{
+        top: 100%;
+        transition: top 0s, left 0s;
+    }
+    &.fromLeft{
+        left: -100%;
+        transition: top 0s, left 0s;
+    }
+    &.fromRight{
+        left: 100%;
+        transition: top 0s, left 0s;
+    }
 
-    &.movingDown{
-        top: -78%;
-        transition: top 0s, left 0s;
+    &.toTop{
+        top: -100%;
     }
-    &.movingUp{
-        top: 78%;
-        transition: top 0s, left 0s;
+    &.toBottom{
+        top: 100%;
     }
-    &.movingRight{
-        left: -78%;
-        transition: top 0s, left 0s;
+    &.toLeft{
+        left: -100%;
     }
-    &.movingLeft{
-        left: 78%;
-        transition: top 0s, left 0s;
+    &.toRight{
+        left: 100%;
     }
 
 }

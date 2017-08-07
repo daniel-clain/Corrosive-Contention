@@ -1,9 +1,8 @@
-import { Component, HostListener } from '@angular/core';
-import { GameController } from './game-controller';
+import { Component, HostListener, ChangeDetectorRef } from '@angular/core';
+import { GameService } from './game-service';
 import { WindowDimensions, TileData } from '../type-definitions/type-definitions'
 import { Subject } from 'rxjs/Subject'
 import { Tile } from './tile/tile';
-import { TheGame } from './the-game';
 
 
 @Component({
@@ -21,8 +20,8 @@ export class GameComponent {
   
   windowResizeSubject = new Subject()
   
-  constructor(gameController: GameController) {
-    gameController.registerGameComponent(this)
+  constructor(gameService: GameService, private cdRef:ChangeDetectorRef) {
+    gameService.registerGameComponent(this)
     this.hud = new Hud()
   }
 
@@ -64,6 +63,12 @@ export class GameComponent {
      let num = 512 - tileSize
       return Math.floor(Math.random()*num)*-1;
     }
+  }
+  gameBoardMove(top: number, left: number){
+    this.cdRef.detach();
+    this.topVal = top;
+    this.leftVal = left;
+    this.cdRef.detectChanges();
   }
 
   updateHealth(health){

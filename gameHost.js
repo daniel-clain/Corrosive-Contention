@@ -4,8 +4,20 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 
 playersCurrentlySearchingForGames = []
-numberOfPlayersInEachGame = 1
+numberOfPlayersInEachGame = 2
 activeGames = []
+
+treeInitialPercentageCoverage = 40;
+
+
+gameSettings = {  
+    tileSize: 80,
+    gameCols: 9,
+    gameRows: 5,
+    initialTreeLocations: []
+}
+
+
 
 
 app.get('/', function(req, res){
@@ -80,7 +92,6 @@ processPacketFromServer = function(socket, packet){
     readyToStart(socket);
   }
   if(packet.eventName === 'player move update'){
-    console.log('player move update');
     playerMoveUpdate(socket, packet);
   }
   if(packet.eventName === 'essence and bomb enter tile'){
@@ -111,12 +122,36 @@ http.listen(3000, function(){
   console.log('Server: listening on *:3000');
 });
 
+setGameInitialRandomTreeLocationsTileIdArray = function(){
+  randomTileIds = []
+  tiles = gameSettings.gameRows*gameSettings.gameCols
+  let numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
+  for(let i = 0; i < numberOfRandomTrees; i++){
+    
+    randomTile = Math.round(Math.random()*(tiles - 1))
+    if(randomTileIds.indexOf(randomTile) === -1){
+      randomTileIds.push(randomTile)
+    }else{
+      while(randomTileIds.indexOf(randomTile) !== -1){
+        if(randomTileIds.indexOf(randomTile) === -1){
+          randomTileIds.push(randomTile)
+        }else{
+          randomTile = Math.round(Math.random()*(tiles - 1))
+        }
+      }
+    }
+  }
+  return randomTileIds
+}
+
 
 newGame = function(){
   timeNow = new Date().getTime()
+  gameSettings.initialTreeLocations = setGameInitialRandomTreeLocationsTileIdArray()
   gameObject = {
     gameId: timeNow,
-    players: []
+    players: [],
+    gameSettings: gameSettings
   }
 
   for(j=0; j < playersCurrentlySearchingForGames.length; j++){
@@ -128,7 +163,6 @@ newGame = function(){
 
   for(i=0; i < playersCurrentlySearchingForGames.length; i++){
     gameObject.yourPlayerNumber = i+1
-    console.log(gameObject)
     playersCurrentlySearchingForGames[i].emit('sentFromServer', {eventName: 'game found', data: gameObject})
   }
 

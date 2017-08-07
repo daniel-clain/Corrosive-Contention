@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ServerGameObject } from './type-definitions/type-definitions'
-import { GameController } from './the-game/game-controller';
+import { Packet, Bomb, EssenceColour, BombItem, Loot, ServerGameObject } from './type-definitions/type-definitions';
+import { ConnectionService } from './connection-service/connection-service'
 import { TheGame } from './the-game/the-game';
 
 @Component({
@@ -9,14 +9,11 @@ import { TheGame } from './the-game/the-game';
 })
 export class AppComponent implements OnInit {
 
+  serverGameObject: ServerGameObject;
   game: TheGame;
-  gameActive: Boolean;
-  test
 
-  constructor(private gameController: GameController){
-    this.gameController.listenForServerEvents().subscribe(
-      serverEvent => this.manageEventsFromServer(serverEvent)
-    )
+  constructor(private connectionService: ConnectionService){
+    this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
   }
 
   ngOnInit(){
@@ -34,13 +31,12 @@ export class AppComponent implements OnInit {
 
 
   queForGame(){
-    this.gameController.sendPacket({eventName:'searching for game'})
+    this.connectionService.sendPacket({eventName:'searching for game'})
   }
 
   gameFound(fromServerData){
-    this.game = new TheGame(this.gameController)
-    this.game.setServerGameData(<ServerGameObject>fromServerData)
-    this.gameActive = true;
+    this.serverGameObject = <ServerGameObject>fromServerData
+    this.game = new TheGame()
   }
 
 }

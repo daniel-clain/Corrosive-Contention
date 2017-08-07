@@ -3,7 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { GameComponent } from './the-game/the-game.component';
 import { TileComponent } from './the-game/tile/tile.component';
-import { GameController } from './the-game/game-controller';
+import { GameService } from './the-game/game-service';
+import { ConnectionService } from './connection-service/connection-service'
 
 @NgModule({
   declarations: [
@@ -12,7 +13,7 @@ import { GameController } from './the-game/game-controller';
     TileComponent
   ],
   imports: [BrowserModule],
-  providers: [GameController],
+  providers: [GameService, ConnectionService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
