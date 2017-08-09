@@ -125,8 +125,8 @@ http.listen(3000, function(){
 setGameInitialRandomTreeLocationsTileIdArray = function(){
   randomTileIds = []
   tiles = gameSettings.gameRows*gameSettings.gameCols
-  let numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
-  for(let i = 0; i < numberOfRandomTrees; i++){
+  numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
+  for(i = 0; i < numberOfRandomTrees; i++){
 
     randomTile = Math.round(Math.random()*(tiles - 1))
     if(randomTileIds.indexOf(randomTile) === -1){
