@@ -10,9 +10,9 @@ activeGames = []
 treeInitialPercentageCoverage = 40;
 
 
-gameSettings = {  
+gameSettings = {
     tileSize: 80,
-    gameCols: 9,
+    gameCols: 10,
     gameRows: 5,
     initialTreeLocations: []
 }
@@ -127,7 +127,7 @@ setGameInitialRandomTreeLocationsTileIdArray = function(){
   tiles = gameSettings.gameRows*gameSettings.gameCols
   let numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
   for(let i = 0; i < numberOfRandomTrees; i++){
-    
+
     randomTile = Math.round(Math.random()*(tiles - 1))
     if(randomTileIds.indexOf(randomTile) === -1){
       randomTileIds.push(randomTile)
