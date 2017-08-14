@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "node gameHost",
+    "start": "node server && node gameHost",
     "postinstall": "ng build --aot -prod",
     "build": "ng build --prod",
     "test": "ng test",
@@ -13,7 +13,7 @@
   },
   "engines": {
     "node": "7.9.0",
-    "npm": "4.20"
+    "npm": "4.2.0"
   },
   "private": true,
   "dependencies": {
@@ -27,6 +27,7 @@
     "@angular/platform-browser": "^4.0.0",
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^4.0.0",
+    "compression": "^1.7.0",
     "core-js": "^2.4.1",
     "express": "^4.15.4",
     "rxjs": "^5.1.0",
