@@ -10,7 +10,7 @@
       "check-space"
     ],
     "curly": true,
-    "eofline": true,
+    "eofline": false,
     "forin": true,
     "import-blacklist": [
       true,
@@ -24,8 +24,7 @@
     "interface-over-type-literal": true,
     "label-position": true,
     "max-line-length": [
-      true,
-      140
+      false
     ],
     "member-access": false,
     "member-ordering": [
@@ -52,7 +51,7 @@
       true,
       "ignore-params"
     ],
-    "no-shadowed-variable": true,
+    "no-shadowed-variable": false,
     "no-string-literal": false,
     "no-string-throw": true,
     "no-switch-case-fall-through": true,
@@ -65,8 +64,7 @@
       true,
       "check-open-brace",
       "check-catch",
-      "check-else",
-      "check-whitespace"
+      "check-else"
     ],
     "prefer-const": true,
     "quotemark": [

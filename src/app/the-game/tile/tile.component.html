@@ -1,4 +1,4 @@
- <div class='player' 
+ <div class='player'
     [style.visibility] = "playerInTile?'visible':'hidden'"
     [ngClass]="{
         'fromRight': movingFromVal==='right',
@@ -13,9 +13,9 @@
 
     <div class="playerModel"
         [ngClass]="{
-            'left': playerFacing==='left', 
-            'right': playerFacing==='right', 
-            'down': playerFacing==='down', 
+            'left': playerFacing==='left',
+            'right': playerFacing==='right',
+            'down': playerFacing==='down',
             'up': playerFacing==='up'}">
     </div>
 </div>
@@ -23,11 +23,11 @@
 <div class='tree' [style.visibility] = "treeInTile?'visible':'hidden'">
     <div class="treeModel"
         [ngStyle]="{'background-image': 'url(assets/c-tree' + treeType + '.png)'}">
-    </div>    
+    </div>
 </div>
 
 <div class = 'essence'
-    [ngClass]="essenceColour"
+    [ngClass]="activeEssence.color"
     [style.background-position-y.px]="activeEssence.bgy + 20"
     [style.background-position-x.px]="activeEssence.bgx + 20">{{numberOfBombs}}
 </div>

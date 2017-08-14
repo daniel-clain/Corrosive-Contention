@@ -4,7 +4,9 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "node gameHost & ng serve",
+    "start": "herokuBuild",
+    "herokuBuild": "postinstall & node gameHost",
+    "postinstall": "ng build --aot -prod",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",

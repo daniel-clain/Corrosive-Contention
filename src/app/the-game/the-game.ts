@@ -1,7 +1,7 @@
 
 import { UserControlledPlayer } from './player/user-controlled-player';
 import { ConnectionService } from '../connection-service/connection-service';
-import { GameService } from '../the-game/game-service';
+import { GameService } from './game-service';
 
 export class TheGame{
     gameService: GameService;

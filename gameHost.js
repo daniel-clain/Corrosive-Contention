@@ -3,9 +3,9 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 
-playersCurrentlySearchingForGames = []
-numberOfPlayersInEachGame = 2
-activeGames = []
+playersCurrentlySearchingForGames = [];
+numberOfPlayersInEachGame = 2;
+activeGames = [];
 
 treeInitialPercentageCoverage = 40;
 
@@ -15,7 +15,7 @@ gameSettings = {
     gameCols: 10,
     gameRows: 10,
     initialTreeLocations: []
-}
+};
 
 
 
@@ -53,19 +53,19 @@ processPacketFromClient = function(socket, packet){
   if(packet.data && packet.data.gameId){
     standardGameBroadcast(socket, packet);
   }
-}
+};
 
 
 
 
 searchingForGame = function(socket){
-  playersCurrentlySearchingForGames.push(socket)
+  playersCurrentlySearchingForGames.push(socket);
   if(playersCurrentlySearchingForGames.length === numberOfPlayersInEachGame){
     newGame()
   }else{
     console.log('Number of players searching for game: '+playersCurrentlySearchingForGames.length)
   }
-}
+};
 
 
 readyToStart = function(socket){
@@ -74,7 +74,7 @@ readyToStart = function(socket){
         data: {blerg:'narl'}
     });
     console.log('game starts after is ready to start')
-}
+};
 
 getPlayersGameObject = function(gameId){
   var game;
@@ -82,34 +82,34 @@ getPlayersGameObject = function(gameId){
     if(activeGames[i].gameId === gameId){
       game = activeGames[i];
       break;
-    } 
+    }
   }
   return game;
-}
+};
 
 broadcastToAllOtherPlayers = function(gamePlayer, socketId, packet){
-  console.log('broadcast: ',packet.eventName)
+  console.log('broadcast: ',packet.eventName);
   for(var j = 0; j < gamePlayer.length; j++){
-    if(gamePlayer[j].socketInstance.id !==socketId){ 
+    if(gamePlayer[j].socketInstance.id !==socketId){
       gamePlayer[j].socketInstance.emit('sentFromServer', packet)
     }
   }
-}
+};
 
 standardGameBroadcast = function(socket, packet){
   var game = getPlayersGameObject(packet.data.gameId);
   broadcastToAllOtherPlayers(game.players, socket.id, packet);
-}
-  
+};
+
 
 
 setGameInitialRandomTreeLocationsTileIdArray = function(){
-  randomTileIds = []
-  tiles = gameSettings.gameRows*gameSettings.gameCols
+  randomTileIds = [];
+  tiles = gameSettings.gameRows*gameSettings.gameCols;
   numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
   for(i = 0; i < numberOfRandomTrees; i++){
 
-    randomTile = Math.round(Math.random()*(tiles - 1))
+    randomTile = Math.round(Math.random()*(tiles - 1));
     if(randomTileIds.indexOf(randomTile) === -1){
       randomTileIds.push(randomTile)
     }else{
@@ -123,27 +123,27 @@ setGameInitialRandomTreeLocationsTileIdArray = function(){
     }
   }
   return randomTileIds
-}
+};
 
 
 newGame = function(){
-  timeNow = new Date().getTime()
-  gameSettings.initialTreeLocations = setGameInitialRandomTreeLocationsTileIdArray()
+  timeNow = new Date().getTime();
+  gameSettings.initialTreeLocations = setGameInitialRandomTreeLocationsTileIdArray();
   gameObject = {
     gameId: timeNow,
     players: [],
     gameSettings: gameSettings
-  }
+  };
 
   for(j=0; j < playersCurrentlySearchingForGames.length; j++){
     player = {
       playerNumber: j+1
-    }
+    };
     gameObject.players.push(player)
   }
 
   for(i=0; i < playersCurrentlySearchingForGames.length; i++){
-    gameObject.yourPlayerNumber = i+1
+    gameObject.yourPlayerNumber = i+1;
     playersCurrentlySearchingForGames[i].emit('sentFromServer', {eventName: 'game found', data: gameObject})
   }
 
@@ -152,8 +152,8 @@ newGame = function(){
     gameObject.players[q].socketInstance = playersCurrentlySearchingForGames[q]
   }
 
-  activeGames.push(gameObject)
-  console.log('Enough players ('+numberOfPlayersInEachGame+') -> Starting Game')
-  console.log('Number of active games: ', activeGames.length)
+  activeGames.push(gameObject);
+  console.log('Enough players ('+numberOfPlayersInEachGame+') -> Starting Game');
+  console.log('Number of active games: ', activeGames.length);
   playersCurrentlySearchingForGames = []
-}
+};

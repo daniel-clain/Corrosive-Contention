@@ -1,4 +1,4 @@
-import { Player } from '../the-game/player/player'
+import { Player } from '../the-game/player/player';
 
 export class Packet{
     eventName: string;
@@ -38,18 +38,14 @@ interface ServerGamePlayer{
 }
 
 
-export class Data{
-
-}
-
 export class Bomb{
-    explosionDamage: number = 2;
+    explosionDamage = 2;
     explosionSize: number;
     bounceRange: number;
     bouncesLeft: number;
     direction: Direction;
     exploded: Boolean = false;
-    playerWhoThrewIt: Player
+    playerWhoThrewIt: Player;
     constructor(direction: Direction,  explosionSize: number, bounceRange: number, player: Player){
         this.direction = direction;
         this.explosionSize = explosionSize;
@@ -61,29 +57,29 @@ export class Bomb{
 
 
 export enum BombItem {
-    "noBombs" = null,
-    "oneBomb" = 1 ,
-    "threeBombs" = 3,
+    'noBombs' = null,
+    'oneBomb' = 1 ,
+    'threeBombs' = 3,
 }
 
 export enum EssenceColour {
-    "yellow",
-    "blue",
-    "green",
-    "purple",
+    'yellow',
+    'blue',
+    'green',
+    'purple',
 
 }
 
 export class Loot{
-    bombs: BombItem
-    essenceColour: EssenceColour
+    bombs: BombItem;
+    essenceColour: EssenceColour;
 }
 
 export enum Direction {
-    "up",
-    "right",
-    "down",
-    "left",
+    'up',
+    'right',
+    'down',
+    'left',
 
 }
 
@@ -91,11 +87,11 @@ export enum Direction {
 
 export class Explosion{
     causedByPlayer: Player;
-    damage: number = 2;
+    damage = 2;
 
 }
 export class TreeAcid{
-    damage: number = 1;
+    damage = 1;
 }
 
 
@@ -106,55 +102,55 @@ export class FailOrSucceed {
 }
 
 export enum Ability{
-    "Siphon Tree",
-    "Throw Bomb",
-    "Go Invisible",
-    "Plant Vine Trap",
-    "Use ForceField",
-    "Place Fake Tree",
-    "Place Tree Mine",
-    "Speed Burst",
-    "Use Player Detector",
-    "Pickup / Drop Volatile Detector"
+    'Siphon Tree',
+    'Throw Bomb',
+    'Go Invisible',
+    'Plant Vine Trap',
+    'Use ForceField',
+    'Place Fake Tree',
+    'Place Tree Mine',
+    'Speed Burst',
+    'Use Player Detector',
+    'Pickup / Drop Volatile Detector'
 }
 
 export class Hud{
   lives: number;
   health: number;
   bombs: number;
-  blueEssence: number = 0;
-  yellowEssence: number = 0;
-  greenEssence: number = 0;
-  purpleEssence: number = 0;
-  maximumBombs: number = 3;
-  maxLives: number = 3;
-  maxHealth: number = 2;
+  blueEssence = 0;
+  yellowEssence = 0;
+  greenEssence = 0;
+  purpleEssence = 0;
+  maximumBombs = 3;
+  maxLives = 3;
+  maxHealth = 2;
 }
 
 export enum HudItem{
-    "health",
-    "lives",
-    "bombs",
-    "blueEssence",
-    "yellowEssence",
-    "greenEssence",
-    "purpleEssence",
-    "maxHealth",
-    "maxLives",
-    "maximumBombs"
+    'health',
+    'lives',
+    'bombs',
+    'blueEssence',
+    'yellowEssence',
+    'greenEssence',
+    'purpleEssence',
+    'maxHealth',
+    'maxLives',
+    'maximumBombs'
 }
 
 export class PlayerStats{
-    maxHealth: number = 6;
-    maxLives: number = 3;
+    maxHealth = 6;
+    maxLives = 3;
     health: number = this.maxHealth;
     lives: number = this.maxLives;
-    blueEssence: number = 0;
-    yellowEssence: number = 0;
-    greenEssence: number = 0;
-    purpleEssence: number = 0
-    bombThrowRange: number = 2
-    bombExplosionSize: number = 1
-    maximumBombs: number = 3
+    blueEssence = 0;
+    yellowEssence = 0;
+    greenEssence = 0;
+    purpleEssence = 0;
+    bombThrowRange = 2;
+    bombExplosionSize = 1;
+    maximumBombs = 3;
     bombs: number = this.maximumBombs;
 }

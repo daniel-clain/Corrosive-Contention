@@ -11,32 +11,31 @@ import { RegisterComponentsService } from '../register-components-service';
 })
 export class TileComponent implements OnInit {
 
-  playerInTile: Boolean
-  treeInTile: Boolean
-  essenceInTile: Boolean
-  bombInTile: Boolean
+  playerInTile: Boolean;
+  treeInTile: Boolean;
+  essenceInTile: Boolean;
+  bombInTile: Boolean;
 
-  bombItemInTile: Boolean
-  numberOfBombItems: string
-  essenceColour: string
-  treeType: number = 0
-  treeExplode: Boolean
-  playerFacing: string = 'down'
-  movingFromVal: string
-  movingToVal: string
-  bombMovingFromVal: string
-  bombMovingToVal: string
-  centerBombExplode: Boolean
+  bombItemInTile: Boolean;
+  numberOfBombItems: string;
+  treeType = 0;
+  treeExplode: Boolean;
+  playerFacing = 'down';
+  movingFromVal: string;
+  movingToVal: string;
+  bombMovingFromVal: string;
+  bombMovingToVal: string;
+  centerBombExplode: Boolean;
   @Input()tileInstance;
   activeEssence: ActiveEssence = new ActiveEssence();
 
 
 
-  constructor(private registerComponentsService: RegisterComponentsService, private cdRef:ChangeDetectorRef) {
+  constructor(private registerComponentsService: RegisterComponentsService, private cdRef: ChangeDetectorRef) {
   }
 
   ngOnInit(){
-    this.registerComponentsService.registerTileComponent(this)
+    this.registerComponentsService.registerTileComponent(this);
   }
   setPlayerDisplay(val: Boolean){
     this.cdRef.detach();
@@ -53,9 +52,11 @@ export class TileComponent implements OnInit {
   setEssenceDisplay(val: Boolean, essenceColour: EssenceColour, x: number, y: number){
     this.cdRef.detach();
     this.essenceInTile = val;
-    this.essenceColour = EssenceColour[essenceColour]
-    this.activeEssence.bgx = x
-    this.activeEssence.bgy = y
+    this.activeEssence = {
+      color: EssenceColour[essenceColour],
+      bgx: x,
+      bgy: y
+    };
 
     this.cdRef.detectChanges();
   }
@@ -64,7 +65,7 @@ export class TileComponent implements OnInit {
   setBombItemDisplay(val: Boolean, bombs: BombItem){
     this.cdRef.detach();
     this.bombItemInTile = val;
-    this.numberOfBombItems = BombItem[bombs]
+    this.numberOfBombItems = BombItem[bombs];
     this.cdRef.detectChanges();
   }
 
@@ -75,7 +76,7 @@ export class TileComponent implements OnInit {
       this.cdRef.detach();
       this.treeExplode = false;
       this.cdRef.detectChanges();
-    },400)
+    }, 400);
     this.cdRef.detectChanges();
   }
 
@@ -92,7 +93,7 @@ export class TileComponent implements OnInit {
       this.cdRef.detach();
       this.centerBombExplode = false;
       this.cdRef.detectChanges();
-    },800)
+    }, 800);
     this.cdRef.detectChanges();
 
   }
@@ -107,53 +108,28 @@ export class TileComponent implements OnInit {
       this.cdRef.detectChanges();
   }
 
-
-  movingFrom(direction: Direction){
-    this.cdRef.detach();
-      this.setPlayerFacingDirection(direction);
-    this.movingFromVal = Direction[direction]
-    this.cdRef.detectChanges();
-    setTimeout(() => {
-      this.cdRef.detach();
-      this.movingFromVal = null;
-      this.cdRef.detectChanges();
-    },1)
-  }
-
-
   movingTo(direction: Direction){
     this.cdRef.detach();
     this.playerFacing = Direction[direction];
-    this.movingToVal = Direction[direction]
+    this.movingToVal = Direction[direction];
     this.cdRef.detectChanges();
     setTimeout(() => {
       this.cdRef.detach();
       this.movingToVal = null;
       this.cdRef.detectChanges();
-    },400)
+    }, 400);
   }
-  bombMovingFrom(direction: Direction){
-    this.cdRef.detach();
-    this.bombMovingFromVal = Direction[direction]
-    this.cdRef.detectChanges();
-    setTimeout(() => {
-      this.cdRef.detach();
-      this.bombMovingFromVal = null;
-      this.cdRef.detectChanges();
-    },1)
-  }
+
   bombMovingTo(direction: Direction){
     this.cdRef.detach();
-    this.bombMovingToVal = Direction[direction]
+    this.bombMovingToVal = Direction[direction];
     this.cdRef.detectChanges();
     setTimeout(() => {
       this.cdRef.detach();
       this.bombMovingToVal = null;
       this.cdRef.detectChanges();
-    },200)
+    }, 200);
   }
-
-
 
 }
 
