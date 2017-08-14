@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  gameHostAPI: 'https://corrosive-contention.herokuapp.com:3000'
 };

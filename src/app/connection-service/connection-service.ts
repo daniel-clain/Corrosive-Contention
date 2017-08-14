@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Packet, ServerGameObject } from '../type-definitions/type-definitions';
 import * as io from 'socket.io-client';
 import { Subject } from 'rxjs/Subject';
+import { environment } from '../../environments/environment';
 
 @Injectable()
 export class ConnectionService{
@@ -11,9 +12,9 @@ export class ConnectionService{
     serverGameObject: ServerGameObject;
     gameId: number;
 
-
     constructor(){
-        this.connection = io('localhost:3000');
+      console.log('game host path: ', environment.gameHostAPI);
+        this.connection = io(environment.gameHostAPI);
         this.connection.on('sentFromServer', fromServer => this.serverEvents.next(fromServer));
         this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent));
     }
