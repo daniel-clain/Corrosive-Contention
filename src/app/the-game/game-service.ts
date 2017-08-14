@@ -1,29 +1,30 @@
 import { Injectable, HostListener } from '@angular/core';
-import { Subject } from 'rxjs/Subject'
-import { ConnectionService } from '../connection-service/connection-service'
+import { Subject } from 'rxjs';
+import { ConnectionService } from '../connection-service/connection-service';
 import { GameComponent } from './the-game.component';
-import { GameConfig } from './game-config';
+import { TileComponent } from './tile/tile.component';
+import { UserControlledPlayer } from './player/user-controlled-player';
 import { Player } from './player/player';
-import { Packet, Bomb, EssenceColour, BombItem, Loot, WindowDimensions, Direction, ServerGameObject } from '../type-definitions/type-definitions';
-import { TileComponent } from './tile/tile.component'
+import { Packet, Bomb, EssenceColour, BombItem, Loot, WindowDimensions, Direction, ServerGameObject, GameSettings, TreeAcid, Explosion, HudItem, Hud } from '../type-definitions/type-definitions';
 import { Tile } from './tile/tile'
+import { PlayerService } from './player/player-service'
+import { RegisterComponentsService } from './register-components-service';
 
 
-
-@Injectable()
-export class GameService extends GameConfig{
-
-
-    serverEventsSubject = new Subject();
-    gameComponentRegisterSubject = new Subject<GameComponent>();
-    tileRegisterSubject = new Subject<TileComponent>();
-    explosionSubject = new Subject<any>();
-    gameBoardReadySubject = new Subject()
-    windowResizeSubject = new Subject<WindowDimensions>()
+export class GameService{
+    windowResizeSubject = new Subject<WindowDimensions>();
     bombExplodeSound = new Audio('../../assets/acid-burn.mp3');
-    gameComponent
-    player: Player
-    otherPlayers: Player[]
+    
+    gameSettings: GameSettings;
+    gameComponent: GameComponent;
+    otherPlayers: Player[];
+    serverGameObject: ServerGameObject;
+    playerService: PlayerService;
+    tiles: Tile[] = [];
+    topVal: number = 0;
+    leftVal: number = 0;
+    windowWidth: number;
+    windowHeight: number;
 
     @HostListener('window:resize', ['$event'])
     onResize(event) {
@@ -34,98 +35,74 @@ export class GameService extends GameConfig{
         this.windowResizeSubject.next(windowDimensions)
     }
 
-    constructor(protected connectionService: ConnectionService){
-        super()
-        this.createPlayerInstance()
-        
+    constructor(public user: UserControlledPlayer, private connectionService: ConnectionService) {
+        this.playerService = new PlayerService(this.connectionService, this);
+        this.gameSettings = this.connectionService.serverGameObject.gameSettings;
+        this.bombExplodeSound.load()
 
-        this.listenForGameComponentRegister().subscribe(gameComponent => this.gameComponentReady(gameComponent))
-         
-        this.listenForGameBoardReady().subscribe(() => this.gameBoardReady())
-        this.listenForServerEvents().subscribe(serverEvent => this.manageEventsFromServer(serverEvent))
-
-        let serverGameObject: ServerGameObject = this.connectionService.serverGameObject
-        
-        this.gameCols = serverGameObject.gameSettings.gameCols
-        this.gameRows = serverGameObject.gameSettings.gameRows
-        this.tileSize = serverGameObject.gameSettings.tileSize
-        //this.otherPlayers = 
-        this.otherPlayers = []
-        let players = serverGameObject.players;
-
-        players.forEach(player => {
-            let otherPlayer: Player = new Player(player.playerNumber, this, this.connectionService)
-            this.otherPlayers.push(otherPlayer)
-        })
     }
-
-    createPlayerInstance(){
-        let playerNumber: number = this.connectionService.serverGameObject.yourPlayerNumber
-        this.player = new Player(playerNumber, this, this.connectionService)
-    }
-
     gameBoardReady(){
+
         this.spawnInitialTrees()
-        this.player.moveToStartLocation()
-    }
+
+        let startLocation = this.getTileByPlayerStartLocation(this.connectionService.serverGameObject.yourPlayerNumber);
+        this.user.player = new Player(this.connectionService.serverGameObject.yourPlayerNumber, startLocation, this.playerService);
+        
+        this.user.player.moveToStartLocation();
+        
+
+        this.otherPlayers = []
+        let players = this.connectionService.serverGameObject.players;
+        players.forEach(player => {
+            if(player.playerNumber !== this.user.player.playerNumber){
+                let startLocation = this.getTileByPlayerStartLocation(player.playerNumber);
+                let otherPlayer: Player = new Player(player.playerNumber, startLocation, this.playerService)
+                this.otherPlayers.push(otherPlayer);
+                otherPlayer.moveToStartLocation();
+            }
+        })
 
 
-    listenForGameBoardReady(): Subject<any>{
-        return this.gameBoardReadySubject;
-    }
 
-    
-    listenForServerEvents(): Subject<any>{
-        return this.connectionService.serverEvents;
+        let hudObject: Hud
+        hudObject = this.user.player.stats
+        this.gameComponent.setHudObject(hudObject)
     }
-
-    sendPacket(packet: Packet){
-         this.connectionService.sendPacket(packet);
-    }
-
-    registerGameComponent(gameComponent: GameComponent){
-        this.gameComponent = gameComponent
-        this.gameComponentRegisterSubject.next(gameComponent)
-    }
-    registerTileComponent(tileComponent: TileComponent){
-        this.createTileInstance(tileComponent)
-    }
-
-    listenForGameComponentRegister(): Subject<GameComponent>{
-        return this.gameComponentRegisterSubject
-    }
-
-    watchForBombExplosions(): Subject<Tile>{
-        return this.explosionSubject
-    }
-
-    bombExplosion(tile: Tile){
-        this.explosionSubject.next(tile)
-    }
-
 
     bombTravel(bomb: Bomb, tile: Tile){
         tile.bombLeaveTile(bomb.direction)
         setTimeout(() => {
             let nextTile: Tile = this.getTileRelativeToAnotherTile(tile, bomb.direction)
-            let bombResponse = nextTile.bombEnterTile(bomb, bomb.direction)
-            if(bombResponse === 'hit' || bombResponse === 'at the end'){
-                this.bombExplode(bomb, nextTile)
-            }
-            if(!bomb.exploded && bomb.bouncesLeft !== 0){
-                bomb.bouncesLeft--
-                this.bombTravel(bomb, nextTile)
+            if(nextTile){
+              let bombResponse: string = nextTile.bombEnterTile(bomb)
+              if(bombResponse === 'hit' || bombResponse === 'at the end'){
+                  this.bombExplode(bomb, nextTile)
+                  bomb.exploded = true;
+              }
+              if(!bomb.exploded && bomb.bouncesLeft !== 0){
+                  bomb.bouncesLeft--
+                  this.bombTravel(bomb, nextTile)
+              }
+            } else {
+              console.log('bomb went off the edge of the map')
             }
         }, 200)
     }
 
   spawnInitialTrees(){
-    let tileIds = this.connectionService.serverGameObject.gameSettings.initialTreeLocations
+    let tileIds = this.gameSettings.initialTreeLocations
     for(let i = 0; i < this.tiles.length; i++){
         if(tileIds.indexOf(this.tiles[i].id) >= 0){
             this.tiles[i].treeEnterTile()
         }
     }
+  }
+
+  updateHud(player: Player, hudItem: HudItem, value: number){
+    if(player.playerNumber === this.user.player.playerNumber){
+      this.gameComponent.updateHud(hudItem, value)
+    }
+
   }
 
   getPlayerByPlayerNumber(playerNumber: number): Player{
@@ -141,19 +118,36 @@ export class GameService extends GameConfig{
     console.log('player number not found')
   }
 
+  treeExplode(tile: Tile){
+    let explosion: TreeAcid = new TreeAcid();
+    let tilesInExplosionRadius: Tile[] = this.getTilesWithXRadius(1, tile)
+    this.bombExplodeSound.play()
+    for(let i = 0; i < tilesInExplosionRadius.length; i++){
+      let playerInTile: Player = tilesInExplosionRadius[i].playerInTile;
+      if(playerInTile){
+        playerInTile.hitByTreeAcid(explosion)
+      }
+    }
+  }
+
+
+
   bombExplode(bomb: Bomb, tile: Tile){
     tile.bombLeaveTile(null)
-    let tilesInExplosionRadius = this.getTilesWithXRadius(bomb.explosionSize, tile)
-    this.bombExplodeSound.load()
-    this.bombExplodeSound.play()
-    tile.centerExplosion()
+    let explosion: Explosion = {
+      damage: bomb.explosionDamage,
+      causedByPlayer: bomb.playerWhoThrewIt
+    }
+    let tilesInExplosionRadius: Tile[] = this.getTilesWithXRadius(bomb.explosionSize, tile);
+    this.bombExplodeSound.play();
+    tile.centerExplosionDisplay();
     for(let i = 0; i < tilesInExplosionRadius.length; i++){
       if(tilesInExplosionRadius[i].treeInTile){
         let fiftyPercentChanceForBombToDrop: Boolean = this.percentageChance(10)
           if(fiftyPercentChanceForBombToDrop){
-            let bombs = BombItem.oneBomb
-            let fivePercentChanceForThreeBombs: Boolean = this.percentageChance(1)
-            if(fivePercentChanceForThreeBombs)  bombs = BombItem.threeBombs
+            let bombs = BombItem.oneBomb;
+            let fivePercentChanceForThreeBombs: Boolean = this.percentageChance(1);
+            if(fivePercentChanceForThreeBombs)  bombs = BombItem.threeBombs;
             tilesInExplosionRadius[i].bombItemEnterTile(bombs);
           }
           let seventyPercentChanceForEssenceToDrop: Boolean = this.percentageChance(20)
@@ -164,26 +158,12 @@ export class GameService extends GameConfig{
             tilesInExplosionRadius[i].essenceEnterTile(randomColour, randomPositionX, randomPositionY);
           }
       }
-      if(tilesInExplosionRadius[i].id !== tile.id) tilesInExplosionRadius[i].explosion()
-
-    }    
+      tilesInExplosionRadius[i].bombExplosion(explosion);
+      
+    }
     bomb.exploded = true
   }
 
-  gameComponentReady(gameComponent: GameComponent){
-    this.gameComponent = gameComponent
-    this.gameComponent.renderGameBoard(this.gameCols, this.gameRows, this.tileSize)
-    this.gameComponent.watchForWindowResizeEvent().subscribe(
-      windowDimensions => {
-        this.windowWidth = windowDimensions.width
-        this.windowHeight = windowDimensions.height
-        this.moveBoard(this.player.playerTile)
-      }
-    )
-    
-    this.windowWidth = window.innerWidth
-    this.windowHeight = window.innerHeight
-  }
 
   
   percentageChance(percentage: number): Boolean{
@@ -192,19 +172,35 @@ export class GameService extends GameConfig{
 
   moveBoard(focusTile: Tile){
     let numOfTilesToTheLeft = focusTile.column - 1
-    let tileSpaceToLeft = numOfTilesToTheLeft*this.tileSize
-    this.leftVal = (this.windowWidth/2 - this.tileSize/2 - tileSpaceToLeft)
+    let tileSpaceToLeft = numOfTilesToTheLeft*this.gameSettings.tileSize
+    this.leftVal = (this.windowWidth/2 - this.gameSettings.tileSize/2 - tileSpaceToLeft)
     let numOfTilesAbove = focusTile.row - 1
-    let tileSpaceAbove = numOfTilesAbove*this.tileSize
-    this.topVal = (this.windowHeight/2 - this.tileSize/2 - tileSpaceAbove)
+    let tileSpaceAbove = numOfTilesAbove*this.gameSettings.tileSize
+    this.topVal = (this.windowHeight/2 - this.gameSettings.tileSize/2 - tileSpaceAbove)
     this.gameComponent.gameBoardMove(this.topVal, this.leftVal)
   }
 
-  createTileInstance(tileComponentInstance: TileComponent){
+  
+  gameComponentReady(gameComponent: GameComponent){
+    this.gameComponent = gameComponent
+    this.gameComponent.renderGameBoard(this.gameSettings.gameCols, this.gameSettings.gameRows, this.gameSettings.tileSize)
+    this.gameComponent.watchForWindowResizeEvent().subscribe(
+      windowDimensions => {
+        this.windowWidth = windowDimensions.width
+        this.windowHeight = windowDimensions.height
+        this.moveBoard(this.user.player.playerTile)
+      }
+    )
+    
+    this.windowWidth = window.innerWidth
+    this.windowHeight = window.innerHeight
+  }
+
+  tileComponentReady(tileComponentInstance: TileComponent){
     let tile: Tile = new Tile(tileComponentInstance, this)
     this.tiles.push(tile)
-    if(this.tiles.length === this.gameCols*this.gameRows){
-      this.gameBoardReadySubject.next()
+    if(this.tiles.length === this.gameSettings.gameCols*this.gameSettings.gameRows){
+      this.gameBoardReady()
     }
   }
 
@@ -230,9 +226,9 @@ export class GameService extends GameConfig{
     let columnAndRow
     switch(location){
       case 'top left': columnAndRow = {row: 3, col: 3}; break;
-      case 'bottom right': columnAndRow = {row: this.gameRows-3, col: this.gameCols-3}; break;
-      case 'top right': columnAndRow = {row: 3, col: this.gameCols-3}; break;
-      case 'bottom left': columnAndRow = {row: this.gameRows-3, col: 3}; break;
+      case 'bottom right': columnAndRow = {row: this.gameSettings.gameRows-3, col: this.gameSettings.gameCols-3}; break;
+      case 'top right': columnAndRow = {row: 3, col: this.gameSettings.gameCols-3}; break;
+      case 'bottom left': columnAndRow = {row: this.gameSettings.gameRows-3, col: 3}; break;
     }
     return this.getTileByColumnAndRow(columnAndRow.col, columnAndRow.row)
   }
@@ -245,7 +241,7 @@ export class GameService extends GameConfig{
     }
   }
 
-  getTileRelativeToAnotherTile(baseTile: Tile, direction: Direction): Tile{    
+  getTileRelativeToAnotherTile(baseTile: Tile, direction: Direction): Tile{
     if(direction === Direction.up){
       if(baseTile.row === 1){
         console.log('no above tile')
@@ -254,7 +250,7 @@ export class GameService extends GameConfig{
       }
     }
     if(direction === Direction.down){
-      if(baseTile.row === this.gameRows){
+      if(baseTile.row === this.gameSettings.gameRows){
         console.log('no below tile')
       }else{
         return this.getTileByColumnAndRow(baseTile.column, baseTile.row + 1)
@@ -268,7 +264,7 @@ export class GameService extends GameConfig{
       }
     }
     if(direction === Direction.right){
-      if(baseTile.column === this.gameCols){
+      if(baseTile.column === this.gameSettings.gameCols){
         console.log('no right tile')
       }else{
         return this.getTileByColumnAndRow(baseTile.column + 1, baseTile.row)
@@ -302,54 +298,29 @@ export class GameService extends GameConfig{
     return matchingTiles
   }
 
-
-
-  /************************** Server Events *************************************************************/
-
-  
-  manageEventsFromServer(serverEvent){
-    let eventsObject = {
-      "bomb and essence tile update": serverEvent => this.updateEssenceAndBombsInTile(serverEvent),
-      "player move update": serverEvent => this.updatePlayersLocation(serverEvent)
+  getDestinationTile(playerTile: Tile, direction: Direction): Tile{
+    let settings = this.gameSettings;
+    let destinationTile
+    if(direction === Direction.up){
+        if(playerTile.row === 1)return;
+        destinationTile = this.getTileByColumnAndRow(playerTile.column, playerTile.row - 1);
     }
-    if(eventsObject[serverEvent.eventName]){
-      eventsObject[serverEvent.eventName](serverEvent.data)
+    if(direction === Direction.right){
+        if(playerTile.column === settings.gameCols)return;
+        destinationTile = this.getTileByColumnAndRow(playerTile.column + 1, playerTile.row);
     }
-  }
-
-  
-
-  updateEssenceAndBombsInTile(data){
-    let leavingTile = this.getTileById(data.leavingTileId)
-    let enteringTile = this.getTileById(data.enteringTileId)
-    let player = this.getPlayerByPlayerNumber(data.playerNumber)
-    if(leavingTile){
-      leavingTile.playerLeaveTile(player)
+    if(direction === Direction.down){
+        if(playerTile.row === settings.gameRows)return;
+        destinationTile = this.getTileByColumnAndRow(playerTile.column, playerTile.row + 1);
     }
-    data.targetTile.essenceEnterTile(...data.essenceEnterTileData);
-    data.targetTile.bombEnterTile(data.bombs);
-  }
-
-  
-
-  updatePlayersLocation(data){
-    let leavingTile: Tile = this.getTileById(data.leavingTileId)
-    let enteringTile: Tile = this.getTileById(data.enteringTileId)
-    let player: Player = this.getPlayerByPlayerNumber(data.playerNumber)
-    leavingTile.tileComponent.setPlayerFacingDirection(data.facing);
-    enteringTile.tileComponent.setPlayerFacingDirection(data.facing);
-    player.facing = data.facing;
-
-
-    if(player.playerNumber !== this.player.playerNumber){
-        
-        leavingTile.playerLeaveTile(player)
-        setTimeout(() => {
-            enteringTile.playerEnterTile(player)
-            
-        }, 400)
-
+    if(direction === Direction.left){
+        if(playerTile.column === 1)return;
+        destinationTile = this.getTileByColumnAndRow(playerTile.column - 1, playerTile.row);
+    }
+    if(!destinationTile){
+        console.log('destination tile out of bounds')
+    }else{
+        return destinationTile
     }
   }
-
 }

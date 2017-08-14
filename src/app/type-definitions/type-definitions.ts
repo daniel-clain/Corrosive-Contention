@@ -19,35 +19,43 @@ export class TileData{
     size: number;
 }
 
+export interface GameSettings{
+    initialTreeLocations: number[];
+    tileSize: number;
+    gameCols: number;
+    gameRows: number;
+
+}
+
 export interface ServerGameObject{
     gameId: number;
     players: Array<ServerGamePlayer>;
     yourPlayerNumber: number;
-    gameSettings: any;
+    gameSettings: GameSettings;
 }
 interface ServerGamePlayer{
     playerNumber: number;
 }
 
 
-export class MoveData{
-    enteringTileId: number;
-    leavingTileId: number;
-    gameId: number;
-    playerNumber: number;
+export class Data{
+
 }
 
 export class Bomb{
+    explosionDamage: number = 2;
     explosionSize: number;
     bounceRange: number;
     bouncesLeft: number;
     direction: Direction;
     exploded: Boolean = false;
-    constructor(direction: Direction,  explosionSize: number, bounceRange: number){
+    playerWhoThrewIt: Player
+    constructor(direction: Direction,  explosionSize: number, bounceRange: number, player: Player){
         this.direction = direction;
         this.explosionSize = explosionSize;
         this.bounceRange = bounceRange;
-        this.bouncesLeft  = this.bounceRange;
+        this.bouncesLeft = this.bounceRange;
+        this.playerWhoThrewIt = player;
     }
 }
 
@@ -110,9 +118,35 @@ export enum Ability{
     "Pickup / Drop Volatile Detector"
 }
 
+export class Hud{
+  lives: number;
+  health: number;
+  bombs: number;
+  blueEssence: number = 0;
+  yellowEssence: number = 0;
+  greenEssence: number = 0;
+  purpleEssence: number = 0;
+  maximumBombs: number = 3;
+  maxLives: number = 3;
+  maxHealth: number = 2;
+}
+
+export enum HudItem{
+    "health",
+    "lives",
+    "bombs",
+    "blueEssence",
+    "yellowEssence",
+    "greenEssence",
+    "purpleEssence",
+    "maxHealth",
+    "maxLives",
+    "maximumBombs"
+}
+
 export class PlayerStats{
-    maxHealth: number = 2;
-    maxLives: number = 2;
+    maxHealth: number = 6;
+    maxLives: number = 3;
     health: number = this.maxHealth;
     lives: number = this.maxLives;
     blueEssence: number = 0;

@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { GameService } from '../game-service';
 import { BombItem, EssenceColour, Direction } from '../../type-definitions/type-definitions';
+import { RegisterComponentsService } from '../register-components-service';
 
 
 
@@ -20,7 +21,6 @@ export class TileComponent implements OnInit {
   essenceColour: string
   treeType: number = 0
   treeExplode: Boolean
-  bombExplode: Boolean
   playerFacing: string = 'down'
   movingFromVal: string
   movingToVal: string
@@ -32,11 +32,11 @@ export class TileComponent implements OnInit {
 
 
 
-  constructor(private gameService: GameService, private cdRef:ChangeDetectorRef) {
+  constructor(private registerComponentsService: RegisterComponentsService, private cdRef:ChangeDetectorRef) {
   }
 
   ngOnInit(){
-    this.gameService.registerTileComponent(this)
+    this.registerComponentsService.registerTileComponent(this)
   }
   setPlayerDisplay(val: Boolean){
     this.cdRef.detach();
@@ -82,17 +82,6 @@ export class TileComponent implements OnInit {
   setBombDisplay(val: Boolean){
     this.cdRef.detach();
     this.bombInTile = val;
-    this.cdRef.detectChanges();
-  }
-
-  doBombExplode(){
-    this.cdRef.detach();
-    this.bombExplode = true;
-    setTimeout(() => {
-      this.cdRef.detach();
-      this.bombExplode = false;
-      this.cdRef.detectChanges();
-    },800)
     this.cdRef.detectChanges();
   }
 

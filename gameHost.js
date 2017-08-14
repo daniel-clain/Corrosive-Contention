@@ -13,7 +13,7 @@ treeInitialPercentageCoverage = 40;
 gameSettings = {
     tileSize: 80,
     gameCols: 10,
-    gameRows: 5,
+    gameRows: 10,
     initialTreeLocations: []
 }
 
@@ -23,6 +23,37 @@ gameSettings = {
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
+
+
+
+http.listen(3000, function(){
+  console.log('Server: listening on *:3000');
+});
+
+io.on('connection', function(socket){
+  console.log('a user connected');
+
+  socket.on('sentFromGame', function(sentFromGame) {
+    processPacketFromClient(socket, sentFromGame)
+  });
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+});
+
+processPacketFromClient = function(socket, packet){
+  if(packet.eventName === 'searching for game'){
+    console.log('player is searching for game');
+    searchingForGame(socket);
+  }
+  if(packet.eventName === 'ready for game to start'){
+    console.log('player is ready for game to start');
+    readyToStart(socket);
+  }
+  if(packet.data && packet.data.gameId){
+    standardGameBroadcast(socket, packet);
+  }
+}
 
 
 
@@ -45,82 +76,32 @@ readyToStart = function(socket){
     console.log('game starts after is ready to start')
 }
 
-playerMoveUpdate = function(socket, packet){
+getPlayersGameObject = function(gameId){
   var game;
   for(var i = 0; i < activeGames.length; i++){
-    if(activeGames[i].gameId === packet.data.gameId){
+    if(activeGames[i].gameId === gameId){
       game = activeGames[i];
       break;
+    } 
+  }
+  return game;
+}
+
+broadcastToAllOtherPlayers = function(gamePlayer, socketId, packet){
+  console.log('broadcast: ',packet.eventName)
+  for(var j = 0; j < gamePlayer.length; j++){
+    if(gamePlayer[j].socketInstance.id !==socketId){ 
+      gamePlayer[j].socketInstance.emit('sentFromServer', packet)
     }
   }
-
-  for(var j = 0; j < game.players.length; j++){
-    game.players[j].socketInstance.emit('sentFromServer', {
-      eventName: 'player move update',
-      data: packet.data
-    })
-  }
-
 }
 
-bombAndEssenceTileUpdate = function(socket, packet){
-  var game;
-  for(var i = 0; i < activeGames.length; i++){
-    if(activeGames[i].gameId === packet.data.gameId){
-      game = activeGames[i];
-      break;
-    }
-  }
-
-  for(var j = 0; j < game.players.length; j++){
-    game.players[j].socketInstance.emit('sentFromServer', {
-      eventName: 'bomb and essence tile update',
-      data: packet.data
-    })
-  }
+standardGameBroadcast = function(socket, packet){
+  var game = getPlayersGameObject(packet.data.gameId);
+  broadcastToAllOtherPlayers(game.players, socket.id, packet);
 }
+  
 
-
-
-processPacketFromServer = function(socket, packet){
-  if(packet.eventName === 'searching for game'){
-    console.log('player is searching for game');
-    searchingForGame(socket);
-  }
-  if(packet.eventName === 'ready for game to start'){
-    console.log('player is ready for game to start');
-    readyToStart(socket);
-  }
-  if(packet.eventName === 'player move update'){
-    playerMoveUpdate(socket, packet);
-  }
-  if(packet.eventName === 'essence and bomb enter tile'){
-    console.log('essence and bomb enter tile');
-    bombAndEssenceTileUpdate(socket, packet);
-  }
-
-
-
-
-}
-
-
-
-
-
-io.on('connection', function(socket){
-  console.log('a user connected');
-
-  socket.on('sentFromGame', function(sentFromGame) {
-    processPacketFromServer(socket, sentFromGame)
-  });
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
-});
-http.listen(3000, function(){
-  console.log('Server: listening on *:3000');
-});
 
 setGameInitialRandomTreeLocationsTileIdArray = function(){
   randomTileIds = []
@@ -172,7 +153,7 @@ newGame = function(){
   }
 
   activeGames.push(gameObject)
-  console.log('Enough players -> Starting Game')
+  console.log('Enough players ('+numberOfPlayersInEachGame+') -> Starting Game')
   console.log('Number of active games: ', activeGames.length)
   playersCurrentlySearchingForGames = []
 }

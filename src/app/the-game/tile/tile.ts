@@ -2,10 +2,10 @@ import { ChangeDetectorRef } from '@angular/core';
 import { TileComponent } from '../tile/tile.component'
 import { GameService } from '../game-service';
 import { Player } from '../player/player';
-import { BombItem, EssenceColour, Bomb, Loot, Direction } from '../../type-definitions/type-definitions';
+import { BombItem, EssenceColour, Bomb, Loot, Direction, Explosion } from '../../type-definitions/type-definitions';
 
 export class Tile{
-    playerInTile: Boolean
+    playerInTile: Player
     treeInTile: Boolean
     id: number
     column: number
@@ -31,7 +31,8 @@ export class Tile{
         let loot: Loot;
         let essenceColor: EssenceColour
         let numberOfBombs: BombItem
-        this.playerInTile = true;
+        this.playerInTile = player;
+        this.tileComponent.setPlayerFacingDirection(player.facing)
         this.tileComponent.setPlayerDisplay(true);
         if(this.essenceColour in EssenceColour){
             essenceColor = this.essenceColour;
@@ -48,12 +49,16 @@ export class Tile{
 
     }
 
+    playerRemovedFromTile(player: Player){
+        this.playerInTile = null
+        this.tileComponent.setPlayerDisplay(false);
+    }
+
     playerLeaveTile(player: Player){
         this.tileComponent.movingTo(player.facing)
         setTimeout(() => {
-            this.playerInTile = false;
+            this.playerInTile = null;
             this.tileComponent.setPlayerDisplay(false);
-
         }, 400)
        
     }
@@ -88,8 +93,18 @@ export class Tile{
     }
 
     treeExplode(){
+        this.gameService
         this.tileComponent.doTreeExplode();
         this.treeLeaveTile()
+        this.gameService.treeExplode(this)
+    }
+    itemDrop(bombs: BombItem, essenceObj: any){
+        if(essenceObj && essenceObj.randomColour){
+            this.essenceEnterTile(essenceObj.randomColour, essenceObj.randomPositionX, essenceObj.randomPositionY)
+        }
+        if(bombs){
+            this.bombItemEnterTile(bombs)
+        }
     }
 
     essenceEnterTile(color: EssenceColour, x: number, y: number){
@@ -116,12 +131,12 @@ export class Tile{
     }
     bombItemLeaveTile(){
         this.bombInTile = false;
-        if(!this.essenceInTile) this.itemInTile= false;        
+        if(!this.essenceInTile) this.itemInTile= false;
         this.tileComponent.setBombItemDisplay(false, null)
     }
 
     
-    bombEnterTile(bomb: Bomb, direction){
+    bombEnterTile(bomb: Bomb): string{
         this.bombInTile = true;
         this.tileComponent.setBombDisplay(true)
         if(this.playerInTile){
@@ -130,7 +145,6 @@ export class Tile{
         }
         if(this.treeInTile){
             console.log('hit tree')
-            this.treeExplode()
             return 'hit'
         }
         if(bomb.bouncesLeft === 0){
@@ -148,32 +162,21 @@ export class Tile{
         }, 200)
     }
 
-    centerExplosion(){
-        if(this.treeInTile){
-            this.treeExplode()
-        }
-        if(this.playerInTile){
-            this.gameService.bombExplosion(this)
-        }
-        
+    centerExplosionDisplay(){
         this.bombExplodeSound.autoplay = false;
         this.bombExplodeSound.preload = 'auto';
-        
         this.tileComponent.doCenterBombExplode()
-
     }
 
-    explosion(){
+    bombExplosion(explosion: Explosion){
         if(this.treeInTile){
             this.treeExplode()
         }
+
         if(this.playerInTile){
-            this.gameService.bombExplosion(this)
+            this.playerInTile.hitByExplosion(explosion)
         }
-        
-        this.tileComponent.doBombExplode()
 
     }
-    
     
 }

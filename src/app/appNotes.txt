@@ -12,8 +12,37 @@ player can press and release to quickly restart the move interval so that there 
 - to stop the payer from doing this, every time a move order is issues a timer goes on that the player cant issue another move command for another half a seccond
 
 
+?when should the other players get an update?
+when a tree is removed
+when a tree explodes - send items dropped
+when player moves
+when player changes facing direction
+when a player throws a bomb
+when items are picked up
+when a player dies
+when a tree is siphoned
+when a player goes invisible
+when a player uses an ability
 
-test
+
+?what does the game do?
+moves the board to center on the player
+spawns trees
+
+?what does a tile do?
+renders game board entity
+animates game board entity
+
+?what does a bomb do?
+travel in one direction
+explode
+
+
+?what can a tentacle do?
+grab an enemy
+can spawn
+can despawn
+
 
 
 

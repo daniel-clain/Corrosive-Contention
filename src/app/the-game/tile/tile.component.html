@@ -37,8 +37,7 @@
 <div class="treeExplosion" *ngIf = "treeExplode"></div>
 
 <div class="centerBombExplode" *ngIf = "centerBombExplode"></div>
-<div class="bombExplosion" *ngIf = "bombExplode"></div>
-<div class="bombInTile"  [style.visibility] = "bombInTile?'visible':'hidden'"
+<div class="bombInTile" [style.visibility] = "bombInTile?'visible':'hidden'"
     [ngClass]="{
         'fromRight': bombMovingFromVal==='right',
         'fromUp': bombMovingFromVal==='up',

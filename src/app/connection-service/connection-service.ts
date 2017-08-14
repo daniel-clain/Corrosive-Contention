@@ -1,12 +1,13 @@
-
+import { Injectable } from '@angular/core';
 import { Packet, ServerGameObject } from '../type-definitions/type-definitions';
 import * as io from 'socket.io-client';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 
+@Injectable()
 export class ConnectionService{
 
     connection;
-    serverEvents = new Subject();
+    serverEvents = new Subject;
     serverGameObject: ServerGameObject;
     gameId: number;
     
@@ -18,13 +19,18 @@ export class ConnectionService{
     }
 
     sendPacket(packet: Packet){
-        if(this.serverGameObject) packet.data.gameId = this.serverGameObject.gameId;
+
+        if(this.serverGameObject){
+            packet.data.gameId = this.serverGameObject.gameId;
+        }
+        console.log('send packet - '+packet.eventName+': ',packet.data)
         this.connection.emit('sentFromGame', packet)
     }
 
 
     manageEventsFromServer(serverEvent: Packet){
         if(serverEvent.eventName === 'game found'){
+            console.log('game found, game data stored')
             this.serverGameObject = serverEvent.data;
         }
 

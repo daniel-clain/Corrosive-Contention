@@ -1,8 +1,8 @@
 import { Component, HostListener, ChangeDetectorRef } from '@angular/core';
-import { GameService } from './game-service';
-import { WindowDimensions, TileData } from '../type-definitions/type-definitions'
+import { WindowDimensions, TileData, Hud, HudItem } from '../type-definitions/type-definitions'
 import { Subject } from 'rxjs/Subject'
 import { Tile } from './tile/tile';
+import { RegisterComponentsService } from './register-components-service';
 
 
 @Component({
@@ -20,8 +20,8 @@ export class GameComponent {
   
   windowResizeSubject = new Subject()
   
-  constructor(gameService: GameService, private cdRef:ChangeDetectorRef) {
-    gameService.registerGameComponent(this)
+  constructor(private registerComponentsService: RegisterComponentsService, private cdRef:ChangeDetectorRef) {
+    registerComponentsService.registerGameComponent(this)
     this.hud = new Hud()
   }
 
@@ -33,6 +33,7 @@ export class GameComponent {
     }
     this.windowResizeSubject.next(windowDimensions);
   }
+  
   
   watchForWindowResizeEvent(): Subject<WindowDimensions>{
     return this.windowResizeSubject
@@ -71,37 +72,20 @@ export class GameComponent {
     this.cdRef.detectChanges();
   }
 
-  updateHealth(health){
-    this.hud.health = health
+  updateHud(hudItem: HudItem, value: number){
+    console.log('hud update')
+    this.cdRef.detach();
+    this.hud[HudItem[hudItem]] = value;
+    this.cdRef.detectChanges();
   }
-  updateLives(lives){
-    this.hud.lives = lives
-  }
-  updateBombs(bombs){
-    this.hud.bombs = bombs
-  }
-  updateBlue(blue){
-    this.hud.blue = blue
-  }
-  updateGreen(green){
-    this.hud.green = green
-  }
-  updateYellow(yellow){
-    this.hud.yellow = yellow
-  }
-  updatePurple(purple){
-    this.hud.purple = purple
+
+  setHudObject(hudObject: Hud){
+    this.cdRef.detach();
+    this.hud = hudObject;
+    this.cdRef.detectChanges();
   }
 }
 
 
-class Hud{
-  lives: number;
-  health: number;
-  bombs: number;
-  blue: number = 0;
-  yellow: number = 0;
-  green: number = 0;
-  purple: number = 0;
-}
+
 

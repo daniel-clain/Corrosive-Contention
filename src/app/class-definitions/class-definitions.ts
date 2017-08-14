@@ -1,4 +1,4 @@
-import { Direction, Explosion, FailOrSucceed, Ability, TreeAcid, PlayerStats, Loot } from '../type-definitions/type-definitions'
+import { Direction, Explosion, FailOrSucceed, Ability, TreeAcid, PlayerStats, Loot, Packet } from '../type-definitions/type-definitions'
 import { Tile } from '../the-game/tile/tile';
 import { Player } from'../the-game/player/player';
 
@@ -10,17 +10,32 @@ export interface PlayerDefinition{
     startLocation: Tile;
     playerIsOut: Boolean;
     ableToMove: Boolean;
-    move(tile: Tile): FailOrSucceed;
+    move(direction: Direction): FailOrSucceed;
     useAbility(ability: Ability): FailOrSucceed;
     throwBomb(): FailOrSucceed;
     siphonTree(): FailOrSucceed;
-    keyboardEvents(key: string, action: string);
     hitByExplosion(explosion: Explosion);
     hitByTreeAcid(explosion: TreeAcid);
-    setFacingDirection()
+    setFacingDirection(direction: Direction)
     playerHealthChange(health: number)
     playerDies()
     pickUpLoot(loot: Loot)
+}
+
+export interface PlayerServiceDefinition{
+    move(direction: Direction, player: Player): FailOrSucceed;
+    useAbility(ability: Ability, player: Player): FailOrSucceed;
+    throwBomb(player: Player): FailOrSucceed;
+    siphonTree(player: Player): FailOrSucceed;
+    hitByExplosion(explosion: Explosion, player: Player);
+    hitByTreeAcid(explosion: TreeAcid, player: Player);
+    setFacingDirection(direction: Direction, player: Player)
+    playerHealthChange(health: number, player: Player)
+    playerDies(player: Player)
+    pickUpLoot(loot: Loot, player: Player)
+    manageEventsFromServer(serverEvent: Packet)
+    playerMoveEvent(data: any)
+
 }
 
 
@@ -30,4 +45,5 @@ export interface UserControlledPlayerDefinition{
     connectedToHost: Boolean;
     queForGame()
     setName(name: string)
+    keyboardEvents(key: string, action: string);
 }

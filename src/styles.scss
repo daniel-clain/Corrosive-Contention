@@ -188,19 +188,6 @@ app-tile{
 
 }
 
-.bombExplosion{
-    width: 64px;
-    height: 64px;
-    background-size: cover;
-    position: absolute;
-    top: 15px;
-    left: 17px;
-    z-index: 20;
-    background-image: url('assets/multiSplatter.gif');
-
-
-}
-
 
 
 .centerBombExplode{
@@ -212,9 +199,8 @@ app-tile{
     left: -70%;
     z-index: 50;
     background-image: url('assets/multiSplatter.gif');
-
-
 }
+
 
 .treeExplosion{
     width: 150px;
@@ -225,11 +211,10 @@ app-tile{
     left: -22px;
     z-index: 20;
     background-image: url('assets/redSplatter.gif');
-
-
 }
 
-.bombInTile{    
+
+.bombInTile{
     z-index: 40;
     transition: top 0.2s linear, left 0.2s linear;
     width: 100px;
