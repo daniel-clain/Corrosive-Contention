@@ -1,7 +1,6 @@
 import { Component, HostListener, ChangeDetectorRef } from '@angular/core';
 import { WindowDimensions, TileData, Hud, HudItem } from '../type-definitions/type-definitions';
 import { Subject } from 'rxjs/Subject';
-import { Tile } from './tile/tile';
 import { RegisterComponentsService } from './register-components-service';
 
 
@@ -17,7 +16,7 @@ export class GameComponent {
   leftVal = 0;
   hud;
 
-  windowResizeSubject = new Subject();
+  windowResizeSubject = new Subject<WindowDimensions>();
 
   constructor(private registerComponentsService: RegisterComponentsService, private cdRef: ChangeDetectorRef) {
     registerComponentsService.registerGameComponent(this);

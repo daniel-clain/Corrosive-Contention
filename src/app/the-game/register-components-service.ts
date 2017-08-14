@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GameComponent } from './the-game.component';
 import { TileComponent } from './tile/tile.component';
-import { Subject } from 'rxjs/subject';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class RegisterComponentsService{

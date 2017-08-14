@@ -15,7 +15,6 @@ export class TileComponent implements OnInit {
   treeInTile: Boolean;
   essenceInTile: Boolean;
   bombInTile: Boolean;
-
   bombItemInTile: Boolean;
   numberOfBombItems: string;
   treeType = 0;

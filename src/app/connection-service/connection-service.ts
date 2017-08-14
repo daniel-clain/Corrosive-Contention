@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Packet, ServerGameObject } from '../type-definitions/type-definitions';
 import * as io from 'socket.io-client';
-import { Subject } from 'rxjs/subject';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class ConnectionService{
