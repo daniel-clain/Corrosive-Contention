@@ -1,6 +1,6 @@
 var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var server = app.listen(3000);
+var io = require('socket.io')(server);
 var fs = require('fs');
 
 playersCurrentlySearchingForGames = [];
@@ -24,11 +24,6 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-
-
-http.listen(3000, function(){
-  console.log('Server: listening on *:3000');
-});
 
 io.on('connection', function(socket){
   console.log('a user connected');
@@ -54,8 +49,6 @@ processPacketFromClient = function(socket, packet){
     standardGameBroadcast(socket, packet);
   }
 };
-
-
 
 
 searchingForGame = function(socket){
