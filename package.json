@@ -5,6 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng build --aot -prod & node gameHost",
+    "preinstall": "npm install -g @angular/cli",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
