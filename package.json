@@ -4,8 +4,9 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --aot -prod & node gameHost",
+    "start": "node gameHost && http-server",
     "preinstall": "npm install -g http-server",
+    "postinstall": "ng build && mv dist/* .",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
