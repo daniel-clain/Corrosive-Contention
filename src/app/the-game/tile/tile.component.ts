@@ -14,6 +14,7 @@ import { PlayerDefinition, GameBoardEntity } from '../../definitions/interface-d
 })
 
 
+
 export class Tile implements OnInit, TileInterface {
 
   playerInTile: Player;
@@ -32,7 +33,6 @@ export class Tile implements OnInit, TileInterface {
   movingToVal: string
   bombMovingFromVal: string
   bombMovingToVal: string
-
 
   treeExplodeAnimation: Boolean = false;
   centerBombExplodeAnimation: Boolean = false;
@@ -74,8 +74,6 @@ export class Tile implements OnInit, TileInterface {
     
     this.cdRef.detectChanges();
   }
-
-  
 
     entityEnterTile(entity: GameBoardEntity){
       this.cdRef.detach();
@@ -145,18 +143,27 @@ export class Tile implements OnInit, TileInterface {
     }
 
   doTreeExplode(){
+    this.cdRef.detach();
     this.treeExplodeAnimation = true;
+    this.cdRef.detectChanges();
+
     setTimeout(() => {
+    this.cdRef.detach();
       this.treeExplodeAnimation = false;
+    this.cdRef.detectChanges();
     },400)
   }
 
   doCenterBombExplode(){
+    this.cdRef.detach();
     this.centerBombExplodeAnimation = true;
-    setTimeout(() => {
-      this.centerBombExplodeAnimation = false;
-    },800)
     this.cdRef.detectChanges();
+
+    setTimeout(() => {
+      this.cdRef.detach();
+      this.centerBombExplodeAnimation = false;
+      this.cdRef.detectChanges();
+    }, 800);
   }
   
   bombExplosion(explosion: Explosion){
@@ -212,7 +219,6 @@ export class Tile implements OnInit, TileInterface {
         itemsDropped: {loot: loot}
     })
   }
-
 }
 
 class ActiveEssence {

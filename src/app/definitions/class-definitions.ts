@@ -35,38 +35,36 @@ export interface GameSettings{
     tileSize: number;
     gameCols: number;
     gameRows: number;
-
 }
-
-
-
 
 
 export enum BombItem {
-    "noBombs" = null,
-    "oneBomb" = 1 ,
-    "threeBombs" = 3,
+    'noBombs' = null,
+    'oneBomb' = 1 ,
+    'threeBombs' = 3,
 }
 
 export enum EssenceColour {
-    "yellow",
-    "blue",
-    "green",
-    "purple",
+    'yellow',
+    'blue',
+    'green',
+    'purple',
 
 }
+
 
 export class Loot implements GameBoardEntity{
     bombs: BombItem
     essenceColour: EssenceColour
     essencePosition: { x: number, y: number }
+
 }
 
 export enum Direction {
-    "up",
-    "right",
-    "down",
-    "left",
+    'up',
+    'right',
+    'down',
+    'left',
 
 }
 
@@ -74,11 +72,11 @@ export enum Direction {
 
 export class Explosion{
     causedByPlayer: Player;
-    damage: number = 2;
+    damage = 2;
 
 }
 export class TreeAcid{
-    damage: number = 1;
+    damage = 1;
 }
 
 
@@ -89,16 +87,16 @@ export class FailOrSucceed {
 }
 
 export enum Ability{
-    "Siphon Tree",
-    "Throw Bomb",
-    "Go Invisible",
-    "Plant Vine Trap",
-    "Use ForceField",
-    "Place Fake Tree",
-    "Place Tree Mine",
-    "Speed Burst",
-    "Use Player Detector",
-    "Pickup / Drop Volatile Detector"
+    'Siphon Tree',
+    'Throw Bomb',
+    'Go Invisible',
+    'Plant Vine Trap',
+    'Use ForceField',
+    'Place Fake Tree',
+    'Place Tree Mine',
+    'Speed Burst',
+    'Use Player Detector',
+    'Pickup / Drop Volatile Detector'
 }
 
 export class PlayerStats{
@@ -146,5 +144,4 @@ export class PlayerHud{
   maxLives: number = 3;
   maxHealth: number = 2;
 }
-
 

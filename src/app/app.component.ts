@@ -3,8 +3,6 @@ import { ConnectionService } from './connection-service/connection-service';
 import { Packet, ServerGameObject} from './definitions/class-definitions';
 import { UserControlledPlayerDefinition }  from './definitions/interface-definitions';
 
-
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
@@ -15,7 +13,6 @@ export class AppComponent implements OnInit, UserControlledPlayerDefinition {
   connectionService: ConnectionService
   serverGameObject: ServerGameObject
   
-
   name: string = 'name not set';
 
   constructor(){
@@ -32,14 +29,14 @@ export class AppComponent implements OnInit, UserControlledPlayerDefinition {
   }
 
   manageEventsFromServer(serverEvent){
-    let eventsObject = {
-      "game found": serverEvent => this.gameFound(serverEvent)
-    }
-    if(eventsObject[serverEvent.eventName]){
-      eventsObject[serverEvent.eventName](serverEvent.data)
+    const eventsObject = {
+      'game found': serverEvent => this.gameFound(serverEvent)
+    };
+    if (eventsObject[serverEvent.eventName]){
+      eventsObject[serverEvent.eventName](serverEvent.data);
     }
   }
-    
+  
   gameFound(fromServerData: ServerGameObject){
       this.serverGameObject = fromServerData
       this.gameOn = true
@@ -57,8 +54,4 @@ export class AppComponent implements OnInit, UserControlledPlayerDefinition {
   joinExistingGame(){
 
   }
-
-    
-
-
 }

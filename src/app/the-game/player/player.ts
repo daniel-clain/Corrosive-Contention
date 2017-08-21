@@ -84,10 +84,8 @@ export class Player implements PlayerDefinition, GameBoardEntity{
             }
 
             return <FailOrSucceed>{ FailOrSucceed: false, reason: 'invalid move' }
-
         }
     }
-
 
     useAbility(ability: Ability): FailOrSucceed{
         if(ability === Ability['Siphon Tree']){
@@ -181,5 +179,4 @@ export class Player implements PlayerDefinition, GameBoardEntity{
             this.theGame.moveBoard(this.playerTile);
         }
     }
-
 }

@@ -13,7 +13,6 @@ import { ManageServerUpdates } from './manage-sever-updates';
 
 
 
-
 @Component({
   selector: 'the-game',
   templateUrl: 'the-game.component.html'
@@ -48,8 +47,8 @@ export class TheGame implements OnInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
-    let windowDimensions: WindowDimensions = {
-      height: event.target.innerHeight, 
+    const windowDimensions: WindowDimensions = {
+      height: event.target.innerHeight,
       width: event.target.innerWidth
     }
     if(this.gameReady){
