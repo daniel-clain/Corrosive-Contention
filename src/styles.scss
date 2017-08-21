@@ -263,3 +263,68 @@ app-tile{
     }
 
 }
+
+
+
+.abilitiesHud{
+    
+    background-image: url('assets/abilityHudBg.jpg');
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: 100px;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: cursive;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 49;
+    line-height: 1.6;
+    text-align: center;
+
+    .essenceGlowing{
+        width: 250px;
+        height: 250px;
+        background-size: cover;
+
+        display: inline-block;
+        cursor: pointer;
+        transition: margin-top 1s linear;
+        
+        &:hover{
+            filter: saturate(1.1);
+            animation: none;
+        }
+
+        &.yellow{
+            background-image: url('assets/e-yellow.png');
+        }
+        &.blue{
+            background-image: url('assets/e-blue.png');
+        }
+        &.green{
+            background-image: url('assets/e-green.png');
+        }
+        &.purple{
+            background-image: url('assets/e-purple.png');
+        }
+        .lvlUpOption{
+            display:none;
+            position:absolute;
+            top: -100px;
+            width:150px;
+            height:100px;
+            background: #fff;
+            text-align: center;
+            padding: 10px 0;
+        
+
+
+        }
+        .lvlUpOption:hover{
+            display: block;
+        }
+    }
+}

@@ -1,5 +1,5 @@
 <div class = 'pre-game-interface' *ngIf='!gameOn'></div>
-<the-game *ngIf='gameOn'></the-game>
+<the-game *ngIf='gameOn' [serverGameObject]="serverGameObject" [connectionService]="connectionService"></the-game>
 
 
 

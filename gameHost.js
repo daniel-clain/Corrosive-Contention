@@ -4,7 +4,7 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 
 playersCurrentlySearchingForGames = []
-numberOfPlayersInEachGame = 2
+numberOfPlayersInEachGame = 1
 activeGames = []
 
 treeInitialPercentageCoverage = 40;

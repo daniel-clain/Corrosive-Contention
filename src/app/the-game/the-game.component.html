@@ -1,26 +1,18 @@
-<div class='playerHud'>
-    <label>Health: </label><span [textContent]="hud.health"></span><br>
-    <label>Lives: </label><span [textContent]="hud.lives"></span><br>
-    <label>Bombs: </label><span [textContent]="hud.bombs"></span><br>
-    <label>Blue: </label><span [textContent]="hud.blueEssence"></span><br>
-    <label>Green: </label><span [textContent]="hud.greenEssence"></span><br>
-    <label>Yellow: </label><span [textContent]="hud.yellowEssence"></span><br>
-    <label>Purple: </label><span [textContent]="hud.purpleEssence"></span><br>
-</div>
+<game-hud [theGame] = "this"></game-hud>
 
 <div class='board'
-*ngIf='showBoard'
-[style.width.px] = "boardWidth"
+[style.width.px] = "serverGameObject.gameSettings.tileSize * serverGameObject.gameSettings.gameCols"
 [style.top.px] = "topVal"
 [style.left.px] = "leftVal">
     <app-tile
-    *ngFor = "let tile of tiles"
-    [class] = "'id'+tile.id+' col'+tile.column+' row'+tile.row"
+    *ngFor = "let tile of tileData"
+    [tileInstance] = "tile"
+    [theGame] = "this"
     [style.background-position-y.px]="tile.bgy"
     [style.background-position-x.px]="tile.bgx"
-    [tileInstance] = 'tile'
     [style.width.px]="tile.size"
-    [style.height.px]="tile.size">
+    [style.height.px]="tile.size"
+    [class] = "'id'+tile.id+' col'+tile.column+' row'+tile.row">
     </app-tile>
 </div>
 

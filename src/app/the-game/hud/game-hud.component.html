@@ -1,0 +1,48 @@
+<div class='playerHud' *ngIf="playerStats">
+    <label>Health: </label><span [textContent]="playerStats.health"></span><br>
+    <label>Lives: </label><span [textContent]="playerStats.lives"></span><br>
+    <label>Bombs: </label><span [textContent]="playerStats.bombs"></span><br>
+    <label>Blue: </label><span [textContent]="playerStats.blueEssence"></span><br>
+    <label>Green: </label><span [textContent]="playerStats.greenEssence"></span><br>
+    <label>Yellow: </label><span [textContent]="playerStats.yellowEssence"></span><br>
+    <label>Purple: </label><span [textContent]="playerStats.purpleEssence"></span><br>
+</div>
+
+<div class="abilitiesHud">
+    <div class='yellow essenceGlowing' *ngIf="essenceShimmerActive.yellow.active">
+        <div class="lvlUpOption"
+            *ngFor='let ability of yellowEssenceAbilities'
+            ng-class="ability">{{ability}}
+        </div>
+    </div>
+
+    <div class='green essenceGlowing' *ngIf="essenceShimmerActive.green.active">
+        <div class="lvlUpOption"
+            *ngFor='let ability of greenEssenceAbilities'
+            (click)="levelUp(ability)"
+            ng-class="ability">{{ability}}
+        </div>
+    </div>
+
+    <div class='purple essenceGlowing' *ngIf="essenceShimmerActive.purple.active" [style.margin-top.px]="upAndDown?100:0">
+        <div class="lvlUpOption"
+            *ngFor='let ability of purpleEssenceAbilities'
+            (click)="levelUp(ability)"
+            ng-class="ability">{{ability}}
+        </div>
+    </div>
+
+    <div class='blue essenceGlowing' *ngIf="essenceShimmerActive.blue.active">
+        <div class="lvlUpOption"
+            *ngFor='let ability of blueEssenceAbilities'
+            (click)="levelUp(ability)"
+            ng-class="ability">{{ability}}
+        </div>
+    </div>
+
+    <div *ngFor="let ability of abilities"
+        (click)="useAbility(ability)"
+        ng-class="{abilityOnCooldown: ability.onCooldown}"
+        class="abilities">
+    </div>
+</div>
