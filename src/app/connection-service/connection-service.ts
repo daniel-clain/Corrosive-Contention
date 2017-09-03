@@ -22,7 +22,7 @@ export class ConnectionService{
         if(this.serverGameObject){
             packet.data.gameId = this.serverGameObject.gameId;
         }
-        console.log('send packet - ' + packet.eventName + ': ', packet.data);
+        //console.log('send packet - ' + packet.eventName + ': ', packet.data);
         this.connection.emit('sentFromGame', packet);
     }
 

@@ -1,4 +1,4 @@
-import { Direction, Explosion, Ability, TreeAcid, PlayerStats, Loot, AbilitiesHud, PlayerHud} from './class-definitions';
+import { Explosion, TreeAcid, PlayerStats, Loot, PlayerHud} from './class-definitions';
 import { FailOrSucceed, Packet } from './class-definitions';
 import { Tile } from '../the-game/tile/tile.component';
 import { Player } from'../the-game/player/player';
@@ -8,17 +8,16 @@ import { Tree } from '../the-game/game-board-entities/tree';
 
 export interface PlayerDefinition{
     playerNumber: number;
-    facing: Direction;
-    playerTile: Tile;
+    facing: string;
+    tile: Tile;
     stats: PlayerStats
     startLocation: Tile;
     playerIsOut: Boolean;
     ableToMove: Boolean;
-    move(direction: Direction): FailOrSucceed;
-    useAbility(ability: Ability): FailOrSucceed;
+    move(direction: string);
+    useAbility(ability: string);
     hitByExplosion(explosion: Explosion);
     hitByTreeAcid(explosion: TreeAcid);
-    setFacingDirection(direction: Direction)
     playerHealthChange(health: number)
     playerDies()
     pickUpLoot(loot: Loot)
@@ -42,4 +41,7 @@ export interface TileInterface{
 }
 
 export interface GameBoardEntity{
+    tile: Tile;
+    remove();
 }
+

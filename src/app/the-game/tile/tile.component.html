@@ -2,16 +2,12 @@
  <div class='player' 
     *ngIf = "playerInTile" 
     [ngClass]="{
-    'fromRight': movingToVal === 'left', 
-    'fromTop': movingToVal === 'down', 
-    'fromBottom': movingToVal === 'up', 
-    'fromLeft': movingToVal === 'right', 
-    'toRight': movingToVal === 'right', 
-    'toTop': movingToVal === 'up', 
-    'toBottom': movingToVal === 'down', 
-    'toLeft': movingToVal === 'left'
+    'toRight': movingToDirection === 'right', 
+    'toTop': movingToDirection === 'up', 
+    'toBottom': movingToDirection === 'down', 
+    'toLeft': movingToDirection === 'left'
     }">
-    <div class="playerModel" [ngClass]="playerFacing">
+    <div class="playerModel" [class]="playerInTile.facing" [ngClass]="{'takingDamage': takingDamage}">
     </div>
 </div>
 
@@ -35,7 +31,14 @@
     </div>
 </div>
 
-<div class="bombInTile" *ngIf = "bombInTile" [ngClass]="{ 'fromRight': bombMovingFromVal === 'right', 'fromUp': bombMovingFromVal === 'up', 'fromDown': bombMovingFromVal === 'down', 'fromLeft': bombMovingFromVal === 'left', 'toRight': bombMovingFromVal === 'right', 'toTop': bombMovingFromVal === 'up', 'toBottom': bombMovingFromVal === 'down', 'toLeft': bombMovingFromVal === 'left' }">
+<div class="bombInTile" 
+    *ngIf = "bombInTile" 
+    [ngClass]="{
+    'toRight': bombMovingToVal === 'right', 
+    'toTop': bombMovingToVal === 'up', 
+    'toBottom': bombMovingToVal === 'down', 
+    'toLeft': bombMovingToVal === 'left'
+    }">
     <div class='bombModel'></div>
 </div>
 

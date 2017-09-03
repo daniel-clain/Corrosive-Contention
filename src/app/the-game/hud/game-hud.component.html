@@ -9,34 +9,47 @@
 </div>
 
 <div class="abilitiesHud">
-    <div class='yellow essenceGlowing' *ngIf="essenceShimmerActive.yellow.active">
-        <div class="lvlUpOption"
-            *ngFor='let ability of yellowEssenceAbilities'
-            ng-class="ability">{{ability}}
+    <div class='yellow essenceGlowing' *ngIf="essenceShimmerActive.yellow.active" [ngClass]="essenceShimmerActive.yellow.upAndDown"
+        (click)="glowingEssenceClickedOn('yellow')">
+        <div class="lvlUpOptions" *ngIf="essenceShimmerActive.yellow.displayUpgrades">
+            <div class="lvlUpOption"
+                *ngFor='let ability of yellowEssenceAbilities'
+                (click)="levelUp('yellow', ability)"
+                [innerHTML]="ability.name">
+            </div>
         </div>
     </div>
 
-    <div class='green essenceGlowing' *ngIf="essenceShimmerActive.green.active">
-        <div class="lvlUpOption"
-            *ngFor='let ability of greenEssenceAbilities'
-            (click)="levelUp(ability)"
-            ng-class="ability">{{ability}}
+    <div class='green essenceGlowing' *ngIf="essenceShimmerActive.green.active" [ngClass]="essenceShimmerActive.green.upAndDown"
+        (click)="glowingEssenceClickedOn('green')">
+        <div class="lvlUpOptions" *ngIf="essenceShimmerActive.green.displayUpgrades">
+            <div class="lvlUpOption"
+                *ngFor='let ability of greenEssenceAbilities'
+                (click)="levelUp('green', ability)"
+                [innerHTML]="ability.name">
+            </div>
         </div>
     </div>
 
-    <div class='purple essenceGlowing' *ngIf="essenceShimmerActive.purple.active" [style.margin-top.px]="upAndDown?100:0">
-        <div class="lvlUpOption"
-            *ngFor='let ability of purpleEssenceAbilities'
-            (click)="levelUp(ability)"
-            ng-class="ability">{{ability}}
+    <div class='purple essenceGlowing' *ngIf="essenceShimmerActive.purple.active" [ngClass]="essenceShimmerActive.purple.upAndDown"
+        (click)="glowingEssenceClickedOn('purple')">
+        <div class="lvlUpOptions" *ngIf="essenceShimmerActive.purple.displayUpgrades">
+            <div class="lvlUpOption"
+                *ngFor='let ability of purpleEssenceAbilities'
+                (click)="levelUp('purple', ability)"
+                [innerHTML]="ability.name">
+            </div>
         </div>
     </div>
 
-    <div class='blue essenceGlowing' *ngIf="essenceShimmerActive.blue.active">
-        <div class="lvlUpOption"
-            *ngFor='let ability of blueEssenceAbilities'
-            (click)="levelUp(ability)"
-            ng-class="ability">{{ability}}
+    <div class='blue essenceGlowing' *ngIf="essenceShimmerActive.blue.active" [ngClass]="essenceShimmerActive.blue.upAndDown"
+        (click)="glowingEssenceClickedOn('blue')">
+        <div class="lvlUpOptions" *ngIf="essenceShimmerActive.blue.displayUpgrades">
+            <div class="lvlUpOption"
+                *ngFor='let ability of blueEssenceAbilities'
+                (click)="levelUp('blue', ability)"
+                [innerHTML]="ability.name">
+            </div>
         </div>
     </div>
 

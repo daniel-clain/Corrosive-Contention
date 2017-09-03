@@ -1,6 +1,5 @@
-
 import { PlayerDefinition, GameBoardEntity } from '../../definitions/interface-definitions';
-import { Direction, Explosion, FailOrSucceed, Ability, TreeAcid, PlayerStats, PlayerStatsItem, EssenceColour, BombItem, Loot } from '../../definitions/class-definitions'
+import { Explosion, FailOrSucceed, TreeAcid, PlayerStats, Loot } from '../../definitions/class-definitions'
 import { Tile } from '../../the-game/tile/tile.component';
 import { StaticMethods } from '../../definitions/static-methods'
 import { TileService } from '../tile-service';
@@ -10,15 +9,20 @@ import { Player } from '../player/player';
 export class Tree implements GameBoardEntity{
     isVolatile: Boolean;
     treeModelType
+    tile: Tile;
+    teeExplodeSound = new Audio('../../assets/acid_burn_sound.mp3');
     
 
-    constructor(private tile: Tile, treeModelType, isVolatile: Boolean, private tileService: TileService){
+    constructor( tile: Tile, treeModelType, isVolatile: Boolean, private tileService: TileService){
+        this.tile = tile;
         this.treeModelType = treeModelType;
         this.isVolatile = isVolatile
+        this.teeExplodeSound.load()
     }
 
     treeExplode(){
         let explosion: TreeAcid = new TreeAcid();
+        this.teeExplodeSound.play()
         let tilesInExplosionRadius: Tile[] = this.tileService.getTilesWithXRadius(1, this.tile)
         for(let i = 0; i < tilesInExplosionRadius.length; i++){
             let playerInTile: Player = tilesInExplosionRadius[i].playerInTile;
@@ -26,18 +30,23 @@ export class Tree implements GameBoardEntity{
                 playerInTile.hitByTreeAcid(explosion)
             }
         }
-        this.spawnItems('explode')
-        this.tile.entityLeaveTile(this)
+        this.remove()
 
     };
 
     treeIsSiphoned(){
         this.spawnItems('siphon')
+        this.remove()
+    }
+
+    remove(){
+        this.tile.entityRemovedFromTile(this)
     }
 
     private spawnItems(spawnType){
-        let bombsItem: BombItem
-        let essenceColour: EssenceColour
+        let bombsItem: string
+        let essenceColour: string
+        let essencePosition: {x:number, y:number};
 
         let bombItemDrop: Boolean;
         let essenceItemDrop: Boolean;
@@ -45,7 +54,6 @@ export class Tree implements GameBoardEntity{
         let oneBombChance: number;
         let threeBombChance: number;
         let essenceChance: number;
-        let essencePosition: {x:number, y:number};
 
 
         if(spawnType === 'siphon'){
@@ -62,27 +70,29 @@ export class Tree implements GameBoardEntity{
         
         bombItemDrop = StaticMethods.percentageChance(oneBombChance)
         if(bombItemDrop){
-            bombsItem = BombItem.oneBomb
+            bombsItem = 'oneBomb'
         } else {
             bombItemDrop = StaticMethods.percentageChance(threeBombChance)
             if(bombItemDrop){
-                bombsItem = BombItem.threeBombs
+                bombsItem = 'threeBombs'
             } else {
-                bombsItem = BombItem.noBombs
+                bombsItem = 'noBombs'
             }
         }
             
         essenceItemDrop = StaticMethods.percentageChance(essenceChance)
         if(essenceItemDrop){
-            let numberOfColours = Object.keys(EssenceColour).length/2
-            essenceColour = Math.floor(Math.random()*numberOfColours)
-            essencePosition.x = Math.floor(Math.random()*50)
-            essencePosition.y = Math.floor(Math.random()*50)
+            let numberOfColours = 4
+            let randomNum = Math.floor(Math.random()*numberOfColours)
+            let colors = ['blue','green','yellow','purple']
+            essenceColour = colors[randomNum]
+            let x = Math.floor(Math.random()*50)
+            let y = Math.floor(Math.random()*50)
+            essencePosition = {x:x, y:y}
         }
-        let loot: Loot = {bombs: bombsItem, essenceColour: essenceColour, essencePosition}
-
-        console.log('siphon tree successful, item drops: '+bombsItem+', ', EssenceColour[essenceColour])
+        let loot: Loot = new Loot(this.tile, bombsItem, essenceColour, essencePosition)
         this.tile.entityEnterTile(loot)
+        
     }
     
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { TheGame } from '../the-game.component';
-import { BombItem, EssenceColour, Direction, Explosion, Loot, TileData } from '../../definitions/class-definitions';
+import { Explosion, Loot, TileData } from '../../definitions/class-definitions';
 import { TileInterface } from '../../definitions/interface-definitions';
 import { Player } from '../player/player'
 import { Tree } from '../game-board-entities/tree';
@@ -29,13 +29,15 @@ export class Tile implements OnInit, TileInterface {
   treeType: number = 0;
 
   playerFacing: string;
-  movingFromVal: string
-  movingToVal: string
+  movingToDirection: string
   bombMovingFromVal: string
   bombMovingToVal: string
+  playerAnimateDirection: string;
 
   treeExplodeAnimation: Boolean = false;
   centerBombExplodeAnimation: Boolean = false;
+
+  takingDamage: Boolean;
 
   @Input() tileInstance: TileData;
   @Input() theGame: TheGame;
@@ -50,56 +52,66 @@ export class Tile implements OnInit, TileInterface {
     this.theGame.gameStartup.gameTileCreated(this)
   }
 
-  entityLeaveTile(entity: GameBoardEntity){
-    this.cdRef.detach();
 
+  entityEnterTile(entity: GameBoardEntity){
+    this.cdRef.detach();
+    
+    entity.tile = this
+    
     if(entity instanceof Player){
-      this.movingTo(entity.facing)
-      setTimeout(() => {
-          this.cdRef.detach();
-          this.playerInTile = null;
-          this.cdRef.detectChanges();
-        }, 400)
+      this.playerInTile = entity;
+        if(this.lootInTile){
+            entity.pickUpLoot(this.lootInTile)
+            this.lootInTile = null;
+        }
+    }
+    
+    if(entity instanceof Tree){
+      this.treeInTile = entity;
     }
 
     if(entity instanceof Bomb){
-      this.bombMovingTo(entity.direction)
-      entity.direction
-      this.bombInTile = null;
-    }
-
-    if(entity instanceof Loot){
-      this.lootInTile = null;
+      this.bombInTile = entity;
     }
     
+    if(entity instanceof Loot){
+      this.lootInTile = entity;
+    }
     this.cdRef.detectChanges();
   }
 
-    entityEnterTile(entity: GameBoardEntity){
-      this.cdRef.detach();
-      
+
+  entityLeaveTile(entity: GameBoardEntity): Promise<any>{
+    let finishedLeaving = new Promise((resolve)=>{
       if(entity instanceof Player){
-        this.playerInTile = entity;
-          if(this.lootInTile){
-              entity.pickUpLoot(this.lootInTile)
-              this.lootInTile = null;
-          }
-          entity.playerTile = this
-      }
-      
-      if(entity instanceof Tree){
-        this.treeInTile = entity;
+        this.cdRef.detach();
+        this.movingToDirection = this.playerInTile.facing;
+        this.cdRef.detectChanges();
+        setTimeout(() => {
+          this.cdRef.detach();
+          this.playerInTile = null;
+          this.movingToDirection = null;
+          this.cdRef.detectChanges();
+          resolve();
+          }, 420);
       }
 
       if(entity instanceof Bomb){
-        this.bombInTile = entity;
+        this.cdRef.detach();
+        this.bombMovingToVal = this.bombInTile.direction
+          this.cdRef.detectChanges();
+        setTimeout(() => {
+          this.cdRef.detach();
+          this.bombInTile = null;
+          this.bombMovingToVal = null;
+          this.cdRef.detectChanges();
+          resolve();
+          }, 210);
       }
       
-      if(entity instanceof Loot){
-        this.lootInTile = entity;
-      }
-      this.cdRef.detectChanges();
-    }
+    });
+    return finishedLeaving;
+  }
 
     entityRemovedFromTile(entity: GameBoardEntity){
       this.cdRef.detach();
@@ -112,6 +124,9 @@ export class Tile implements OnInit, TileInterface {
       if(entity instanceof Loot){
         this.lootInTile = null;
       }
+      if(entity instanceof Tree){
+        this.treeInTile = null;
+      }
       this.cdRef.detectChanges();
     }
 
@@ -123,7 +138,7 @@ export class Tile implements OnInit, TileInterface {
         return true;
     }
 
-    playerMovingOutOfTile(direction: Direction, tile: Tile): Boolean {
+    playerMovingOutOfTile(direction: string, tile: Tile): Boolean {
         return true;
     }
 
@@ -133,10 +148,10 @@ export class Tile implements OnInit, TileInterface {
         }
         if(this.treeInTile){
             return this.treeInTile
-        }        
+        }
         if(this.bombInTile){
             return this.bombInTile
-        }        
+        }
         if(this.lootInTile){
             return this.lootInTile
         }
@@ -148,9 +163,9 @@ export class Tile implements OnInit, TileInterface {
     this.cdRef.detectChanges();
 
     setTimeout(() => {
-    this.cdRef.detach();
+      this.cdRef.detach();
       this.treeExplodeAnimation = false;
-    this.cdRef.detectChanges();
+      this.cdRef.detectChanges();
     },400)
   }
 
@@ -166,48 +181,16 @@ export class Tile implements OnInit, TileInterface {
     }, 800);
   }
   
-  bombExplosion(explosion: Explosion){
-      if(this.treeInTile){
-          this.treeInTile.treeExplode()
-      }
 
-      if(this.playerInTile){
-          this.playerInTile.hitByExplosion(explosion)
-      }
-  }
 
-  setTreeType(type){
-    this.treeType = type;
-  }
-
-  movingFrom(direction: Direction){
-    this.movingFromVal = Direction[direction]
+  bombMovingTo(direction: string){
+    this.cdRef.detach();
+    this.bombMovingToVal = direction
+    this.cdRef.detectChanges();
     setTimeout(() => {
-      this.movingFromVal = null;
-    },1)
-  }
-
-  movingTo(direction: Direction){
-    this.movingToVal = Direction[direction]
-    setTimeout(() => {
-      this.movingToVal = null;
-    },400)
-  }
-  setFacingDirection(direction: Direction){
-    this.playerFacing = Direction[direction]
-  }
-
-  bombMovingFrom(direction: Direction){
-    this.bombMovingFromVal = Direction[direction]
-    setTimeout(() => {
-      this.bombMovingFromVal = null;
-    },1)
-  }
-
-  bombMovingTo(direction: Direction){
-    this.bombMovingToVal = Direction[direction]
-    setTimeout(() => {
+      this.cdRef.detach();
       this.bombMovingToVal = null;
+      this.cdRef.detectChanges();
     },200)
   }
 
@@ -219,6 +202,38 @@ export class Tile implements OnInit, TileInterface {
         itemsDropped: {loot: loot}
     })
   }
+
+  setFacingDirection(){
+      this.cdRef.detach();
+      this.cdRef.detectChanges();
+  }
+
+  getOppositeDirection(direction: string): string{
+    let opposite;
+    switch(direction){
+      case("left"): opposite = "right"; break;
+      case("right"): opposite = "left"; break;
+      case("down"): opposite = "up"; break;
+      case("up"): opposite = "down"; break;
+    }
+    return opposite;
+  }
+
+  playerTakesDamage(){
+    this.cdRef.detach();
+    this.takingDamage = true;
+    this.cdRef.detectChanges();
+    console.log('damage on')
+
+    setTimeout(() => {
+      this.cdRef.detach();
+      this.takingDamage = false;
+      this.cdRef.detectChanges();
+      console.log('damage off')
+    },500)
+  }
+
+
 }
 
 class ActiveEssence {

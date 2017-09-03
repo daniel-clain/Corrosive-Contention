@@ -1,5 +1,5 @@
 
-import { Direction, Explosion, Packet, Ability, TreeAcid, PlayerStats, PlayerStatsItem, EssenceColour, BombItem, Loot } from '../definitions/class-definitions';
+import { Explosion, Packet, TreeAcid, PlayerStats, Loot } from '../definitions/class-definitions';
 import { TheGame } from './the-game.component';
 import { Player } from './player/player';
 import { Tile } from './tile/tile.component';
@@ -72,12 +72,12 @@ export class ManageServerUpdates{
 
     playerMoveEvent(data){
         let player: Player = this.theGame.getPlayerByPlayerNumber(data.playerNumber);
-        player.move(<Direction>data.direction)
+        player.move(data.direction)
     }
 
     playerUseAbilityEvent(data){
         let player: Player = this.theGame.getPlayerByPlayerNumber(data.playerNumber);
-        let ability: Ability = data.ability
+        let ability: string = data.ability
         player.useAbility(ability)
     }
 

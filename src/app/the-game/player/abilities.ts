@@ -1,6 +1,6 @@
 
 import { Player } from '../player/player';
-import { Direction, Explosion, FailOrSucceed, Ability, TreeAcid, PlayerStats, PlayerStatsItem, EssenceColour, BombItem, Loot } from '../../definitions/class-definitions'
+import { Explosion, FailOrSucceed, TreeAcid, PlayerStats, Loot } from '../../definitions/class-definitions'
 import { Tile } from '../tile/tile.component'
 import { Bomb } from '../game-board-entities/bomb';
 import { TheGame } from '../the-game.component';
@@ -11,10 +11,11 @@ export class Abilities{
     constructor(private player: Player, private theGame: TheGame, private tileService: TileService){}
 
     siphonTree(): FailOrSucceed{
-        let targetTile: Tile = this.tileService.getTileRelativeToAnotherTile(this.player.playerTile, this.player.facing)
+        let targetTile: Tile = this.tileService.getTileRelativeToAnotherTile(this.player.tile, this.player.facing)
         if(targetTile && targetTile.treeInTile){
             if(targetTile.treeInTile.isVolatile){
                 targetTile.treeInTile.treeExplode()
+                console.log('tree is volatile and exploded')
                 this.theGame.broadcastEventToOtherPlayers('treeExplode update', { tileId: targetTile.id })
                 return <FailOrSucceed>{ FailOrSucceed: false, reason: 'tree was volatile and exploded', returnObj: {tile: targetTile}}
             } else {

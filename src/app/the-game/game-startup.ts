@@ -56,7 +56,7 @@ export class GameStartup{
     private createPlayerInstances(){
         this.theGame.mainPlayer = new Player(this.theGame);
         this.theGame.mainPlayer.ready = true;
-        this.theGame.moveBoard(this.theGame.mainPlayer.playerTile)
+        this.theGame.moveBoard(this.theGame.mainPlayer.tile)
 
         let mainPlayerNumber: number = this.theGame.mainPlayer.playerNumber
         this.theGame.otherPlayers = []
@@ -71,10 +71,10 @@ export class GameStartup{
   private spawnInitialTrees(){
     let tileIds = this.gameSettings.initialTreeLocations
     let chanceToBeVolatile = 20
-    let randomChanceVolatile = (Math.random()*100<chanceToBeVolatile)
     for(let i = 0; i < this.theGame.tiles.length; i++){
         if(tileIds.indexOf(this.theGame.tiles[i].id) >= 0){
             let randomTreeType = Math.floor(Math.random()*2)
+            let randomChanceVolatile: Boolean = (Math.random()*100<chanceToBeVolatile)
             this.theGame.tiles[i].entityEnterTile(new Tree(this.theGame.tiles[i], randomTreeType, randomChanceVolatile, this.theGame.tileService))
         }
     }

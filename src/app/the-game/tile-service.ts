@@ -2,7 +2,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { Tile } from './tile/tile.component';
 import { Player } from './player/player';
 import { GameBoardEntity } from './../definitions/interface-definitions';
-import { BombItem, EssenceColour, Loot, Direction, Explosion, GameSettings } from './../definitions/class-definitions';
+import { Loot, Explosion, GameSettings } from './../definitions/class-definitions';
 
 export class TileService{
     constructor(private tiles: Tile[], private gameSettings: GameSettings) {}
@@ -11,6 +11,8 @@ export class TileService{
     checkIfBombHitsAnything(tile: Tile){
         let whatsInTile: GameBoardEntity = tile.checkWhatsInTile()
         if(whatsInTile === null || whatsInTile !instanceof Loot){
+            
+            console.log('bomb hit')
             return true;
         }
         else false;
@@ -46,29 +48,29 @@ export class TileService{
     }
   }
 
-  getTileRelativeToAnotherTile(baseTile: Tile, direction: Direction): Tile{
-    if(direction === Direction.up){
+  getTileRelativeToAnotherTile(baseTile: Tile, direction: string): Tile{
+    if(direction === 'up'){
       if(baseTile.row === 1){
         console.log('no above tile')
       }else{
         return this.getTileByColumnAndRow(baseTile.column, baseTile.row - 1)
       }
     }
-    if(direction === Direction.down){
+    if(direction === 'down'){
       if(baseTile.row === this.gameSettings.gameRows){
         console.log('no below tile')
       }else{
         return this.getTileByColumnAndRow(baseTile.column, baseTile.row + 1)
       }
     }
-    if(direction === Direction.left){
+    if(direction === 'left'){
       if(baseTile.column === 1){
         console.log('no left tile')
       }else{
         return this.getTileByColumnAndRow(baseTile.column - 1, baseTile.row)
       }
     }
-    if(direction === Direction.right){
+    if(direction === 'right'){
       if(baseTile.column === this.gameSettings.gameCols){
         console.log('no right tile')
       }else{
@@ -103,23 +105,23 @@ export class TileService{
     return matchingTiles
   }
 
-  getDestinationTile(playerTile: Tile, direction: Direction): Tile{
+  getDestinationTile(tile: Tile, direction: string): Tile{
     let destinationTile
-    if(direction === Direction.up){
-        if(playerTile.row === 1)return;
-        destinationTile = this.getTileByColumnAndRow(playerTile.column, playerTile.row - 1);
+    if(direction === 'up'){
+        if(tile.row === 1)return;
+        destinationTile = this.getTileByColumnAndRow(tile.column, tile.row - 1);
     }
-    if(direction === Direction.right){
-        if(playerTile.column === this.gameSettings.gameCols)return;
-        destinationTile = this.getTileByColumnAndRow(playerTile.column + 1, playerTile.row);
+    if(direction === 'right'){
+        if(tile.column === this.gameSettings.gameCols)return;
+        destinationTile = this.getTileByColumnAndRow(tile.column + 1, tile.row);
     }
-    if(direction === Direction.down){
-        if(playerTile.row === this.gameSettings.gameRows)return;
-        destinationTile = this.getTileByColumnAndRow(playerTile.column, playerTile.row + 1);
+    if(direction === 'down'){
+        if(tile.row === this.gameSettings.gameRows)return;
+        destinationTile = this.getTileByColumnAndRow(tile.column, tile.row + 1);
     }
-    if(direction === Direction.left){
-        if(playerTile.column === 1)return;
-        destinationTile = this.getTileByColumnAndRow(playerTile.column - 1, playerTile.row);
+    if(direction === 'left'){
+        if(tile.column === 1)return;
+        destinationTile = this.getTileByColumnAndRow(tile.column - 1, tile.row);
     }
     if(!destinationTile){
         console.log('destination tile out of bounds')

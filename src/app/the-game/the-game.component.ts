@@ -1,11 +1,11 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef, Input } from '@angular/core';
-import { WindowDimensions, TileData, EssenceColour, Direction, Ability, ServerGameObject } from '../definitions/class-definitions';
+import { WindowDimensions, TileData, ServerGameObject } from '../definitions/class-definitions';
 import { StaticMethods } from '../definitions/static-methods';
 import { ConnectionService } from '../connection-service/connection-service';
 import { GameStartup } from './game-startup';
 import { TileService } from './tile-service';
 import { Player } from './player/player';
-import { Subject } from 'rxjs/Subject'
+import { Subject, Observable } from 'rxjs/'
 import { Tile } from './tile/tile.component';
 import { GameHud } from './hud/game-hud.component';
 import { ManageServerUpdates } from './manage-sever-updates';
@@ -24,6 +24,7 @@ export class TheGame implements OnInit {
 
    tileService: TileService;
    manageServerUpdates: ManageServerUpdates;
+
 
   mainPlayer: Player;
   otherPlayers: Player[];
@@ -57,10 +58,10 @@ export class TheGame implements OnInit {
   }
 
   @HostListener('window:keydown', ['$event'])
-  keyDown(e) {this.keyboardEvents(e.key,'down')}
+  keyDown(e) {if(e.repeat)return false;this.keyboardEvents(e.key,'down')}
 
   @HostListener('window:keyup', ['$event'])
-  keyUp(e) {this.keyboardEvents(e.key,'up')}
+  keyUp(e) {if(e.repeat)return false;this.keyboardEvents(e.key,'up')}
 
   ngOnInit(){
     this.gameStartup = new GameStartup(this)
@@ -87,25 +88,25 @@ export class TheGame implements OnInit {
   }
   
   keyboardEvents(key, action){
+    
       if(this.gameReady){
-            let direction: Direction
             if(action==='down'){
-                switch (key) {
-                  case 'ArrowUp': { this.mainPlayer.move(Direction.up) }; break;
-                  case 'ArrowRight': { this.mainPlayer.move(Direction.right) } ; break;
-                  case 'ArrowDown': { this.mainPlayer.move(Direction.down) } ; break;
-                  case 'ArrowLeft': { this.mainPlayer.move(Direction.left) } ; break;
-                  case 'r': this.mainPlayer.useAbility(Ability['Siphon Tree']); break;
-                  case ' ': this.mainPlayer.useAbility(Ability['Throw Bomb']); break;
-                }
+              switch (key) {
+                case 'ArrowUp': { this.mainPlayer.keydown('up') } ; break;
+                case 'ArrowRight': { this.mainPlayer.keydown('right') } ; break;
+                case 'ArrowDown': { this.mainPlayer.keydown('down') } ; break;
+                case 'ArrowLeft': { this.mainPlayer.keydown('left') } ; break;
+                case 'r': this.mainPlayer.useAbility('Siphon Tree'); break;
+                case ' ': this.mainPlayer.useAbility('Throw Bomb'); break;
+              }
             }
             if(action==='up'){
-                switch (key) {
-                  case 'ArrowUp': {this.mainPlayer.keyReleased()}; break;
-                  case 'ArrowRight': {this.mainPlayer.keyReleased()}; break;
-                  case 'ArrowDown': {this.mainPlayer.keyReleased()}; break;
-                  case 'ArrowLeft': {this.mainPlayer.keyReleased()}; break;
-                }
+              switch (key) {
+                case 'ArrowUp': {this.mainPlayer.keyReleased('up')}; break;
+                case 'ArrowRight': {this.mainPlayer.keyReleased('right')}; break;
+                case 'ArrowDown': {this.mainPlayer.keyReleased('down')}; break;
+                case 'ArrowLeft': {this.mainPlayer.keyReleased('left')}; break;
+              }
             }
       }
   }
@@ -126,7 +127,7 @@ export class TheGame implements OnInit {
   onWindowResize(windowDimensions){
         this.windowWidth = windowDimensions.width
         this.windowHeight = windowDimensions.height
-        this.moveBoard(this.mainPlayer.playerTile)
+        this.moveBoard(this.mainPlayer.tile)
     }
 
   

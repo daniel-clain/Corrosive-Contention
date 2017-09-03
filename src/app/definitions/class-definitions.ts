@@ -1,3 +1,4 @@
+import { Type } from '@angular/core'
 import { Player } from '../the-game/player/player'
 import { Tile } from '../the-game/tile/tile.component'
 import { TileService } from '../the-game/tile-service';
@@ -22,7 +23,6 @@ export class TileData{
     size: number;
 }
 
-
 export class ServerGameObject{
     gameId: number;
     yourPlayerNumber: number;
@@ -37,66 +37,35 @@ export interface GameSettings{
     gameRows: number;
 }
 
-
-export enum BombItem {
-    'noBombs' = null,
-    'oneBomb' = 1 ,
-    'threeBombs' = 3,
-}
-
-export enum EssenceColour {
-    'yellow',
-    'blue',
-    'green',
-    'purple',
-
-}
-
-
 export class Loot implements GameBoardEntity{
-    bombs: BombItem
-    essenceColour: EssenceColour
-    essencePosition: { x: number, y: number }
+    tile: Tile
+    bombs: string
+    essenceColour: string
+    essencePosition: { x: number, y: number };
+    remove: ()=>any;
 
+    constructor(tile: Tile, bombs: string, essenceColour: string, essencePosition: any){
+        this.tile = tile;
+        this.bombs = bombs;
+        this.essenceColour = essenceColour;
+        this.essencePosition = essencePosition
+    }
 }
-
-export enum Direction {
-    'up',
-    'right',
-    'down',
-    'left',
-
-}
-
-
 
 export class Explosion{
     causedByPlayer: Player;
     damage = 2;
 
 }
+
 export class TreeAcid{
     damage = 1;
 }
-
 
 export class FailOrSucceed {
     FailOrSucceed: Boolean;
     reason?: String;
     returnObj?: any;
-}
-
-export enum Ability{
-    'Siphon Tree',
-    'Throw Bomb',
-    'Go Invisible',
-    'Plant Vine Trap',
-    'Use ForceField',
-    'Place Fake Tree',
-    'Place Tree Mine',
-    'Speed Burst',
-    'Use Player Detector',
-    'Pickup / Drop Volatile Detector'
 }
 
 export class PlayerStats{
@@ -114,24 +83,6 @@ export class PlayerStats{
     bombs: number = this.maximumBombs;
 }
 
-export enum PlayerStatsItem{
-    "health",
-    "lives",
-    "bombs",
-    "blueEssence",
-    "yellowEssence",
-    "greenEssence",
-    "purpleEssence",
-    "maxHealth",
-    "maxLives",
-    "maximumBombs"
-}
-
-
-export class AbilitiesHud{
-
-}
-
 export class PlayerHud{
   lives: number;
   health: number;
@@ -144,4 +95,3 @@ export class PlayerHud{
   maxLives: number = 3;
   maxHealth: number = 2;
 }
-
