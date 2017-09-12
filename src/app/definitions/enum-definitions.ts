@@ -20,16 +20,16 @@ export enum EssenceColour {
 }
 
 export enum PlayerStatsItem{
-    "health",
-    "lives",
-    "bombs",
-    "blueEssence",
-    "yellowEssence",
-    "greenEssence",
-    "purpleEssence",
-    "maxHealth",
-    "maxLives",
-    "maximumBombs"
+    'health',
+    'lives',
+    'bombs',
+    'blueEssence',
+    'yellowEssence',
+    'greenEssence',
+    'purpleEssence',
+    'maxHealth',
+    'maxLives',
+    'maximumBombs'
 }
 
 export enum Ability{

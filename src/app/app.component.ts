@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ConnectionService } from './connection-service/connection-service';
 import { Packet, ServerGameObject} from './definitions/class-definitions';
-import { UserControlledPlayerDefinition }  from './definitions/interface-definitions';
+import { UserControlledPlayerDefinition } from './definitions/interface-definitions';
 
 @Component({
   selector: 'app-root',
@@ -10,13 +10,13 @@ import { UserControlledPlayerDefinition }  from './definitions/interface-definit
 export class AppComponent implements OnInit, UserControlledPlayerDefinition {
 
   gameOn = false;
-  connectionService: ConnectionService
-  serverGameObject: ServerGameObject
-  
-  name: string = 'name not set';
+  connectionService: ConnectionService;
+  serverGameObject: ServerGameObject;
+
+  name = 'name not set';
 
   constructor(){
-    this.connectionService = new ConnectionService()
+    this.connectionService = new ConnectionService();
     this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
   }
 
@@ -36,15 +36,15 @@ export class AppComponent implements OnInit, UserControlledPlayerDefinition {
       eventsObject[serverEvent.eventName](serverEvent.data);
     }
   }
-  
+
   gameFound(fromServerData: ServerGameObject){
-      this.serverGameObject = fromServerData
+      this.serverGameObject = fromServerData;
       this.gameOn = true
   }
 
 
   queForGame(){
-      this.connectionService.sendPacket({eventName:'searching for game'})
+      this.connectionService.sendPacket({eventName: 'searching for game'})
   }
 
   rejoinGame(){

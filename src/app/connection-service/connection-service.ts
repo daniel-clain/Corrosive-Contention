@@ -20,18 +20,16 @@ export class ConnectionService{
     }
 
     sendPacket(packet: Packet){
-        if(this.serverGameObject){
+        if (this.serverGameObject){
             packet.data.gameId = this.serverGameObject.gameId;
         }
-        //console.log('send packet - ' + packet.eventName + ': ', packet.data);
+        // console.log('send packet - ' + packet.eventName + ': ', packet.data);
         this.connection.emit('sentFromGame', packet);
     }
 
-
     manageEventsFromServer(serverEvent: Packet){
-        if(serverEvent.eventName === 'game found'){
+        if (serverEvent.eventName === 'game found'){
             this.serverGameObject = serverEvent.data;
         }
-
     }
 }

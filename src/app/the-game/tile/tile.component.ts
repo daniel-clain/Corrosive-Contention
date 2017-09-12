@@ -1,19 +1,16 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { TheGame } from '../the-game.component';
-import { Explosion, Loot, TileData } from '../../definitions/class-definitions';
+import { Loot, TileData } from '../../definitions/class-definitions';
 import { TileInterface } from '../../definitions/interface-definitions';
 import { Player } from '../player/player'
 import { Tree } from '../game-board-entities/tree';
 import { Bomb } from '../game-board-entities/bomb';
-import { PlayerDefinition, GameBoardEntity } from '../../definitions/interface-definitions';
-
+import { GameBoardEntity } from '../../definitions/interface-definitions';
 
 @Component({
   selector: 'app-tile',
   templateUrl: 'tile.component.html'
 })
-
-
 
 export class Tile implements OnInit, TileInterface {
 
@@ -26,13 +23,8 @@ export class Tile implements OnInit, TileInterface {
   column: number;
   row: number;
 
-  treeType: number = 0;
-
-  playerFacing: string;
-  movingToDirection: string
-  bombMovingFromVal: string
-  bombMovingToVal: string
-  playerAnimateDirection: string;
+  movingToDirection: string;
+  bombMovingToVal: string;
 
   treeExplodeAnimation: Boolean = false;
   centerBombExplodeAnimation: Boolean = false;
@@ -43,7 +35,7 @@ export class Tile implements OnInit, TileInterface {
   @Input() theGame: TheGame;
 
 
-  constructor(private cdRef:ChangeDetectorRef) {}
+  constructor(private cdRef: ChangeDetectorRef) {}
 
   ngOnInit(){
     this.id = this.tileInstance.id;
@@ -55,26 +47,26 @@ export class Tile implements OnInit, TileInterface {
 
   entityEnterTile(entity: GameBoardEntity){
     this.cdRef.detach();
-    
-    entity.tile = this
-    
-    if(entity instanceof Player){
+
+    entity.tile = this;
+
+    if (entity instanceof Player){
       this.playerInTile = entity;
-        if(this.lootInTile){
-            entity.pickUpLoot(this.lootInTile)
+        if (this.lootInTile){
+            entity.pickUpLoot(this.lootInTile);
             this.lootInTile = null;
         }
     }
-    
-    if(entity instanceof Tree){
+
+    if (entity instanceof Tree){
       this.treeInTile = entity;
     }
 
-    if(entity instanceof Bomb){
+    if (entity instanceof Bomb){
       this.bombInTile = entity;
     }
-    
-    if(entity instanceof Loot){
+
+    if (entity instanceof Loot){
       this.lootInTile = entity;
     }
     this.cdRef.detectChanges();
@@ -82,8 +74,8 @@ export class Tile implements OnInit, TileInterface {
 
 
   entityLeaveTile(entity: GameBoardEntity): Promise<any>{
-    let finishedLeaving = new Promise((resolve)=>{
-      if(entity instanceof Player){
+    return new Promise((resolve) => {
+      if (entity instanceof Player){
         this.cdRef.detach();
         this.movingToDirection = this.playerInTile.facing;
         this.cdRef.detectChanges();
@@ -96,9 +88,9 @@ export class Tile implements OnInit, TileInterface {
           }, 400);
       }
 
-      if(entity instanceof Bomb){
+      if (entity instanceof Bomb){
         this.cdRef.detach();
-        this.bombMovingToVal = this.bombInTile.direction
+        this.bombMovingToVal = this.bombInTile.direction;
           this.cdRef.detectChanges();
         setTimeout(() => {
           this.cdRef.detach();
@@ -108,23 +100,22 @@ export class Tile implements OnInit, TileInterface {
           resolve();
           }, 210);
       }
-      
+
     });
-    return finishedLeaving;
   }
 
     entityRemovedFromTile(entity: GameBoardEntity){
       this.cdRef.detach();
-      if(entity instanceof Player){
+      if (entity instanceof Player){
         this.playerInTile = null;
       }
-      if(entity instanceof Bomb){
+      if (entity instanceof Bomb){
         this.bombInTile = null;
       }
-      if(entity instanceof Loot){
+      if (entity instanceof Loot){
         this.lootInTile = null;
       }
-      if(entity instanceof Tree){
+      if (entity instanceof Tree){
         this.treeInTile = null;
       }
       this.cdRef.detectChanges();
@@ -132,27 +123,21 @@ export class Tile implements OnInit, TileInterface {
 
 
     playerMovingInToTile(): Boolean {
-        if(this.playerInTile || this.treeInTile) {
-            return false;
-        }
-        return true;
+        return (!(this.playerInTile || this.treeInTile));
     }
 
-    playerMovingOutOfTile(direction: string, tile: Tile): Boolean {
-        return true;
-    }
 
     checkWhatsInTile(): GameBoardEntity{
-      if(this.playerInTile){
+      if (this.playerInTile){
             return this.playerInTile
         }
-        if(this.treeInTile){
+        if (this.treeInTile){
             return this.treeInTile
         }
-        if(this.bombInTile){
+        if (this.bombInTile){
             return this.bombInTile
         }
-        if(this.lootInTile){
+        if (this.lootInTile){
             return this.lootInTile
         }
     }
@@ -166,7 +151,7 @@ export class Tile implements OnInit, TileInterface {
       this.cdRef.detach();
       this.treeExplodeAnimation = false;
       this.cdRef.detectChanges();
-    },400)
+    }, 400)
   }
 
   doCenterBombExplode(){
@@ -180,20 +165,6 @@ export class Tile implements OnInit, TileInterface {
       this.cdRef.detectChanges();
     }, 800);
   }
-  
-
-
-  bombMovingTo(direction: string){
-    this.cdRef.detach();
-    this.bombMovingToVal = direction
-    this.cdRef.detectChanges();
-    setTimeout(() => {
-      this.cdRef.detach();
-      this.bombMovingToVal = null;
-      this.cdRef.detectChanges();
-    },210)
-  }
-
 
   lootDropped(loot: Loot){
     this.theGame.broadcastEventToOtherPlayers('loot drop update', {
@@ -207,17 +178,6 @@ export class Tile implements OnInit, TileInterface {
       this.cdRef.detectChanges();
   }
 
-  getOppositeDirection(direction: string): string{
-    let opposite;
-    switch(direction){
-      case("left"): opposite = "right"; break;
-      case("right"): opposite = "left"; break;
-      case("down"): opposite = "up"; break;
-      case("up"): opposite = "down"; break;
-    }
-    return opposite;
-  }
-
   playerTakesDamage(){
     this.cdRef.detach();
     this.takingDamage = true;
@@ -227,16 +187,7 @@ export class Tile implements OnInit, TileInterface {
       this.cdRef.detach();
       this.takingDamage = false;
       this.cdRef.detectChanges();
-    },500)
+    }, 500)
   }
-
-
 }
-
-class ActiveEssence {
-  color: string;
-  bgx: number;
-  bgy: number;
-}
-
 

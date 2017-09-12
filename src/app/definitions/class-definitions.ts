@@ -1,7 +1,5 @@
-import { Type } from '@angular/core'
 import { Player } from '../the-game/player/player'
 import { Tile } from '../the-game/tile/tile.component'
-import { TileService } from '../the-game/tile-service';
 import { GameBoardEntity } from './interface-definitions';
 
 export class Packet{
@@ -38,11 +36,11 @@ export interface GameSettings{
 }
 
 export class Loot implements GameBoardEntity{
-    tile: Tile
-    bombs: string
-    essenceColour: string
+    tile: Tile;
+    bombs: string;
+    essenceColour: string;
     essencePosition: { x: number, y: number };
-    remove: ()=>any;
+    remove: Function;
 
     constructor(tile: Tile, bombs: string, essenceColour: string, essencePosition: any){
         this.tile = tile;
@@ -69,17 +67,17 @@ export class FailOrSucceed {
 }
 
 export class PlayerStats{
-    maxHealth: number = 6;
-    maxLives: number = 3;
+    maxHealth = 6;
+    maxLives = 3;
     health: number = this.maxHealth;
     lives: number = this.maxLives;
-    blueEssence: number = 0;
-    yellowEssence: number = 0;
-    greenEssence: number = 0;
-    purpleEssence: number = 0
-    bombThrowRange: number = 2
-    bombExplosionSize: number = 1
-    maximumBombs: number = 3
+    blueEssence = 0;
+    yellowEssence = 0;
+    greenEssence = 0;
+    purpleEssence = 0;
+    bombThrowRange = 2;
+    bombExplosionSize = 1;
+    maximumBombs = 3;
     bombs: number = this.maximumBombs;
 }
 export class EssenceAbilities{
@@ -99,11 +97,11 @@ export class PlayerHud{
   lives: number;
   health: number;
   bombs: number;
-  blueEssence: number = 0;
-  yellowEssence: number = 0;
-  greenEssence: number = 0;
-  purpleEssence: number = 0;
-  maximumBombs: number = 3;
-  maxLives: number = 3;
-  maxHealth: number = 2;
+  blueEssence = 0;
+  yellowEssence = 0;
+  greenEssence = 0;
+  purpleEssence = 0;
+  maximumBombs = 3;
+  maxLives = 3;
+  maxHealth = 2;
 }
