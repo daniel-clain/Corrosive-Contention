@@ -1,6 +1,6 @@
 
 import { Player } from '../player/player';
-import { Explosion, FailOrSucceed, TreeAcid, PlayerStats, Loot } from '../../definitions/class-definitions'
+import { Explosion, FailOrSucceed, TreeAcid, PlayerStats, Loot, EssenceAbilities, EssenceAbility } from '../../definitions/class-definitions'
 import { Tile } from '../tile/tile.component'
 import { Bomb } from '../game-board-entities/bomb';
 import { TheGame } from '../the-game.component';
@@ -9,6 +9,47 @@ import { TileService } from '../tile-service';
 export class Abilities{
 
     constructor(private player: Player, private theGame: TheGame, private tileService: TileService){}
+
+    essenceAbilities: EssenceAbilities = {
+        blue: [
+            <EssenceAbility>{name: 'Invisibility', thisRequired: 1, purpleRequired: 0,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+            <EssenceAbility>{name: 'Speed Increase', thisRequired: 2, purpleRequired: 1,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+            <EssenceAbility>{name: 'Player Detector', thisRequired: 3, purpleRequired: 2,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+        ],
+        green: [
+            <EssenceAbility>{name: 'Bomb Throw Range', thisRequired: 1, purpleRequired: 0,
+            doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+            <EssenceAbility>{name: 'Tentacle', thisRequired: 2, purpleRequired: 1,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+            <EssenceAbility>{name: 'Acid Trap', thisRequired: 3, purpleRequired: 2,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+        ],
+        yellow: [
+            <EssenceAbility>{name: 'Health Regeneration', thisRequired: 1, purpleRequired: 0,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+            <EssenceAbility>{name: 'Force Field', thisRequired: 2, purpleRequired: 1,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+            <EssenceAbility>{name: 'Build Tower Defence', thisRequired: 3, purpleRequired: 2,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.throwBombLevelUp()
+            },
+        ],
+        purple: [
+            <EssenceAbility>{name: 'Explosion Size', thisRequired: 3, purpleRequired: 3,
+                doLevelUp: () => this.theGame.mainPlayer.abilities.bombExplosionSizeLevelUp()
+            },
+        ]
+    }
 
     siphonTree(): FailOrSucceed{
         let targetTile: Tile = this.tileService.getTileRelativeToAnotherTile(this.player.tile, this.player.facing)
@@ -31,5 +72,13 @@ export class Abilities{
         let bomb: Bomb = new Bomb(this.player, this.tileService)
         this.theGame.broadcastEventToOtherPlayers('player throwBomb update',{ playerNumber: this.player.playerNumber })
         return <FailOrSucceed>{ FailOrSucceed: true }
+    };
+
+    throwBombLevelUp(){
+        this.player.stats.bombThrowRange++;
+    };
+
+    bombExplosionSizeLevelUp(){
+        this.player.stats.bombExplosionSize++;
     };
 }

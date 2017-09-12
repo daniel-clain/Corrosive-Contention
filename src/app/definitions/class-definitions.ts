@@ -82,6 +82,18 @@ export class PlayerStats{
     maximumBombs: number = 3
     bombs: number = this.maximumBombs;
 }
+export class EssenceAbilities{
+    blue: EssenceAbility[];
+    yellow: EssenceAbility[];
+    green: EssenceAbility[];
+    purple: EssenceAbility[];
+}
+export class EssenceAbility{
+    thisRequired: number;
+    purpleRequired: number;
+    name: string;
+    doLevelUp: Function;
+}
 
 export class PlayerHud{
   lives: number;

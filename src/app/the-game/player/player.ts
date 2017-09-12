@@ -72,7 +72,7 @@ export class Player implements PlayerDefinition, GameBoardEntity{
                     } else {
                         this.moveLoopActive = false;
                     }
-                },20)
+                },1)
             })
             this.theGame.broadcastEventToOtherPlayers('player move update', { playerNumber: this.playerNumber, direction: direction })
         } else {

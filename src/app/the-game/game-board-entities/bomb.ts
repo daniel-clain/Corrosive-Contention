@@ -46,9 +46,9 @@ export class Bomb implements GameBoardEntity{
                     setTimeout(()=>{
                             this.bombTravel()
                     },10)
-                } else {
-                    console.log('bombs next tile was undefined')
                 }
+            } else {
+                console.log('bombs next tile was undefined')
             }
         })
     }

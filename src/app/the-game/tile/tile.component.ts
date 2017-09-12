@@ -93,7 +93,7 @@ export class Tile implements OnInit, TileInterface {
           this.movingToDirection = null;
           this.cdRef.detectChanges();
           resolve();
-          }, 420);
+          }, 400);
       }
 
       if(entity instanceof Bomb){
@@ -191,12 +191,11 @@ export class Tile implements OnInit, TileInterface {
       this.cdRef.detach();
       this.bombMovingToVal = null;
       this.cdRef.detectChanges();
-    },200)
+    },210)
   }
 
 
   lootDropped(loot: Loot){
-    console.log('loot dropped')
     this.theGame.broadcastEventToOtherPlayers('loot drop update', {
         tileId: this.id,
         itemsDropped: {loot: loot}
@@ -223,13 +222,11 @@ export class Tile implements OnInit, TileInterface {
     this.cdRef.detach();
     this.takingDamage = true;
     this.cdRef.detectChanges();
-    console.log('damage on')
 
     setTimeout(() => {
       this.cdRef.detach();
       this.takingDamage = false;
       this.cdRef.detectChanges();
-      console.log('damage off')
     },500)
   }
 

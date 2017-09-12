@@ -8,36 +8,35 @@ export class TileService{
     constructor(private tiles: Tile[], private gameSettings: GameSettings) {}
 
 
-    checkIfBombHitsAnything(tile: Tile){
-        let whatsInTile: GameBoardEntity = tile.checkWhatsInTile()
-        if(whatsInTile === null || whatsInTile !instanceof Loot){
-            
-            console.log('bomb hit')
-            return true;
-        }
-        else false;
-    }
+  checkIfBombHitsAnything(tile: Tile){
+      let whatsInTile: GameBoardEntity = tile.checkWhatsInTile()
+      if(whatsInTile !== null && (whatsInTile.constructor.name === 'Player' || whatsInTile.constructor.name === 'Tree') ){
+        console.log("Bomb hit: ", whatsInTile)
+        return true;
+      }
+      else false;
+  }
 
   getTileByPlayerStartLocation(playerNumber: number): Tile{
-    let describedLocation
+    let describedLocation;
     switch(playerNumber){
       case 1: describedLocation = 'top left'; break;
       case 2: describedLocation = 'bottom right'; break;
       case 3: describedLocation = 'top right'; break;
       case 4: describedLocation = 'bottom left'; break;
     }
-    return this.getTileByDescribedLocation(describedLocation)
+    return this.getTileByDescribedLocation(describedLocation);
   }
 
   getTileByDescribedLocation(location: string): Tile{
-    let columnAndRow
+    let columnAndRow;
     switch(location){
       case 'top left': columnAndRow = {row: 3, col: 3}; break;
       case 'bottom right': columnAndRow = {row: this.gameSettings.gameRows-3, col: this.gameSettings.gameCols-3}; break;
       case 'top right': columnAndRow = {row: 3, col: this.gameSettings.gameCols-3}; break;
       case 'bottom left': columnAndRow = {row: this.gameSettings.gameRows-3, col: 3}; break;
     }
-    return this.getTileByColumnAndRow(columnAndRow.col, columnAndRow.row)
+    return this.getTileByColumnAndRow(columnAndRow.col, columnAndRow.row);
   }
 
   getTileByColumnAndRow(column, row): Tile{

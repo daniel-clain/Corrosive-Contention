@@ -1,9 +1,7 @@
 import { Component, Input, ChangeDetectorRef, OnInit } from '@angular/core';
-import { PlayerStats } from '../../definitions/class-definitions';
+import { PlayerStats, EssenceAbility, EssenceAbilities } from '../../definitions/class-definitions';
 import { TheGame } from '../the-game.component';
 import { EssenceColour } from '../../definitions/enum-definitions';
-
-
 
 @Component({
   selector: 'game-hud',
@@ -16,8 +14,8 @@ export class GameHud implements OnInit {
   @Input() theGame: TheGame;
 
     playerStats: PlayerStats
-    gameOptions
-
+    gameOptions;
+    essenceAbilitiesList: EssenceAbilities;
 
   private essenceShimmerActive = {
     purple: {
@@ -41,31 +39,13 @@ export class GameHud implements OnInit {
       displayUpgrades:false
     }
   }
-  blueEssenceAbilities = [
-    {name: 'Invisibility'},
-    {name: 'Speed Increase'}
-  ]
-  greenEssenceAbilities = [
-    {name: 'Bomb Throw Range'},
-    {name: 'Tentacle'},
-
-  ]
-  yellowEssenceAbilities = [
-    {name: 'Force Field'},
-    {name: 'Health Regeneration'}
-  ]
-  purpleEssenceAbilities = [
-    {name: 'Explosion Size'},
-    {name: 'Acid Trap'},
-    {name: 'Build Tower Defence'},
-    {name: 'Player Detector'}
-  ]
 
   constructor(private cdRef:ChangeDetectorRef){}
 
   
   ngOnInit(){
-    this.theGame.gameStartup.gameHudCreated(this)
+    this.theGame.gameStartup.gameHudCreated(this);
+    this.essenceAbilitiesList = this.theGame.mainPlayer.abilities.essenceAbilities;
   }
 
 
@@ -73,17 +53,43 @@ export class GameHud implements OnInit {
       this.cdRef.detach();
       this.playerStats[hudItem] = value;
       let essenceColour: string = EssenceColour[this.isEssence(hudItem)];
-      if(essenceColour && value === 2){
-        this.setEssenceIsActive(true,essenceColour)
+      if(essenceColour){
+        let upgradeOption: EssenceAbility = this.checkIfUpgradeAvailable(essenceColour, value)
+        if(upgradeOption){
+          this.setEssenceIsActive(true, essenceColour, upgradeOption)
+        }
       }
       this.cdRef.detectChanges();
+  }
+
+
+  checkIfUpgradeAvailable(essenceColour, value): EssenceAbility{
+    let essenceColourAbilities: EssenceAbility[];
+    let returnAbility: EssenceAbility;
+    switch(essenceColour){
+      case 'blue' : essenceColourAbilities = this.essenceAbilitiesList.blue; break;
+      case 'green' : essenceColourAbilities = this.essenceAbilitiesList.green; break;
+      case 'yellow' : essenceColourAbilities = this.essenceAbilitiesList.yellow; break;
+      case 'purple' : essenceColourAbilities = this.essenceAbilitiesList.purple; break;
+    }
+
+
+    essenceColourAbilities.forEach((ability: EssenceAbility)=>{
+      if(ability.thisRequired <= value && ability.purpleRequired <= this.playerStats.purpleEssence){
+        if(!returnAbility || returnAbility.thisRequired <= ability.thisRequired){
+          returnAbility = ability;
+        }
+      }
+    })
+    return returnAbility;
   }
 
   setupStats(stats: PlayerStats){
     this.playerStats = stats
   }
 
-  levelUp(colour, ability){
+  upgradeAbility(colour, ability: EssenceAbility){
+    
     console.log(ability.name+' leveled up!')
     let essence = this.essenceShimmerActive[colour].active = false;
     let hudRef: string;
@@ -93,12 +99,14 @@ export class GameHud implements OnInit {
       case "blue": hudRef = 'blueEssence';
       case "green": hudRef = 'greenEssence';
     }
-
-    this.playerStats[hudRef] = 0;
-
+    if(this.playerStats[hudRef] = -ability.thisRequired){
+      this.playerStats[hudRef] = -ability.thisRequired;
+      this.playerStats.purpleEssence = -ability.purpleRequired;
+      ability.doLevelUp();
+    }
   }
 
-  isEssence(hudItem): EssenceColour{
+  private isEssence(hudItem): EssenceColour{
     switch(hudItem){
       case "yellowEssence": return EssenceColour.yellow;
       case "purpleEssence": return EssenceColour.purple;
@@ -106,26 +114,22 @@ export class GameHud implements OnInit {
       case "greenEssence": return EssenceColour.green;
     }
   }
+
   glowingEssenceClickedOn(colour: string){
     let essence = this.essenceShimmerActive[colour]
     this.cdRef.detach();
     essence.displayUpgrades = true;
     essence.upAndDown = 'stop'
     this.cdRef.detectChanges();
-    
   }
 
-
-
-  setEssenceIsActive(bool:Boolean, essenceColour: string){
+  setEssenceIsActive(bool:Boolean, essenceColour: string, essenceAbility: EssenceAbility){
     let essence = this.essenceShimmerActive[essenceColour]
     essence.active=bool;
     if(bool){
       essence.upAndDown="down";
-      this.upAndDownLoop(essence)
-      
+      this.upAndDownLoop(essence);
     }
-
   }
 
   upAndDownLoop(essence){
