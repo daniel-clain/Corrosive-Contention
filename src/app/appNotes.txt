@@ -25,6 +25,23 @@ when a player goes invisible
 when a player uses an ability
 
 
+all essence colours appear on the hud with dimmed brightness, 
+when the essence color you just picked up is now enough for one of the upgrades
+then the color of the essence orb jumps up to becoming larger size, more vivid color, and slightly levitates a bit more
+
+given a user selects one of the glowing essence
+then all the upgrades for that essence colour will show above that glowing essencce
+and only the upgrades are affordable will be enabled
+
+when an upgrade is selected, 
+then the right number of essence points will be subtracted from the respective color
+and the upgrades effect will registered within the game
+and the upgrade will go up in level
+and the relative glowing essence models will update its display based on the updated essence points
+and the upgrade options will no longer be displayed
+
+
+
 ?what does the game do?
 moves the board to center on the player
 spawns trees
@@ -44,6 +61,12 @@ can spawn
 can despawn
 
 
+Movement Logic
+* when you hold a direction the player moves in that direction
+* when you release they stop moving
+* if a second key is held then the first button stops being pressed even if its still held
+* if you hold a direction and are blocked from moving that direction then move will not fire
+* once a player starts to move they can not move again until the move cycle is finished
 
 
 

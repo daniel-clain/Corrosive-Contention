@@ -1,52 +1,47 @@
- <div class='player'
-    [style.visibility] = "playerInTile?'visible':'hidden'"
+ <!---->
+ <div class='player' 
+    *ngIf = "playerInTile" 
     [ngClass]="{
-        'fromRight': movingFromVal==='right',
-        'fromTop': movingFromVal==='up',
-        'fromBottom': movingFromVal==='down',
-        'fromLeft': movingFromVal==='left',
-        'toRight': movingToVal==='right',
-        'toTop': movingToVal==='up',
-        'toBottom': movingToVal==='down',
-        'toLeft': movingToVal==='left'
-        }">
-
-    <div class="playerModel"
-        [ngClass]="{
-            'left': playerFacing==='left',
-            'right': playerFacing==='right',
-            'down': playerFacing==='down',
-            'up': playerFacing==='up'}">
+    'toRight': movingToDirection === 'right', 
+    'toTop': movingToDirection === 'up', 
+    'toBottom': movingToDirection === 'down', 
+    'toLeft': movingToDirection === 'left'
+    }">
+    <div class="playerModel" [class]="playerInTile.facing" [ngClass]="{'takingDamage': takingDamage}">
     </div>
 </div>
 
-<div class='tree' [style.visibility] = "treeInTile?'visible':'hidden'">
-    <div class="treeModel"
-        [ngStyle]="{'background-image': 'url(assets/c-tree' + treeType + '.png)'}">
+
+
+<div class='tree' *ngIf = "treeInTile">
+    <div class="treeExplosion" *ngIf = "treeExplode"></div>
+    <div class="treeModel" [ngStyle]="{'background-image': 'url(assets/c-tree' + treeInTile.treeModelType + '.png)'}"></div>
+</div>
+
+<div class='loot' *ngIf = "lootInTile">
+    <div class="essenceLoot" 
+        *ngIf = "lootInTile.essenceColour"
+        [ngClass]="lootInTile.essenceColour"
+        [style.background-position-y.px]="lootInTile.essencePosition.y"
+        [style.background-position-x.px]="lootInTile.essencePosition.x">
+    </div>
+    <div class = 'bombLoot'
+        *ngIf = "lootInTile.bombs"
+        [ngClass]="lootInTile.bombs">
     </div>
 </div>
 
-<div class = 'essence'
-    [ngClass]="activeEssence.color"
-    [style.background-position-y.px]="activeEssence.bgy + 20"
-    [style.background-position-x.px]="activeEssence.bgx + 20">
-</div>
-<div class = 'bombContainer'
-    [ngClass]="numberOfBombItems">
-</div>
-<div class="treeExplosion" *ngIf = "treeExplode"></div>
-
-<div class="centerBombExplode" *ngIf = "centerBombExplode"></div>
-<div class="bombInTile" [style.visibility] = "bombInTile?'visible':'hidden'"
+<div class="bombInTile" 
+    *ngIf = "bombInTile" 
     [ngClass]="{
-        'fromRight': bombMovingFromVal==='right',
-        'fromUp': bombMovingFromVal==='up',
-        'fromDown': bombMovingFromVal==='down',
-        'fromLeft': bombMovingFromVal==='left',
-        'toRight': bombMovingToVal==='right',
-        'toTop': bombMovingToVal==='up',
-        'toBottom': bombMovingToVal==='down',
-        'toLeft': bombMovingToVal==='left'}">
-
+    'toRight': bombMovingToVal === 'right', 
+    'toTop': bombMovingToVal === 'up', 
+    'toBottom': bombMovingToVal === 'down', 
+    'toLeft': bombMovingToVal === 'left'
+    }">
     <div class='bombModel'></div>
 </div>
+
+<div class = "treeExplosion" *ngIf="treeExplodeAnimation"></div>
+<div class = "centerBombExplode" *ngIf="centerBombExplodeAnimation"></div>
+

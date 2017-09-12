@@ -3,9 +3,9 @@ var server = app.listen(3000);
 var io = require('socket.io')(server);
 var fs = require('fs');
 
-playersCurrentlySearchingForGames = [];
-numberOfPlayersInEachGame = 2;
-activeGames = [];
+playersCurrentlySearchingForGames = []
+numberOfPlayersInEachGame = 1
+activeGames = []
 
 treeInitialPercentageCoverage = 40;
 

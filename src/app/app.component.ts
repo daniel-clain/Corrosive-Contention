@@ -1,62 +1,57 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { UserControlledPlayer } from './the-game/player/user-controlled-player';
+import { Component, OnInit } from '@angular/core';
 import { ConnectionService } from './connection-service/connection-service';
-import { Packet } from './type-definitions/type-definitions';
-import { RegisterComponentsService } from './the-game/register-components-service';
-import { GameComponent } from './the-game/the-game.component';
-import { TileComponent } from './the-game/tile/tile.component';
-
+import { Packet, ServerGameObject} from './definitions/class-definitions';
+import { UserControlledPlayerDefinition }  from './definitions/interface-definitions';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, UserControlledPlayerDefinition {
 
   gameOn = false;
-  connectionService: ConnectionService;
-  user: UserControlledPlayer;
+  connectionService: ConnectionService
+  serverGameObject: ServerGameObject
+  
+  name: string = 'name not set';
 
-  @HostListener('window:keydown', ['$event'])
-  keyDown(e) {
-    this.user.keyboardEvents(e.key, 'down');
-  }
-
-  @HostListener('window:keyup', ['$event'])
-  keyUp(e) {
-    this.user.keyboardEvents(e.key, 'up');
-  }
-
-  constructor(private registerComponentsService: RegisterComponentsService){
-        this.registerComponentsService.gameWatchForGameRegister().subscribe((gameComponent: GameComponent) => this.gameComponentRegister(gameComponent));
-        this.registerComponentsService.gameWatchForTileRegister().subscribe((tileComponent: TileComponent) => this.tileComponentRegister(tileComponent));
-  }
-
-  gameComponentRegister(gameComponent: GameComponent){
-    this.user.theGame.gameService.gameComponentReady(gameComponent);
-  }
-
-  tileComponentRegister(tileComponent: TileComponent){
-    this.user.theGame.gameService.tileComponentReady(tileComponent);
+  constructor(){
+    this.connectionService = new ConnectionService()
+    this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
   }
 
   ngOnInit(){
-    this.connectionService = new ConnectionService();
-    this.user = new UserControlledPlayer( this.connectionService);
-    this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent));
+        this.queForGame()
+  }
+
+  setName(name: string){
+      this.name = name;
   }
 
   manageEventsFromServer(serverEvent){
     const eventsObject = {
-      'game found': serverEvent => this.gameFound()
+      'game found': serverEvent => this.gameFound(serverEvent)
     };
     if (eventsObject[serverEvent.eventName]){
       eventsObject[serverEvent.eventName](serverEvent.data);
     }
   }
-
-  gameFound(){
-      this.gameOn = true;
+  
+  gameFound(fromServerData: ServerGameObject){
+      this.serverGameObject = fromServerData
+      this.gameOn = true
   }
 
+
+  queForGame(){
+      this.connectionService.sendPacket({eventName:'searching for game'})
+  }
+
+  rejoinGame(){
+
+  }
+
+  joinExistingGame(){
+
+  }
 }

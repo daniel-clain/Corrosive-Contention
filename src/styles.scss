@@ -35,12 +35,26 @@ app-tile{
 
 .player{
     z-index: 40;
-    transition: top 0.4s linear, left 0.4s linear;
+    transition: top .4s linear, left .4s linear;
     width: 100%;
     height: 100%;
     position: absolute;
     left: 0%;
     top: 0%;
+    
+
+    &.toTop{
+        top: -100%;
+    }
+    &.toBottom{
+        top: 100%;
+    }
+    &.toLeft{
+        left: -100%;
+    }
+    &.toRight{
+        left: 100%;
+    }
 
     .playerModel{
         position: absolute;
@@ -52,6 +66,15 @@ app-tile{
         top: -10%;
         background-repeat: no-repeat;
         background-position: center;
+        filter: saturate(100%);
+        -webkit-filter: saturate(100%);
+        transition: filter linear 0.5s;
+
+
+        &.takingDamage{
+            filter: saturate(250%);
+            -webkit-filter: saturate(250%);
+        }
 
         &.down{
             background: url('assets/facing_down.png');
@@ -77,37 +100,6 @@ app-tile{
             top: -8%;
             background-size: cover;
         }
-    }
-    
-    
-    &.fromTop{
-        top: -100%;
-        transition: top 0s, left 0s;
-    }
-    &.fromBottom{
-        top: 100%;
-        transition: top 0s, left 0s;
-    }
-    &.fromLeft{
-        left: -100%;
-        transition: top 0s, left 0s;
-    }
-    &.fromRight{
-        left: 100%;
-        transition: top 0s, left 0s;
-    }
-
-    &.toTop{
-        top: -100%;
-    }
-    &.toBottom{
-        top: 100%;
-    }
-    &.toLeft{
-        left: -100%;
-    }
-    &.toRight{
-        left: 100%;
     }
 }
 
@@ -146,8 +138,12 @@ app-tile{
         width: 100px;
     }
 }
-
-.essence {
+.loot {
+    height: 100%;
+    width: 100%;
+    display: block;
+}
+.essenceLoot{
     width: 100%;
     height: 100%;
     z-index: 10;
@@ -166,6 +162,7 @@ app-tile{
         background: url('assets/essence-blue.png') no-repeat;
     }
 }
+
 .oneBomb{
     width: 30px;
     height: 30px;
@@ -222,7 +219,7 @@ app-tile{
     position: absolute;
     left: 0%;
     top: 0%;
-    .bombModel{        
+    .bombModel{
         width: 55%;
         height: 57%;
         background-size: cover;
@@ -261,5 +258,77 @@ app-tile{
     &.toRight{
         left: 100%;
     }
+}
 
+
+.abilitiesHud {
+    background-image: url('assets/abilityHudBg.jpg');
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: 100px;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: cursive;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 49;
+    line-height: 1.6;
+    text-align: center;
+
+
+    .essenceGlowing{
+        width: 150px;
+        height: 150px;
+        background-size: cover;
+        margin-top: -50px;
+        
+
+        display: inline-block;
+        cursor: pointer;
+        transition: margin-top 1s linear;
+        
+        &.up{
+            margin-top: -60px;
+        }
+        
+        &:hover{
+            filter: saturate(1.1);
+            animation: none;
+        }
+
+        &.yellow{
+            background-image: url('assets/e-yellow.png');
+        }
+        &.blue{
+            background-image: url('assets/e-blue.png');
+        }
+        &.green{
+            background-image: url('assets/e-green.png');
+        }
+        &.purple{
+            background-image: url('assets/e-purple.png');
+        }
+
+        .upgradeOptions{
+            position:absolute;
+            top: -100px;
+            width:150px;
+            height:100px;
+            background: #fff;
+            text-align: center;
+            padding: 10px 0;
+            .upgradeOption{
+                background: #eaefe3;
+                margin-bottom:5px;
+            }
+        }
+
+        .upgradeOption:hover{
+            display: block;
+        }
+
+    }
 }
