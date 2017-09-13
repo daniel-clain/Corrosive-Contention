@@ -9,9 +9,26 @@ import { TileService } from './tile-service';
 
 export class GameStartup{
     private gameSettings: GameSettings;
+    tilesReadyResolve: any;
+    hudReadyResolve: any;
+
     constructor(private theGame: TheGame){
-        this.gameSettings = this.theGame.serverGameObject.gameSettings;
-        this.renderGameBoard(this.gameSettings.gameCols, this.gameSettings.gameRows, this.gameSettings.tileSize)
+
+      const hudReady = new Promise((resolve) => {
+        this.hudReadyResolve = resolve;
+      });
+      const tilesReady = new Promise((resolve) => {
+        this.tilesReadyResolve = resolve;
+      });
+
+
+      this.gameSettings = this.theGame.serverGameObject.gameSettings;
+      this.renderGameBoard(this.gameSettings.gameCols, this.gameSettings.gameRows, this.gameSettings.tileSize);
+
+      Promise.all([hudReady, tilesReady]).then(() => {
+        this.gameBoardReady()
+      })
+
     }
 
     private renderGameBoard(columns, rows, tileSize){
@@ -31,6 +48,7 @@ export class GameStartup{
 
     gameHudCreated(gameHud: GameHud){
         this.theGame.gameHud = gameHud;
+        this.hudReadyResolve();
     }
 
     gameTileCreated(tile: Tile){
@@ -40,31 +58,32 @@ export class GameStartup{
             this.theGame.tiles.push(tile);
         }
         if (this.theGame.tiles.length === this.gameSettings.gameCols * this.gameSettings.gameRows){
-            this.gameBoardReady()
+          this.tilesReadyResolve();
         }
-    }
-    private gameBoardReady(){
-        this.theGame.tileService = new TileService(this.theGame.tiles, this.theGame.serverGameObject.gameSettings);
-        this.spawnInitialTrees();
-        this.createPlayerInstances();
-        this.theGame.gameHud.setupStats(this.theGame.mainPlayer.stats);
-        this.theGame.gameSetupDone()
     }
 
     private createPlayerInstances(){
-        this.theGame.mainPlayer = new Player(this.theGame);
-        this.theGame.mainPlayer.ready = true;
-        this.theGame.moveBoard(this.theGame.mainPlayer.tile);
-
-        const mainPlayerNumber: number = this.theGame.mainPlayer.playerNumber;
-        this.theGame.otherPlayers = [];
-        const players: any[number] = this.theGame.serverGameObject.players;
-        players.map(player => player.playerNumber).forEach((playerNumber: number) => {
-            if (playerNumber !== mainPlayerNumber){
-                this.theGame.otherPlayers.push(new Player(this.theGame));
-            }
-        })
+      const mainPlayerNumber: number = this.theGame.serverGameObject.yourPlayerNumber;
+      this.theGame.mainPlayer = new Player(this.theGame, mainPlayerNumber);
+      this.theGame.mainPlayer.ready = true;
+      this.theGame.otherPlayers = [];
+      const players: any[number] = this.theGame.serverGameObject.players;
+      players.map(player => player.playerNumber).forEach((playerNumber: number) => {
+          if (playerNumber !== mainPlayerNumber){
+              this.theGame.otherPlayers.push(new Player(this.theGame, playerNumber));
+          }
+      })
     }
+
+    private gameBoardReady(){
+      this.theGame.tileService = new TileService(this.theGame.tiles, this.theGame.serverGameObject.gameSettings);
+      this.spawnInitialTrees();
+      this.createPlayerInstances();
+      this.theGame.mainPlayer.moveToStartLocation();
+      this.theGame.gameHud.setupStats(this.theGame.mainPlayer.stats);
+      this.theGame.gameSetupDone()
+    }
+
 
   private spawnInitialTrees(){
     const tileIds = this.gameSettings.initialTreeLocations;

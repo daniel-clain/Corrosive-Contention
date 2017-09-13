@@ -7,6 +7,7 @@ import { Tile } from './tile/tile.component';
 import { GameHud } from './hud/game-hud.component';
 import { ManageServerUpdates } from './manage-sever-updates';
 import { TileService } from './tile-service';
+import { Abilities } from './player/abilities';
 
 
 
@@ -32,15 +33,14 @@ export class TheGame implements OnInit {
   gameReady: Boolean = false;
   tileService: TileService;
   gameStartup: GameStartup;
+  gameAbilities: Abilities = new Abilities(this);
 
 
   tileData: TileData[];
   windowWidth: number = window.innerWidth;
   windowHeight: number = window.innerHeight;
 
-  constructor(private cdRef: ChangeDetectorRef) {
-    this.manageServerUpdates = new ManageServerUpdates(this)
-  }
+  constructor(private cdRef: ChangeDetectorRef) {}
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -70,6 +70,7 @@ export class TheGame implements OnInit {
   }
 
   ngOnInit(){
+    this.manageServerUpdates = new ManageServerUpdates(this);
     this.gameStartup = new GameStartup(this)
   }
 

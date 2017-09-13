@@ -85,7 +85,7 @@ export class Tile implements OnInit, TileInterface {
           this.movingToDirection = null;
           this.cdRef.detectChanges();
           resolve();
-          }, 400);
+          }, 410);
       }
 
       if (entity instanceof Bomb){

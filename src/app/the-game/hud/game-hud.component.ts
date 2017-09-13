@@ -44,7 +44,7 @@ export class GameHud implements OnInit {
 
   ngOnInit(){
     this.theGame.gameStartup.gameHudCreated(this);
-    this.essenceAbilitiesList = this.theGame.mainPlayer.abilities.essenceAbilities;
+    this.essenceAbilitiesList = this.theGame.gameAbilities.essenceAbilities;
   }
 
 
@@ -53,7 +53,7 @@ export class GameHud implements OnInit {
       this.playerStats[hudItem] = value;
       const essenceColour: string = EssenceColour[this.isEssence(hudItem)];
       if (essenceColour){
-        const upgradeOption: EssenceAbility = this.checkIfUpgradeAvailable(essenceColour, value);
+        const upgradeOption: EssenceAbility = this.checkIfUpgradeAvailable(essenceColour, hudItem);
         if (upgradeOption){
           this.setEssenceIsActive(true, essenceColour, upgradeOption)
         }
@@ -62,19 +62,12 @@ export class GameHud implements OnInit {
   }
 
 
-  checkIfUpgradeAvailable(essenceColour, value): EssenceAbility{
-    let essenceColourAbilities: EssenceAbility[];
+  checkIfUpgradeAvailable(essenceColour: string, essenceColourRef: string): EssenceAbility{
+    const essenceColourAbilities: EssenceAbility[] = this.essenceAbilitiesList[essenceColour];
     let returnAbility: EssenceAbility = null;
-    switch (essenceColour){
-      case 'blue' : essenceColourAbilities = this.essenceAbilitiesList.blue; break;
-      case 'green' : essenceColourAbilities = this.essenceAbilitiesList.green; break;
-      case 'yellow' : essenceColourAbilities = this.essenceAbilitiesList.yellow; break;
-      case 'purple' : essenceColourAbilities = this.essenceAbilitiesList.purple; break;
-    }
-
 
     essenceColourAbilities.forEach((ability: EssenceAbility) => {
-      if (ability.thisRequired <= value && ability.purpleRequired <= this.playerStats.purpleEssence){
+      if (ability.thisRequired <= this.playerStats[essenceColourRef] && ability.purpleRequired <= this.playerStats.purpleEssence){
         if (!returnAbility || returnAbility.thisRequired <= ability.thisRequired){
           returnAbility = ability;
         }
@@ -88,18 +81,29 @@ export class GameHud implements OnInit {
   }
 
   upgradeAbility(colour, ability: EssenceAbility){
-    console.log(ability.name + ' leveled up!');
-    this.essenceShimmerActive[colour].active = false;
-    let hudRef: string;
+
+    let essenceColourRef: string;
     switch (colour){
-      case 'yellow': hudRef = 'yellowEssence'; break;
-      case 'purple': hudRef = 'purpleEssence'; break;
-      case 'blue': hudRef = 'blueEssence'; break;
-      case 'green': hudRef = 'greenEssence'; break;
+      case 'yellow':
+        essenceColourRef = 'yellowEssence';
+        break;
+      case 'purple':
+        essenceColourRef = 'purpleEssence';
+        break;
+      case 'blue':
+        essenceColourRef = 'blueEssence';
+        break;
+      case 'green':
+        essenceColourRef = 'greenEssence';
+        break;
     }
-    if (this.playerStats[hudRef] = -ability.thisRequired){
-      this.playerStats[hudRef] = -ability.thisRequired;
-      this.playerStats.purpleEssence = -ability.purpleRequired;
+
+    if (ability.thisRequired <= this.playerStats[essenceColourRef] && ability.purpleRequired <= this.playerStats.purpleEssence){
+      console.log(ability.name + ' leveled up!');
+      this.essenceShimmerActive[colour].displayUpgrades = false;
+      this.essenceShimmerActive[colour].active = false;
+      this.playerStats[essenceColourRef] = this.playerStats[essenceColourRef] - ability.thisRequired;
+      this.playerStats.purpleEssence = this.playerStats.purpleEssence - ability.purpleRequired;
       ability.doLevelUp();
     }
   }
@@ -136,7 +140,9 @@ export class GameHud implements OnInit {
     this.cdRef.detectChanges();
 
     setTimeout(() => {
-      if (essence.upAndDown !== 'stop')this.upAndDownLoop(essence);
+      if (essence.upAndDown !== 'stop'){
+        this.upAndDownLoop(essence);
+      }
     }, 1000)
   }
 }

@@ -23,12 +23,9 @@ export class Player implements PlayerDefinition, GameBoardEntity{
     moveKeyActive: Boolean;
 
 
-    constructor(private theGame: TheGame){
-        this.playerNumber = this.theGame.serverGameObject.yourPlayerNumber;
-        this.abilities = new Abilities(this, this.theGame, this.theGame.tileService);
-        this.startLocation = this.theGame.tileService.getTileByPlayerStartLocation(this.playerNumber);
-        this.tile = this.startLocation;
-        this.moveToStartLocation()
+    constructor(private theGame: TheGame, playerNumber: number){
+        this.playerNumber = playerNumber;
+        this.abilities = theGame.gameAbilities;
     }
 
     keyReleased(key: string){
@@ -81,7 +78,7 @@ export class Player implements PlayerDefinition, GameBoardEntity{
             if (this.stats.bombs >= 1){
                 this.abilities.throwBomb();
                 this.stats.bombs--;
-                this.theGame.gameHud.updateStats('bombs', this.stats.bombs)
+                this.theGame.gameHud.updateStats('bombs', this.stats.bombs);
             }
         }
 
@@ -114,11 +111,19 @@ export class Player implements PlayerDefinition, GameBoardEntity{
     }
 
     moveToStartLocation(){
-        this.facing = 'down';
+        if (!this.startLocation){
+          this.startLocation = this.theGame.tileService.getTileByPlayerStartLocation(this.playerNumber);
+        }
         this.tile = this.startLocation;
-        this.moveIntoTile();
+        this.facing = 'down';
+        this.theGame.moveBoard(this.startLocation);
+        this.startLocation.entityEnterTile(this);
         const surroundingTiles = this.theGame.tileService.getTilesWithXRadius(1, this.startLocation);
-        surroundingTiles.forEach(tile => tile.treeInTile.remove());
+        surroundingTiles.forEach(tile => {
+          if (tile.treeInTile){
+            tile.treeInTile.remove();
+          }
+        });
     }
 
 
@@ -158,11 +163,4 @@ export class Player implements PlayerDefinition, GameBoardEntity{
         this.playerHealthChange(-explosion.damage);
         this.tile.playerTakesDamage()
     };
-
-    moveIntoTile(){
-        this.tile.entityEnterTile(this);
-        if (this.playerNumber === this.theGame.serverGameObject.yourPlayerNumber){
-            this.theGame.moveBoard(this.tile);
-        }
-    }
 }

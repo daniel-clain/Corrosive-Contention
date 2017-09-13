@@ -1,10 +1,7 @@
-
-import { Player } from './player';
 import { FailOrSucceed, EssenceAbilities, EssenceAbility } from '../../definitions/class-definitions'
 import { Tile } from '../tile/tile.component'
 import { Bomb } from '../game-board-entities/bomb';
 import { TheGame } from '../the-game.component';
-import { TileService } from '../tile-service';
 
 export class Abilities{
   get essenceAbilities(): EssenceAbilities{
@@ -52,10 +49,10 @@ export class Abilities{
             },
         ]
     };
-  constructor(private player: Player, private theGame: TheGame, private tileService: TileService){}
+  constructor(private theGame: TheGame){}
 
     siphonTree(): FailOrSucceed{
-        const targetTile: Tile = this.tileService.getTileRelativeToAnotherTile(this.player.tile, this.player.facing);
+        const targetTile: Tile = this.theGame.tileService.getTileRelativeToAnotherTile(this.theGame.mainPlayer.tile, this.theGame.mainPlayer.facing);
         if (targetTile && targetTile.treeInTile){
             if (targetTile.treeInTile.isVolatile){
                 targetTile.treeInTile.treeExplode();
@@ -72,18 +69,18 @@ export class Abilities{
     }
 
     throwBomb(): FailOrSucceed{
-        const bomb: Bomb = new Bomb(this.player, this.tileService);
+        const bomb: Bomb = new Bomb(this.theGame.mainPlayer, this.theGame.tileService);
         bomb.tile.entityEnterTile(bomb);
         bomb.bombTravel();
-        this.theGame.broadcastEventToOtherPlayers('player throwBomb update', { playerNumber: this.player.playerNumber });
+        this.theGame.broadcastEventToOtherPlayers('player throwBomb update', { playerNumber: this.theGame.mainPlayer.playerNumber });
         return <FailOrSucceed>{ FailOrSucceed: true }
     };
 
     throwBombLevelUp(){
-        this.player.stats.bombThrowRange++;
+        this.theGame.mainPlayer.stats.bombThrowRange++;
     };
 
     bombExplosionSizeLevelUp(){
-        this.player.stats.bombExplosionSize++;
+        this.theGame.mainPlayer.stats.bombExplosionSize++;
     };
 }

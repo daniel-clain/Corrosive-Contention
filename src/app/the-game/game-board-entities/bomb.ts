@@ -16,18 +16,17 @@ export class Bomb implements GameBoardEntity{
     bombExplodeSound = new Audio('../../assets/bomb_explode.mp3');
 
     constructor(player: Player, private tileService: TileService){
-        this.direction = player.facing;
-        this.explosionSize = player.stats.bombExplosionSize;
-        this.bounceRange = player.stats.bombThrowRange;
-        this.bouncesLeft = this.bounceRange;
-        this.playerWhoThrewIt = player;
-        this.tile = player.tile;
-        this.bombExplodeSound.load();
+      this.direction = player.facing;
+      this.explosionSize = player.stats.bombExplosionSize;
+      this.bounceRange = player.stats.bombThrowRange;
+      this.bouncesLeft = this.bounceRange;
+      this.playerWhoThrewIt = player;
+      this.tile = player.tile;
+      this.bombExplodeSound.load();
     }
 
-
-
     bombTravel(){
+      setTimeout(() => {
         this.bouncesLeft--;
         this.tile.entityLeaveTile(this)
         .then(() => {
@@ -47,6 +46,7 @@ export class Bomb implements GameBoardEntity{
                 console.log('bombs next tile was undefined')
             }
         })
+      })
     }
 
     explode(){
