@@ -2,6 +2,7 @@ import { Component, Input, ChangeDetectorRef, OnInit } from '@angular/core';
 import { PlayerStats, EssenceAbility, EssenceAbilities } from '../../definitions/class-definitions';
 import { TheGame } from '../the-game.component';
 import { EssenceColour } from '../../definitions/enum-definitions';
+import { ActivatedAbility } from '../../definitions/class-definitions';
 
 @Component({
   selector: 'game-hud',
@@ -15,8 +16,9 @@ export class GameHud implements OnInit {
 
     playerStats: PlayerStats;
     essenceAbilitiesList: EssenceAbilities;
+    activatedAbilities: ActivatedAbility[];
 
-  private essenceShimmerActive = {
+  essenceShimmerActive = {
     purple: {
       active: false,
       upAndDown: 'down',
@@ -44,7 +46,12 @@ export class GameHud implements OnInit {
 
   ngOnInit(){
     this.theGame.gameStartup.gameHudCreated(this);
-    this.essenceAbilitiesList = this.theGame.gameAbilities.essenceAbilities;
+    this.activatedAbilities = this.theGame.gameAbilities.getActivatedAbilities();
+  }
+
+  refreshHudComponent(){
+    this.cdRef.detach();
+    this.cdRef.detectChanges();
   }
 
 

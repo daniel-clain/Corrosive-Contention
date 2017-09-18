@@ -1,19 +1,23 @@
 <game-hud [theGame] = "this"></game-hud>
 
 <div class='board'
-[style.width.px] = "serverGameObject.gameSettings.tileSize * serverGameObject.gameSettings.gameCols"
-[style.top.px] = "topVal"
-[style.left.px] = "leftVal">
-    <app-tile
-    *ngFor = "let tile of tileData"
-    [tileInstance] = "tile"
-    [theGame] = "this"
-    [style.background-position-y.px]="tile.bgy"
-    [style.background-position-x.px]="tile.bgx"
-    [style.width.px]="tile.size"
-    [style.height.px]="tile.size"
-    [class] = "'id'+tile.id+' col'+tile.column+' row'+tile.row">
-    </app-tile>
+  [style.width.px] = "serverGameObject.gameSettings.tileSize * serverGameObject.gameSettings.gameCols"
+  [style.top.px] = "topVal"
+  [style.left.px] = "leftVal">
+    <game-player
+      *ngFor = "let player of serverGameObject.players"
+      >
+    </game-player>
+    <game-tile
+      *ngFor = "let tile of tileData"
+      [tileInstance] = "tile"
+      [theGame] = "this"
+      [style.background-position-y.px]="tile.bgy"
+      [style.background-position-x.px]="tile.bgx"
+      [style.width.px]="tile.size"
+      [style.height.px]="tile.size"
+      [class] = "'id'+tile.id+' col'+tile.column+' row'+tile.row">
+    </game-tile>
 </div>
 
 

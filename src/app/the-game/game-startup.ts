@@ -11,6 +11,7 @@ export class GameStartup{
     private gameSettings: GameSettings;
     tilesReadyResolve: any;
     hudReadyResolve: any;
+  playersReadyResolve: any;
 
     constructor(private theGame: TheGame){
 
@@ -22,10 +23,17 @@ export class GameStartup{
       });
 
 
+      const playersReady = new Promise((resolve) => {
+        this.playersReadyResolve = resolve;
+      });
+
+
+
+
       this.gameSettings = this.theGame.serverGameObject.gameSettings;
       this.renderGameBoard(this.gameSettings.gameCols, this.gameSettings.gameRows, this.gameSettings.tileSize);
 
-      Promise.all([hudReady, tilesReady]).then(() => {
+      Promise.all([hudReady, tilesReady, playersReady]).then(() => {
         this.gameBoardReady()
       })
 
@@ -51,6 +59,17 @@ export class GameStartup{
         this.hudReadyResolve();
     }
 
+  playerCreated(player: Player){
+      if (player.playerNumber === this.theGame.serverGameObject.yourPlayerNumber){
+        this.theGame.mainPlayer = player;
+      }else {
+        this.theGame.otherPlayers.push(player)
+      }
+      if (this.theGame.mainPlayer && (this.theGame.otherPlayers.length + 1 === this.theGame.serverGameObject.players.length)){
+        this.playersReadyResolve();
+      }
+  }
+
     gameTileCreated(tile: Tile){
         if (this.theGame.tiles === undefined){
             this.theGame.tiles = [tile]
@@ -63,7 +82,7 @@ export class GameStartup{
     }
 
     private createPlayerInstances(){
-      const mainPlayerNumber: number = this.theGame.serverGameObject.yourPlayerNumber;
+      /*const mainPlayerNumber: number = this.theGame.serverGameObject.yourPlayerNumber;
       this.theGame.mainPlayer = new Player(this.theGame, mainPlayerNumber);
       this.theGame.mainPlayer.ready = true;
       this.theGame.otherPlayers = [];
@@ -73,6 +92,7 @@ export class GameStartup{
               this.theGame.otherPlayers.push(new Player(this.theGame, playerNumber));
           }
       })
+      */
     }
 
     private gameBoardReady(){

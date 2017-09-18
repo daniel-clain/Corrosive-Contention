@@ -8,7 +8,7 @@ import { Bomb } from '../game-board-entities/bomb';
 import { GameBoardEntity } from '../../definitions/interface-definitions';
 
 @Component({
-  selector: 'app-tile',
+  selector: 'game-tile',
   templateUrl: 'tile.component.html'
 })
 

@@ -7,7 +7,7 @@ import { Tile } from './tile/tile.component';
 import { GameHud } from './hud/game-hud.component';
 import { ManageServerUpdates } from './manage-sever-updates';
 import { TileService } from './tile-service';
-import { Abilities } from './player/abilities';
+import { Abilities } from './abilities-and-upgrades/abilities-service';
 
 
 

@@ -1,31 +1,43 @@
-
+import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { PlayerDefinition, GameBoardEntity } from '../../definitions/interface-definitions';
 import { BombItem } from '../../definitions/enum-definitions';
 import { Explosion, FailOrSucceed, TreeAcid, PlayerStats, Loot } from '../../definitions/class-definitions';
 import { Tile } from '../tile/tile.component';
 import { TheGame } from '../the-game.component';
-import { Abilities } from './abilities';
+import { Abilities } from '../abilities-and-upgrades/abilities-service';
+
+@Component({
+  selector: 'game-player',
+  templateUrl: 'game-hud.component.html'
+})
 
 
-
-
-export class Player implements PlayerDefinition, GameBoardEntity{
-    playerNumber: number;
+export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
+    @Input() theGame: TheGame;
+    @Input() playerNumber: number;
     abilities: Abilities;
     facing = 'down';
     tile: Tile;
     stats: PlayerStats = new PlayerStats();
     startLocation: Tile;
     playerIsOut: Boolean;
+    status: any[] = [];
     ready: Boolean;
     counter = 0;
     moveLoopActive;
     moveKeyActive: Boolean;
 
 
-    constructor(private theGame: TheGame, playerNumber: number){
-        this.playerNumber = playerNumber;
-        this.abilities = theGame.gameAbilities;
+
+    constructor(private cdRef: ChangeDetectorRef){}
+
+    ngOnInit(){
+      this.theGame.gameStartup.playerCreated(this)
+      this.abilities = this.theGame.gameAbilities;
+    }
+    refreshPlayerComponent(){
+      this.cdRef.detach();
+      this.cdRef.detectChanges();
     }
 
     keyReleased(key: string){

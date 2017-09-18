@@ -105,3 +105,10 @@ export class PlayerHud{
   maxLives = 3;
   maxHealth = 2;
 }
+
+export class ActivatedAbility{
+  cooldown: number;
+  icon: string;
+  useActivatedAbility: void;
+  triggerKey: string;
+}
