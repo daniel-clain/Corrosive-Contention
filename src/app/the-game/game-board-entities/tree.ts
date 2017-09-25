@@ -3,7 +3,7 @@ import { TreeAcid, Loot } from '../../definitions/class-definitions'
 import { Tile } from '../tile/tile.component';
 import { StaticMethods } from '../../definitions/static-methods'
 import { TileService } from '../tile-service';
-import { Player } from '../player/player';
+import { Player } from '../player/player.component';
 
 
 export class Tree implements GameBoardEntity{

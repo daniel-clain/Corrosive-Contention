@@ -1,15 +1,14 @@
 import { Component, OnInit, HostListener, ChangeDetectorRef, Input } from '@angular/core';
 import { WindowDimensions, TileData, ServerGameObject } from '../definitions/class-definitions';
+import { AbilityName } from '../definitions/enum-definitions';
 import { ConnectionService } from '../connection-service/connection-service';
 import { GameStartup } from './game-startup';
-import { Player } from './player/player';
+import { Player } from './player/player.component';
 import { Tile } from './tile/tile.component';
 import { GameHud } from './hud/game-hud.component';
 import { ManageServerUpdates } from './manage-sever-updates';
 import { TileService } from './tile-service';
-import { Abilities } from './abilities-and-upgrades/abilities-service';
-
-
+import { AbilitiesService } from './abilities-and-upgrades/abilities-service';
 
 
 @Component({
@@ -21,19 +20,18 @@ export class TheGame implements OnInit {
   @Input() serverGameObject: ServerGameObject;
   @Input() connectionService: ConnectionService;
 
-   manageServerUpdates: ManageServerUpdates;
-
+  manageServerUpdates: ManageServerUpdates;
 
   mainPlayer: Player;
-  otherPlayers: Player[];
+  players: Player[];
   tiles: Tile[];
   topVal: number;
   leftVal: number;
   gameHud: GameHud;
   gameReady: Boolean = false;
+  abilitiesService: AbilitiesService = new AbilitiesService(this);
   tileService: TileService;
   gameStartup: GameStartup;
-  gameAbilities: Abilities = new Abilities(this);
 
 
   tileData: TileData[];
@@ -78,7 +76,7 @@ export class TheGame implements OnInit {
   gameSetupDone(){
 
     this.broadcastEventToOtherPlayers('player ready', {playerNumber: this.serverGameObject.yourPlayerNumber});
-    if (this.otherPlayers.length === 0 || this.otherPlayers.forEach(player => player.ready)){
+    if (this.players.length === 0 || this.players.forEach(player => player.ready)){
       this.startGame()
     }else{
       this.manageServerUpdates.waitForOtherPlayersReady().subscribe(() => this.startGame())
@@ -115,8 +113,8 @@ export class TheGame implements OnInit {
                   this.mainPlayer.keydown('left')
                 }
                   break;
-                case 'r': this.mainPlayer.useAbility('Siphon Tree'); break;
-                case ' ': this.mainPlayer.useAbility('Throw Bomb'); break;
+                case 'r': this.mainPlayer.useAbility(AbilityName['Siphon Tree']); break;
+                case ' ': this.mainPlayer.useAbility(AbilityName['Throw Bomb']); break;
               }
             }
             if (action === 'up'){
@@ -144,7 +142,7 @@ export class TheGame implements OnInit {
 
   getPlayerByPlayerNumber(playerNumber: number): Player{
     let matchingPlayer: Player;
-    this.otherPlayers.forEach(player => {
+    this.players.forEach(player => {
         if (player.playerNumber === playerNumber){
             matchingPlayer = player;
         }

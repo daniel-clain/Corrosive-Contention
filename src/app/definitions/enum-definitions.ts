@@ -32,7 +32,7 @@ export enum PlayerStatsItem{
     'maximumBombs'
 }
 
-export enum Ability{
+export enum AbilityName{
     'Siphon Tree',
     'Throw Bomb',
     'Go Invisible',

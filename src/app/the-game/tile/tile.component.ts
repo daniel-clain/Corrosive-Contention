@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { TheGame } from '../the-game.component';
 import { Loot, TileData } from '../../definitions/class-definitions';
 import { TileInterface } from '../../definitions/interface-definitions';
-import { Player } from '../player/player'
+import { Player } from '../player/player.component'
 import { Tree } from '../game-board-entities/tree';
 import { Bomb } from '../game-board-entities/bomb';
 import { GameBoardEntity } from '../../definitions/interface-definitions';

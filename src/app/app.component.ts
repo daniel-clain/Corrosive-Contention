@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ConnectionService } from './connection-service/connection-service';
 import { Packet, ServerGameObject} from './definitions/class-definitions';
-import { UserControlledPlayerDefinition } from './definitions/interface-definitions';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
 })
-export class AppComponent implements OnInit, UserControlledPlayerDefinition {
+export class AppComponent implements OnInit {
 
   gameOn = false;
   connectionService: ConnectionService;
@@ -41,7 +40,6 @@ export class AppComponent implements OnInit, UserControlledPlayerDefinition {
       this.serverGameObject = fromServerData;
       this.gameOn = true
   }
-
 
   queForGame(){
       this.connectionService.sendPacket({eventName: 'searching for game'})

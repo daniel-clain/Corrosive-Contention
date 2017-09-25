@@ -1,7 +1,7 @@
 
 import { TileData, GameSettings } from '../definitions/class-definitions';
 import { Tile } from './tile/tile.component';
-import { Player } from './player/player';
+import { Player } from './player/player.component';
 import { Tree } from './game-board-entities/tree';
 import { TheGame } from './the-game.component'
 import { GameHud } from './hud/game-hud.component'
@@ -11,7 +11,7 @@ export class GameStartup{
     private gameSettings: GameSettings;
     tilesReadyResolve: any;
     hudReadyResolve: any;
-  playersReadyResolve: any;
+    playersReadyResolve: any;
 
     constructor(private theGame: TheGame){
 
@@ -26,6 +26,8 @@ export class GameStartup{
       const playersReady = new Promise((resolve) => {
         this.playersReadyResolve = resolve;
       });
+
+      this.theGame.players = [];
 
 
 
@@ -59,13 +61,13 @@ export class GameStartup{
         this.hudReadyResolve();
     }
 
-  playerCreated(player: Player){
-      if (player.playerNumber === this.theGame.serverGameObject.yourPlayerNumber){
-        this.theGame.mainPlayer = player;
-      }else {
-        this.theGame.otherPlayers.push(player)
-      }
-      if (this.theGame.mainPlayer && (this.theGame.otherPlayers.length + 1 === this.theGame.serverGameObject.players.length)){
+    playerCreated(player: Player){
+        if (player.playerNumber === this.theGame.serverGameObject.yourPlayerNumber){
+            this.theGame.mainPlayer = player;
+        }
+        this.theGame.players.push(player)
+      
+      if (this.theGame.players.length === this.theGame.serverGameObject.players.length){
         this.playersReadyResolve();
       }
   }
@@ -77,28 +79,16 @@ export class GameStartup{
             this.theGame.tiles.push(tile);
         }
         if (this.theGame.tiles.length === this.gameSettings.gameCols * this.gameSettings.gameRows){
-          this.tilesReadyResolve();
+            
+            this.theGame.tileService = new TileService(this.theGame.tiles, this.theGame.serverGameObject.gameSettings);
+            this.tilesReadyResolve();
         }
     }
 
-    private createPlayerInstances(){
-      /*const mainPlayerNumber: number = this.theGame.serverGameObject.yourPlayerNumber;
-      this.theGame.mainPlayer = new Player(this.theGame, mainPlayerNumber);
-      this.theGame.mainPlayer.ready = true;
-      this.theGame.otherPlayers = [];
-      const players: any[number] = this.theGame.serverGameObject.players;
-      players.map(player => player.playerNumber).forEach((playerNumber: number) => {
-          if (playerNumber !== mainPlayerNumber){
-              this.theGame.otherPlayers.push(new Player(this.theGame, playerNumber));
-          }
-      })
-      */
-    }
 
     private gameBoardReady(){
-      this.theGame.tileService = new TileService(this.theGame.tiles, this.theGame.serverGameObject.gameSettings);
       this.spawnInitialTrees();
-      this.createPlayerInstances();
+      this.theGame.gameReady = true;
       this.theGame.mainPlayer.moveToStartLocation();
       this.theGame.gameHud.setupStats(this.theGame.mainPlayer.stats);
       this.theGame.gameSetupDone()

@@ -1,4 +1,4 @@
-import { Player } from '../the-game/player/player'
+import { Player } from '../the-game/player/player.component'
 import { Tile } from '../the-game/tile/tile.component'
 import { GameBoardEntity } from './interface-definitions';
 
@@ -60,11 +60,6 @@ export class TreeAcid{
     damage = 1;
 }
 
-export class FailOrSucceed {
-    FailOrSucceed: Boolean;
-    reason?: String;
-    returnObj?: any;
-}
 
 export class PlayerStats{
     maxHealth = 6;

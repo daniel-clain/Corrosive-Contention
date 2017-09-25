@@ -1,5 +1,5 @@
 import { Tile } from './tile/tile.component';
-import { Player } from './player/player';
+import { Player } from './player/player.component';
 import { GameBoardEntity } from '../definitions/interface-definitions';
 import {  GameSettings } from '../definitions/class-definitions';
 

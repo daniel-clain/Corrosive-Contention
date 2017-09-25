@@ -1,44 +1,30 @@
-import { FailOrSucceed, EssenceAbilities, EssenceAbility, ActivatedAbility } from '../../definitions/class-definitions'
+import { EssenceAbilities, EssenceAbility, ActivatedAbility } from '../../definitions/class-definitions'
 import { Tile } from '../tile/tile.component'
 import { Bomb } from '../game-board-entities/bomb';
 import { TheGame } from '../the-game.component';
+import { Ability, SiphonTree, ThrowBomb, Invisibility, Upgrade, BombThrowRange } from './abilities-and-upgrades';
 
-export class Abilities{
+export class AbilitiesService{
 
-  activateAbilities: ActivatedAbility[];
-  abilities: Ability[];
-  get essenceAbilities(){
-    return this._essenceAbilities;
-  }
-
-
-    };
+  activatedAbilities: ActivatedAbility[];
+  defaultAbilitiesList = {
+    'Go Invisible': new Invisibility(this.theGame), /*
+    new PlayerDetector(this.theGame),
+    new Tentacle(this.theGame),
+    new AcidTrap(this.theGame),
+    new ForceField(this.theGame),
+    new BuldTowerDefence(this.theGame), */
+    'Siphon Tree': new SiphonTree(this.theGame),
+    'Throw Bomb': new ThrowBomb(this.theGame), /*
+    new MoveDetector(this.theGame) */
+  };
+  upgrades: Upgrade[] = [
+    new BombThrowRange(this.theGame), /*
+    new SpeedIncrease(this.theGame),
+    new HealthRegenration(this.theGame),
+    new BombExplosionSize(this.theGame) */
+  ];
   constructor(private theGame: TheGame){}
-
-    siphonTree(): FailOrSucceed{
-        const targetTile: Tile = this.theGame.tileService.getTileRelativeToAnotherTile(this.theGame.mainPlayer.tile, this.theGame.mainPlayer.facing);
-        if (targetTile && targetTile.treeInTile){
-            if (targetTile.treeInTile.isVolatile){
-                targetTile.treeInTile.treeExplode();
-                console.log('tree is volatile and exploded');
-                this.theGame.broadcastEventToOtherPlayers('treeExplode update', { tileId: targetTile.id });
-                return <FailOrSucceed>{ FailOrSucceed: false, reason: 'tree was volatile and exploded', returnObj: {tile: targetTile}}
-            } else {
-                targetTile.treeInTile.treeIsSiphoned();
-                return <FailOrSucceed>{ FailOrSucceed: true}
-            }
-        } else {
-            return <FailOrSucceed>{ FailOrSucceed: false, reason: 'either no tree in tile or tile does not exist', returnObj: {targetTile: targetTile} }
-        }
-    }
-
-    throwBomb(): FailOrSucceed{
-        const bomb: Bomb = new Bomb(this.theGame.mainPlayer, this.theGame.tileService);
-        bomb.tile.entityEnterTile(bomb);
-        bomb.bombTravel();
-        this.theGame.broadcastEventToOtherPlayers('player throwBomb update', { playerNumber: this.theGame.mainPlayer.playerNumber });
-        return <FailOrSucceed>{ FailOrSucceed: true }
-    };
 
     throwBombLevelUp(){
         this.theGame.mainPlayer.stats.bombThrowRange++;
@@ -57,13 +43,16 @@ export class Abilities{
     }
     getActivatedAbilities(): ActivatedAbility[]{
       if(this.activatedAbilities){
-        return this.activateAbilities;
+        return this.activatedAbilities;
       } else {
-        this.activateAbilities = [];
-        this.abilitiesList.forEach((ability: Ability) => {
-        if (ability instanceof ActivatedAbility){
-          this.activateAbilities.push(ability)
-        }
-      })
+        this.activatedAbilities = [];
+        /*this.abilitiesList.forEach((ability: Ability) => {
+          if (ability instanceof ActivatedAbility){
+            this.activatedAbilities.push(ability)
+          }
+        })*/
+      }
     }
-}
+  }
+    
+

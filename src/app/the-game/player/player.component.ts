@@ -1,21 +1,26 @@
 import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
 import { PlayerDefinition, GameBoardEntity } from '../../definitions/interface-definitions';
-import { BombItem } from '../../definitions/enum-definitions';
-import { Explosion, FailOrSucceed, TreeAcid, PlayerStats, Loot } from '../../definitions/class-definitions';
+import { BombItem, AbilityName } from '../../definitions/enum-definitions';
+import { Explosion, TreeAcid, PlayerStats, Loot } from '../../definitions/class-definitions';
 import { Tile } from '../tile/tile.component';
 import { TheGame } from '../the-game.component';
-import { Abilities } from '../abilities-and-upgrades/abilities-service';
+import { Ability } from '../abilities-and-upgrades/abilities-and-upgrades'
 
 @Component({
   selector: 'game-player',
-  templateUrl: 'game-hud.component.html'
+  template: `
+    <div 
+        class="playerModel" 
+        [class]="facing" 
+        [ngClass]="{'takingDamage': takingDamage}">
+    </div>
+  `
 })
 
 
 export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
     @Input() theGame: TheGame;
     @Input() playerNumber: number;
-    abilities: Abilities;
     facing = 'down';
     tile: Tile;
     stats: PlayerStats = new PlayerStats();
@@ -26,14 +31,18 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
     counter = 0;
     moveLoopActive;
     moveKeyActive: Boolean;
+    abilities: any;
 
 
 
-    constructor(private cdRef: ChangeDetectorRef){}
+    constructor(private cdRef: ChangeDetectorRef){
+        
+    }
 
     ngOnInit(){
+      this.tile = this.startLocation = this.theGame.tileService.getTileByPlayerStartLocation(this.playerNumber)
       this.theGame.gameStartup.playerCreated(this)
-      this.abilities = this.theGame.gameAbilities;
+      this.abilities = this.theGame.abilitiesService.defaultAbilitiesList;
     }
     refreshPlayerComponent(){
       this.cdRef.detach();
@@ -60,11 +69,11 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
         const destinationTile: Tile = this.theGame.tileService.getDestinationTile(this.tile, direction);
         if (destinationTile && destinationTile.playerMovingInToTile()){
             this.theGame.moveBoard(destinationTile);
-            this.tile.entityLeaveTile(this)
-            .then(() => {
-                this.counter = 0;
+            setTimeout(() => {
+                  
+                this.cdRef.detach();
                 this.tile = destinationTile;
-                destinationTile.entityEnterTile(this);
+                this.cdRef.detectChanges();
                 setTimeout(() => {
                     if (this.moveKeyActive){
                         this.move(this.facing)
@@ -72,7 +81,7 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
                         this.moveLoopActive = false;
                     }
                 }, 1)
-            });
+            }, 4000)
             this.theGame.broadcastEventToOtherPlayers('player move update', { playerNumber: this.playerNumber, direction: direction })
         } else {
             this.tile.setFacingDirection();
@@ -82,20 +91,9 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
         }
     }
 
-    useAbility(ability: string): FailOrSucceed{
-        if (ability === 'Siphon Tree'){
-            this.abilities.siphonTree()
-        }
-        if (ability === 'Throw Bomb'){
-            if (this.stats.bombs >= 1){
-                this.abilities.throwBomb();
-                this.stats.bombs--;
-                this.theGame.gameHud.updateStats('bombs', this.stats.bombs);
-            }
-        }
-
-        this.theGame.broadcastEventToOtherPlayers('player use ability update', { playerNumber: this.playerNumber, ability: ability });
-        return <FailOrSucceed>{ FailOrSucceed: true }
+    useAbility(abilityName: AbilityName){
+        this.abilities[abilityName].useAbility();
+        this.theGame.broadcastEventToOtherPlayers('player use ability update', { playerNumber: this.playerNumber, ability: abilityName });
     };
 
 

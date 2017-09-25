@@ -1,6 +1,6 @@
 import { Explosion } from '../../definitions/class-definitions';
 import { GameBoardEntity } from '../../definitions/interface-definitions';
-import { Player } from '../player/player';
+import { Player } from '../player/player.component';
 import { Tile } from '../tile/tile.component';
 import { TileService } from '../tile-service';
 

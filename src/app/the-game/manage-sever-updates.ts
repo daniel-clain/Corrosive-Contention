@@ -1,7 +1,9 @@
 
 import { Packet, Loot } from '../definitions/class-definitions';
+import { AbilityName } from '../definitions/enum-definitions';
+
 import { TheGame } from './the-game.component';
-import { Player } from './player/player';
+import { Player } from './player/player.component';
 import { Subject } from 'rxjs/Subject';
 
 export class ManageServerUpdates{
@@ -36,7 +38,7 @@ export class ManageServerUpdates{
 
     playerReadyUpdate(data){
         let allReady = true;
-        this.theGame.otherPlayers.forEach(player => {
+        this.theGame.players.forEach(player => {
             if (player.playerNumber === data.playerNumber){
                 player.ready = true
             }
@@ -79,7 +81,7 @@ export class ManageServerUpdates{
 
     playerUseAbilityEvent(data){
         const player: Player = this.theGame.getPlayerByPlayerNumber(data.playerNumber);
-        const ability: string = data.ability;
+        const ability: AbilityName = data.ability;
         player.useAbility(ability)
     }
 

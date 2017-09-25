@@ -46,7 +46,7 @@ export class GameHud implements OnInit {
 
   ngOnInit(){
     this.theGame.gameStartup.gameHudCreated(this);
-    this.activatedAbilities = this.theGame.gameAbilities.getActivatedAbilities();
+    this.activatedAbilities = this.theGame.abilitiesService.getActivatedAbilities();
   }
 
   refreshHudComponent(){
