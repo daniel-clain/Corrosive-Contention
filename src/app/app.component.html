@@ -1,5 +1,6 @@
 <div class='pre-game-interface' *ngIf='!gameOn'></div>
-<the-game *ngIf='gameOn' [serverGameObject]="serverGameObject" [connectionService]="connectionService"></the-game>
+<game-user (sendUserInstanceToApp)="registerUserInstance($event)"></game-user>
+<the-game *ngIf='gameOn' [serverGameObject]="serverGameObject" [connectionService]="connectionService" [user]="user"></the-game>
 
 
 

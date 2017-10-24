@@ -3,35 +3,10 @@
 
 
 
-<div class='tree' *ngIf = "treeInTile">
-    <div class="treeExplosion" *ngIf = "treeExplode"></div>
-    <div class="treeModel" [ngStyle]="{'background-image': 'url(assets/c-tree' + treeInTile.treeModelType + '.png)'}"></div>
-</div>
 
-<div class='loot' *ngIf = "lootInTile">
-    <div class="essenceLoot"
-        *ngIf = "lootInTile.essenceColour"
-        [ngClass]="lootInTile.essenceColour"
-        [style.background-position-y.px]="lootInTile.essencePosition.y"
-        [style.background-position-x.px]="lootInTile.essencePosition.x">
-    </div>
-    <div class = 'bombLoot'
-        *ngIf = "lootInTile.bombs"
-        [ngClass]="lootInTile.bombs">
-    </div>
-</div>
+ <div  [style.top.px] = "runeY" [style.left.px] = "runeX" class="volatileRunes" *ngIf = "showVolatileRunes" [ngClass]="{'pause': pauseRuneAnimation}">
+   <div class="volatileRunesModel" [ngClass]="[volatileRunesNumber]"></div>
+ </div>
 
-<div class="bombInTile"
-    *ngIf = "bombInTile"
-    [ngClass]="{
-    'toRight': bombMovingToVal === 'right',
-    'toTop': bombMovingToVal === 'up',
-    'toBottom': bombMovingToVal === 'down',
-    'toLeft': bombMovingToVal === 'left'
-    }">
-    <div class='bombModel'></div>
-</div>
 
-<div class = "treeExplosion" *ngIf="treeExplodeAnimation"></div>
-<div class = "centerBombExplode" *ngIf="centerBombExplodeAnimation"></div>
 

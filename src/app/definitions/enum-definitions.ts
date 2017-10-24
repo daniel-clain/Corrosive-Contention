@@ -1,9 +1,9 @@
 
 export enum Direction {
-    'up',
-    'right',
-    'down',
-    'left'
+    up = 'up',
+    right = 'right',
+    left = 'left',
+    down = 'down'
 }
 
 export enum BombItem {
@@ -19,6 +19,17 @@ export enum EssenceColour {
     'purple'
 }
 
+export enum NumberNames{
+  'one' = 1,
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight'
+}
+
 export enum PlayerStatsItem{
     'health',
     'lives',
@@ -32,7 +43,7 @@ export enum PlayerStatsItem{
     'maximumBombs'
 }
 
-export enum AbilityName{
+/*export enum AbilityName{
     'Siphon Tree',
     'Throw Bomb',
     'Go Invisible',
@@ -43,5 +54,8 @@ export enum AbilityName{
     'Speed Burst',
     'Use Player Detector',
     'Pickup / Drop Volatile Detector'
-}
+}*/
+
+export type AbilityName =
+  'Siphon Tree' | 'Throw Bomb' | 'Go Invisible' | 'Plant Vine Trap' | 'Use ForceField' | 'Place Fake Tree' | 'Place Tree Mine' | 'Speed Burst' | 'Use Player Detector' | 'Pickup / Drop Volatile Detector'
 

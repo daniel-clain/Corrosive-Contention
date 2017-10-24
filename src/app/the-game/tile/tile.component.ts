@@ -1,10 +1,13 @@
-import { Component, OnInit, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, Input, ElementRef } from '@angular/core';
 import { TheGame } from '../the-game.component';
-import { Loot, TileData } from '../../definitions/class-definitions';
+import { TileData } from '../../definitions/class-definitions';
 import { TileInterface } from '../../definitions/interface-definitions';
 import { Player } from '../player/player.component'
 import { Tree } from '../game-board-entities/tree';
 import { Bomb } from '../game-board-entities/bomb';
+import { Loot } from '../game-board-entities/loot';
+import { VolatileDetector } from '../game-board-entities/volatile-detector';
+
 import { GameBoardEntity } from '../../definitions/interface-definitions';
 
 @Component({
@@ -12,52 +15,53 @@ import { GameBoardEntity } from '../../definitions/interface-definitions';
   templateUrl: 'tile.component.html'
 })
 
-export class Tile implements OnInit, TileInterface {
+export class Tile implements OnInit, TileInterface, AfterViewInit {
 
   playerInTile: Player;
   treeInTile: Tree;
   lootInTile: Loot;
   bombInTile: Bomb;
+  volatileDetectorInTile: VolatileDetector;
 
   id: number;
   column: number;
   row: number;
 
-  movingToDirection: string;
-  bombMovingToVal: string;
+  volatileRunesNumber: string;
+  runeX = 0;
+  runeY = 0;
 
-  treeExplodeAnimation: Boolean = false;
-  centerBombExplodeAnimation: Boolean = false;
+  showVolatileRunes = false;
+  pauseRuneAnimation = false;
 
   takingDamage: Boolean;
 
   @Input() tileInstance: TileData;
   @Input() theGame: TheGame;
+  
+  
 
 
-  constructor(private cdRef: ChangeDetectorRef) {}
+  constructor(private cdRef: ChangeDetectorRef, private elementRef: ElementRef) {}
 
   ngOnInit(){
     this.id = this.tileInstance.id;
     this.column = this.tileInstance.column;
     this.row = this.tileInstance.row;
-    this.theGame.gameStartup.gameTileCreated(this)
   }
 
+  ngAfterViewInit(){
+    this.theGame.gameStartup.gameTileCreated(this);
+  }
 
   entityEnterTile(entity: GameBoardEntity){
-    this.cdRef.detach();
-
-    entity.tile = this;
-
     if (entity instanceof Player){
       this.playerInTile = entity;
-        if (this.lootInTile){
-            entity.pickUpLoot(this.lootInTile);
-            this.lootInTile = null;
-        }
+      if (this.lootInTile){
+        entity.pickUpLoot(this.lootInTile);
+        this.lootInTile.remove();
+      }
     }
-
     if (entity instanceof Tree){
       this.treeInTile = entity;
     }
@@ -69,43 +73,25 @@ export class Tile implements OnInit, TileInterface {
     if (entity instanceof Loot){
       this.lootInTile = entity;
     }
-    this.cdRef.detectChanges();
+
+    if (entity instanceof VolatileDetector){
+      this.volatileDetectorInTile = entity;
+    }
   }
+  
 
 
-  entityLeaveTile(entity: GameBoardEntity): Promise<any>{
-    return new Promise((resolve) => {
-      if (entity instanceof Player){
-        this.cdRef.detach();
-        this.movingToDirection = this.playerInTile.facing;
-        this.cdRef.detectChanges();
-        setTimeout(() => {
-          this.cdRef.detach();
-          this.playerInTile = null;
-          this.movingToDirection = null;
-          this.cdRef.detectChanges();
-          resolve();
-          }, 410);
-      }
+  entityLeaveTile(entity: GameBoardEntity){
+    if (entity instanceof Player){
+      this.playerInTile = null;
+    }
 
-      if (entity instanceof Bomb){
-        this.cdRef.detach();
-        this.bombMovingToVal = this.bombInTile.direction;
-          this.cdRef.detectChanges();
-        setTimeout(() => {
-          this.cdRef.detach();
-          this.bombInTile = null;
-          this.bombMovingToVal = null;
-          this.cdRef.detectChanges();
-          resolve();
-          }, 210);
-      }
-
-    });
+    if (entity instanceof Bomb){
+      this.bombInTile = null;
+    }
   }
 
     entityRemovedFromTile(entity: GameBoardEntity){
-      this.cdRef.detach();
       if (entity instanceof Player){
         this.playerInTile = null;
       }
@@ -118,53 +104,30 @@ export class Tile implements OnInit, TileInterface {
       if (entity instanceof Tree){
         this.treeInTile = null;
       }
-      this.cdRef.detectChanges();
     }
 
 
     playerMovingInToTile(): Boolean {
-        return (!(this.playerInTile || this.treeInTile));
+      return !(this.treeInTile || this.volatileDetectorInTile);
     }
-
-
     checkWhatsInTile(): GameBoardEntity{
       if (this.playerInTile){
-            return this.playerInTile
-        }
-        if (this.treeInTile){
-            return this.treeInTile
-        }
-        if (this.bombInTile){
-            return this.bombInTile
-        }
-        if (this.lootInTile){
-            return this.lootInTile
-        }
+        return this.playerInTile
+      }
+      if (this.treeInTile){
+        return this.treeInTile
+      }
+      if (this.bombInTile){
+        return this.bombInTile
+      }
+      if (this.lootInTile){
+        return this.lootInTile
+      }
+      if (this.volatileDetectorInTile){
+        return this.volatileDetectorInTile
+      }
     }
 
-  doTreeExplode(){
-    this.cdRef.detach();
-    this.treeExplodeAnimation = true;
-    this.cdRef.detectChanges();
-
-    setTimeout(() => {
-      this.cdRef.detach();
-      this.treeExplodeAnimation = false;
-      this.cdRef.detectChanges();
-    }, 400)
-  }
-
-  doCenterBombExplode(){
-    this.cdRef.detach();
-    this.centerBombExplodeAnimation = true;
-    this.cdRef.detectChanges();
-
-    setTimeout(() => {
-      this.cdRef.detach();
-      this.centerBombExplodeAnimation = false;
-      this.cdRef.detectChanges();
-    }, 800);
-  }
 
   lootDropped(loot: Loot){
     this.theGame.broadcastEventToOtherPlayers('loot drop update', {
@@ -173,21 +136,40 @@ export class Tile implements OnInit, TileInterface {
     })
   }
 
-  setFacingDirection(){
-      this.cdRef.detach();
-      this.cdRef.detectChanges();
-  }
-
-  playerTakesDamage(){
+  doShowSurroundingVolatileTrees(val: boolean){
     this.cdRef.detach();
-    this.takingDamage = true;
+    this.showVolatileRunes = val;
     this.cdRef.detectChanges();
-
-    setTimeout(() => {
-      this.cdRef.detach();
-      this.takingDamage = false;
-      this.cdRef.detectChanges();
-    }, 500)
   }
+
+  fireRuneFromTower(centerTowerTile: Tile){
+    const centerTowerElem: HTMLScriptElement = centerTowerTile.getElementRef();
+    const thisTile: HTMLScriptElement = this.getElementRef();
+
+    this.cdRef.detach();
+    this.pauseRuneAnimation = true;
+    this.showVolatileRunes = true;
+    this.runeX = centerTowerElem.offsetLeft - thisTile.offsetLeft;
+    this.runeY = centerTowerElem.offsetTop - thisTile.offsetTop;
+    this.cdRef.detectChanges();
+    setTimeout(() => {
+
+      this.cdRef.detach();
+        this.pauseRuneAnimation = false;
+        this.runeX = 0;
+        this.runeY = 0;
+      this.cdRef.detectChanges();
+    }, 5)
+  }
+
+
+
+  getElementRef(): HTMLScriptElement{
+    return this.elementRef.nativeElement;
+  }
+
+
+
+
 }
 

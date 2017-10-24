@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ConnectionService } from './connection-service/connection-service';
 import { Packet, ServerGameObject} from './definitions/class-definitions';
+import { User } from './the-game/player/user.component'
+import { ConnectionService } from './connection-service/connection-service'
 
 @Component({
   selector: 'app-root',
@@ -9,22 +10,21 @@ import { Packet, ServerGameObject} from './definitions/class-definitions';
 export class AppComponent implements OnInit {
 
   gameOn = false;
-  connectionService: ConnectionService;
+  user: User;
   serverGameObject: ServerGameObject;
 
-  name = 'name not set';
-
-  constructor(){
-    this.connectionService = new ConnectionService();
+  constructor( private connectionService: ConnectionService){
     this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
   }
 
   ngOnInit(){
-        this.queForGame()
   }
 
-  setName(name: string){
-      this.name = name;
+  registerUserInstance(userInstance: User){
+    this.user = userInstance
+  }
+  startGame(serverGameObject: ServerGameObject){
+    this.gameOn = true
   }
 
   manageEventsFromServer(serverEvent){
@@ -38,18 +38,6 @@ export class AppComponent implements OnInit {
 
   gameFound(fromServerData: ServerGameObject){
       this.serverGameObject = fromServerData;
-      this.gameOn = true
-  }
-
-  queForGame(){
-      this.connectionService.sendPacket({eventName: 'searching for game'})
-  }
-
-  rejoinGame(){
-
-  }
-
-  joinExistingGame(){
-
+      this.startGame(this.serverGameObject);
   }
 }

@@ -1,119 +1,122 @@
 
-import { TileData, GameSettings } from '../definitions/class-definitions';
+import { TileData, GameSettings, CreateGameBoardEntityObject } from '../definitions/class-definitions';
 import { Tile } from './tile/tile.component';
-import { Player } from './player/player.component';
-import { Tree } from './game-board-entities/tree';
+
 import { TheGame } from './the-game.component'
 import { GameHud } from './hud/game-hud.component'
-import { TileService } from './tile-service';
 
 export class GameStartup{
-    private gameSettings: GameSettings;
-    tilesReadyResolve: any;
-    hudReadyResolve: any;
-    playersReadyResolve: any;
+  private gameSettings: GameSettings;
+  tilesReadyResolve: any;
+  hudReadyResolve: any;
 
-    constructor(private theGame: TheGame){
+  constructor(private theGame: TheGame){
 
-      const hudReady = new Promise((resolve) => {
-        this.hudReadyResolve = resolve;
-      });
-      const tilesReady = new Promise((resolve) => {
-        this.tilesReadyResolve = resolve;
-      });
-
-
-      const playersReady = new Promise((resolve) => {
-        this.playersReadyResolve = resolve;
-      });
-
-      this.theGame.players = [];
+    const hudReady = new Promise((resolve) => {
+      this.hudReadyResolve = resolve;
+    });
+    const tilesReady = new Promise((resolve) => {
+      this.tilesReadyResolve = resolve;
+    });
 
 
+    this.theGame.players = [];
+    this.gameSettings = this.theGame.serverGameObject.gameSettings;
+    this.renderGameBoard(this.gameSettings.gameCols, this.gameSettings.gameRows, this.theGame.tileSize);
 
+    Promise.all([hudReady, tilesReady]).then(() => {
+      this.gameBoardReady()
+    })
 
-      this.gameSettings = this.theGame.serverGameObject.gameSettings;
-      this.renderGameBoard(this.gameSettings.gameCols, this.gameSettings.gameRows, this.gameSettings.tileSize);
+  }
 
-      Promise.all([hudReady, tilesReady, playersReady]).then(() => {
-        this.gameBoardReady()
-      })
-
+  private renderGameBoard(columns, rows, tileSize){
+    let columnCount = 1, rowCount = 1;
+    this.theGame.tileData = [];
+    for (let i = 0; i < columns * rows; i++){
+      const num = 512 - tileSize;
+      const random_x: number = Math.floor(Math.random() * num) * -1;
+      const random_y: number = Math.floor(Math.random() * num) * -1;
+      this.theGame.tileData.push(<TileData>{id: i, column: columnCount, row: rowCount, bgx: random_x, bgy: random_y, size: tileSize });
+      columnCount ++;
+      if (columnCount > columns){
+        rowCount ++;
+        columnCount = 1
+      }
     }
+  }
 
-    private renderGameBoard(columns, rows, tileSize){
-        let columnCount = 1, rowCount = 1;
-        this.theGame.tileData = [];
-        for (let i = 0; i < columns * rows; i++){
-            const random_x: number = this.getRandomBg('x', tileSize);
-            const random_y: number = this.getRandomBg('y', tileSize);
-            this.theGame.tileData.push(<TileData>{id: i, column: columnCount, row: rowCount, bgx: random_x, bgy: random_y, size: tileSize });
-            columnCount ++;
-            if (columnCount > columns){
-                rowCount ++;
-                columnCount = 1
-            }
-        }
-    }
+  gameHudCreated(gameHud: GameHud){
+    this.theGame.gameHud = gameHud;
+    this.hudReadyResolve();
+  }
 
-    gameHudCreated(gameHud: GameHud){
-        this.theGame.gameHud = gameHud;
-        this.hudReadyResolve();
-    }
+  createPlayers(){
+    const players: any[] = this.theGame.serverGameObject.players;
+    const createPlayerObject: CreateGameBoardEntityObject = {
+      template: this.theGame.playerTemplate,
+      tile: null,
+      assets: [{name: 'playerNumber', value: null}]
+    };
+    players.forEach( player => {
+      createPlayerObject.tile = this.theGame.getTileByPlayerStartLocation(player.playerNumber);
+      createPlayerObject.assets[0].value = player.playerNumber;
+      this.theGame.createGameBoardEntityComponent(createPlayerObject);
+    })
+  }
+  
 
-    playerCreated(player: Player){
-        if (player.playerNumber === this.theGame.serverGameObject.yourPlayerNumber){
-            this.theGame.mainPlayer = player;
-        }
-        this.theGame.players.push(player)
-      
-      if (this.theGame.players.length === this.theGame.serverGameObject.players.length){
-        this.playersReadyResolve();
+  gameTileCreated(tile: Tile){
+      (this.theGame.tiles ? this.theGame.tiles.push(tile) : this.theGame.tiles = [tile]);
+      if (this.theGame.tiles.length === this.gameSettings.gameCols * this.gameSettings.gameRows){
+          this.tilesReadyResolve();
       }
   }
 
-    gameTileCreated(tile: Tile){
-        if (this.theGame.tiles === undefined){
-            this.theGame.tiles = [tile]
-        } else {
-            this.theGame.tiles.push(tile);
-        }
-        if (this.theGame.tiles.length === this.gameSettings.gameCols * this.gameSettings.gameRows){
-            
-            this.theGame.tileService = new TileService(this.theGame.tiles, this.theGame.serverGameObject.gameSettings);
-            this.tilesReadyResolve();
-        }
-    }
 
-
-    private gameBoardReady(){
-      this.spawnInitialTrees();
-      this.theGame.gameReady = true;
-      this.theGame.mainPlayer.moveToStartLocation();
-      this.theGame.gameHud.setupStats(this.theGame.mainPlayer.stats);
-      this.theGame.gameSetupDone()
-    }
+  private gameBoardReady(){
+    this.spawnInitialTrees();
+    this.createPlayers();
+    this.placeVolatileDetectors();
+    this.theGame.gameReady = true;
+    this.theGame.gameSetupDone()
+  }
 
 
   private spawnInitialTrees(){
     const tileIds = this.gameSettings.initialTreeLocations;
-    const chanceToBeVolatile = 20;
-    for (let i = 0; i < this.theGame.tiles.length; i++){
-        if (tileIds.indexOf(this.theGame.tiles[i].id) >= 0){
-            const randomTreeType = Math.floor(Math.random() * 2);
-            const randomChanceVolatile: Boolean = (Math.random() * 100 < chanceToBeVolatile);
-            this.theGame.tiles[i].entityEnterTile(new Tree(this.theGame.tiles[i], randomTreeType, randomChanceVolatile, this.theGame.tileService))
-        }
+    const chanceToBeVolatile = 30;
+    const tiles: Tile[] = this.theGame.tiles;
+    for(let i = 0; i < tiles.length; i++){
+      if(tileIds.indexOf(tiles[i].id) >= 0){
+        const createTreeObject: CreateGameBoardEntityObject = {
+          template: this.theGame.treeTemplate,
+          tile: tiles[i],
+          assets: [
+            {name: 'treeModelType', value: Math.floor(Math.random() * 2)},
+            {name: 'isVolatile', value: Math.random() * 100 < chanceToBeVolatile}
+          ]
+        };
+        this.theGame.createGameBoardEntityComponent(createTreeObject)
+      }
     }
   }
 
-    private getRandomBg(dimension, tileSize: number): number{
-        if (dimension === 'x'){
-            const num = 512 - tileSize;
-            return Math.floor(Math.random() * num) * -1;
-        }else {
-            const num = 512 - tileSize;
-            return Math.floor(Math.random() * num) * -1;
+  private placeVolatileDetectors(){
+    const tileIds = this.gameSettings.volatileDetectorLocations;
+    const tiles: Tile[] = this.theGame.tiles;
+    for (let i = 0; i < tiles.length; i++){
+      if (tileIds.indexOf(tiles[i].id) >= 0){
+        if (tiles[i].treeInTile){
+          tiles[i].treeInTile.remove()
         }
+        const createVolatileDetectorObject: CreateGameBoardEntityObject = {
+          template: this.theGame.detectorTemplate,
+          tile: tiles[i]
+        };
+        setTimeout(() => this.theGame.createGameBoardEntityComponent(createVolatileDetectorObject),1);
+      }
     }
+  }
+
 }

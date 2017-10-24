@@ -1,8 +1,9 @@
 import { Component, Input, ChangeDetectorRef, OnInit } from '@angular/core';
-import { PlayerStats, EssenceAbility, EssenceAbilities } from '../../definitions/class-definitions';
+import { PlayerStats } from '../../definitions/class-definitions';
 import { TheGame } from '../the-game.component';
 import { EssenceColour } from '../../definitions/enum-definitions';
-import { ActivatedAbility } from '../../definitions/class-definitions';
+import { KeysPipe } from '../../definitions/pipe-definitions';
+import { Ability, EssenceAbility, EssenceAbilities } from '../abilities-and-upgrades/abilities-and-upgrades';
 
 @Component({
   selector: 'game-hud',
@@ -16,7 +17,7 @@ export class GameHud implements OnInit {
 
     playerStats: PlayerStats;
     essenceAbilitiesList: EssenceAbilities;
-    activatedAbilities: ActivatedAbility[];
+    activatedAbilities: Ability[];
 
   essenceShimmerActive = {
     purple: {
@@ -47,6 +48,7 @@ export class GameHud implements OnInit {
   ngOnInit(){
     this.theGame.gameStartup.gameHudCreated(this);
     this.activatedAbilities = this.theGame.abilitiesService.getActivatedAbilities();
+    this.essenceAbilitiesList = this.theGame.abilitiesService.getEssenceAbilitiesList();
   }
 
   refreshHudComponent(){
@@ -70,16 +72,17 @@ export class GameHud implements OnInit {
 
 
   checkIfUpgradeAvailable(essenceColour: string, essenceColourRef: string): EssenceAbility{
-    const essenceColourAbilities: EssenceAbility[] = this.essenceAbilitiesList[essenceColour];
     let returnAbility: EssenceAbility = null;
-
-    essenceColourAbilities.forEach((ability: EssenceAbility) => {
-      if (ability.thisRequired <= this.playerStats[essenceColourRef] && ability.purpleRequired <= this.playerStats.purpleEssence){
-        if (!returnAbility || returnAbility.thisRequired <= ability.thisRequired){
+    const abilities = this.essenceAbilitiesList[essenceColour];
+    for(const abilityName in abilities){
+      const ability = abilities[abilityName];
+      if(ability.thisEssenceCost <= this.playerStats[essenceColourRef] && 
+        ability.purpleEssenceCost <= this.playerStats.purpleEssence){
+        if (!returnAbility || returnAbility.thisEssenceCost <= ability.thisEssenceCost){
           returnAbility = ability;
         }
       }
-    });
+    }
     return returnAbility;
   }
 
@@ -105,13 +108,12 @@ export class GameHud implements OnInit {
         break;
     }
 
-    if (ability.thisRequired <= this.playerStats[essenceColourRef] && ability.purpleRequired <= this.playerStats.purpleEssence){
-      console.log(ability.name + ' leveled up!');
+    if (ability.thisEssenceCost <= this.playerStats[essenceColourRef] && ability.purpleEssenceCost <= this.playerStats.purpleEssence){
+      ability.doUpgrade();
+      this.cdRef.detach();
       this.essenceShimmerActive[colour].displayUpgrades = false;
       this.essenceShimmerActive[colour].active = false;
-      this.playerStats[essenceColourRef] = this.playerStats[essenceColourRef] - ability.thisRequired;
-      this.playerStats.purpleEssence = this.playerStats.purpleEssence - ability.purpleRequired;
-      ability.doLevelUp();
+      this.cdRef.detectChanges();
     }
   }
 

@@ -1,27 +1,54 @@
 <game-hud [theGame] = "this"></game-hud>
 
 <div class='board'
-  [style.width.px] = "serverGameObject.gameSettings.tileSize * serverGameObject.gameSettings.gameCols"
+  [style.width.rem] = "6 * serverGameObject.gameSettings.gameCols"
   [style.top.px] = "topVal"
   [style.left.px] = "leftVal">
 
-    <game-tile
-      *ngFor = "let tile of tileData"
-      [tileInstance] = "tile"
-      [theGame] = "this"
-      [style.background-position-y.px]="tile.bgy"
-      [style.background-position-x.px]="tile.bgx"
-      [class] = "'id'+tile.id+' col'+tile.column+' row'+tile.row">
-    </game-tile>
+<div class="tiles">
 
-    <game-player 
-      *ngFor = "let player of serverGameObject.players; let i = index" 
-      [playerNumber] = 'i + 1'
-      [theGame] = "this"
-      [style.top.rem]="(players[i].tile.row-1)*6"
-      [style.left.rem]="(players[i].tile.column-1)*6"
-      [class] = "'id'+players[i].tile.id+' col'+players[i].tile.column+' row'+players[i].tile.row" >
-    </game-player>
+  <game-tile
+    #tileRef
+    *ngFor = "let tile of tileData"
+    [tileInstance] = "tile"
+    [theGame] = "this"
+    [style.background-position-y.px]="tile.bgy"
+    [style.background-position-x.px]="tile.bgx"
+    [class] = "'id'+tile.id+' col'+tile.column+' row'+tile.row">
+  </game-tile>
+</div>
+
+  <ng-template #playerTemplate>
+    <player [theGame]="this"></player>
+  </ng-template>
+
+  <ng-template #bombTemplate>
+    <bomb [theGame]="this"></bomb>
+  </ng-template>
+
+  <ng-template #treeTemplate>
+    <tree [theGame]="this"></tree>
+  </ng-template>
+
+  <ng-template #lootTemplate>
+    <loot [theGame]="this"></loot>
+  </ng-template>
+
+  <ng-template #detectorTemplate>
+    <volatile-detector [theGame]="this"></volatile-detector>
+  </ng-template>
+
+  <ng-container #gameBoardEntitiesContainer>
+  </ng-container>
+
+
+</div>
+
+<div class="preloadImages">
+  <div class="playerModelDown"></div>
+  <div class="playerModelUp"></div>
+  <div class="playerModelLeft"></div>
+  <div class="playerModelRight"></div>
 </div>
 
 

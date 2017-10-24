@@ -1,13 +1,14 @@
-import { Component, OnInit, HostListener, ChangeDetectorRef, Input } from '@angular/core';
-import { WindowDimensions, TileData, ServerGameObject } from '../definitions/class-definitions';
-import { AbilityName } from '../definitions/enum-definitions';
+import { Component, OnInit, HostListener, ChangeDetectorRef, Input, ViewContainerRef, TemplateRef, ViewChild } from '@angular/core';
+import { WindowDimensions, TileData, ServerGameObject, CreateGameBoardEntityObject } from '../definitions/class-definitions';
+import { GameBoardEntity } from '../definitions/interface-definitions';
 import { ConnectionService } from '../connection-service/connection-service';
 import { GameStartup } from './game-startup';
 import { Player } from './player/player.component';
+import { User } from './player/user.component';
+import { Bomb } from './game-board-entities/bomb';
 import { Tile } from './tile/tile.component';
 import { GameHud } from './hud/game-hud.component';
 import { ManageServerUpdates } from './manage-sever-updates';
-import { TileService } from './tile-service';
 import { AbilitiesService } from './abilities-and-upgrades/abilities-service';
 
 
@@ -19,6 +20,9 @@ export class TheGame implements OnInit {
 
   @Input() serverGameObject: ServerGameObject;
   @Input() connectionService: ConnectionService;
+  @Input() user: User;
+
+  tileSize = 77;
 
   manageServerUpdates: ManageServerUpdates;
 
@@ -29,10 +33,18 @@ export class TheGame implements OnInit {
   leftVal: number;
   gameHud: GameHud;
   gameReady: Boolean = false;
-  abilitiesService: AbilitiesService = new AbilitiesService(this);
-  tileService: TileService;
+  abilitiesService: AbilitiesService;
   gameStartup: GameStartup;
 
+  @ViewChild('bombTemplate') bombTemplate: TemplateRef<any>;
+  @ViewChild('detectorTemplate') detectorTemplate: TemplateRef<any>;
+  @ViewChild('treeTemplate') treeTemplate: TemplateRef<any>;
+  @ViewChild('lootTemplate') lootTemplate: TemplateRef<any>;
+  @ViewChild('playerTemplate') playerTemplate: TemplateRef<any>;
+  
+  @ViewChild('gameBoardEntitiesContainer', {read: ViewContainerRef}) gameBoardEntitiesContainer: ViewContainerRef;
+  
+  
 
   tileData: TileData[];
   windowWidth: number = window.innerWidth;
@@ -51,24 +63,10 @@ export class TheGame implements OnInit {
     }
   }
 
-  @HostListener('window:keydown', ['$event'])
-  keyDown(e){
-    if (e.repeat){
-      return false;
-    }
-    this.keyboardEvents(e.key, 'down')
-  }
-
-  @HostListener('window:keyup', ['$event'])
-  keyUp(e){
-    if (e.repeat){
-      return false;
-    }
-    this.keyboardEvents(e.key, 'up')
-  }
 
   ngOnInit(){
     this.manageServerUpdates = new ManageServerUpdates(this);
+    this.abilitiesService = new AbilitiesService(this);
     this.gameStartup = new GameStartup(this)
   }
 
@@ -87,92 +85,152 @@ export class TheGame implements OnInit {
     this.gameReady = true;
   }
 
+  
+  createGameBoardEntityComponent(createGameBoardEntityObject: CreateGameBoardEntityObject){
+    const newEntity = createGameBoardEntityObject.template.createEmbeddedView(null);
+    const gameBoardEntityComponent: GameBoardEntity = newEntity['_view'].nodes.find(node => node.componentView).componentView.component;
+    
+    gameBoardEntityComponent.tile = createGameBoardEntityObject.tile;
+    gameBoardEntityComponent.elementRef = newEntity;
+    (createGameBoardEntityObject.assets && createGameBoardEntityObject.assets.forEach(
+      asset => gameBoardEntityComponent[asset.name] = asset.value
+    ));
+    
+    this.gameBoardEntitiesContainer.insert(newEntity);
+    gameBoardEntityComponent.elementRef.detectChanges();
+  }
+  
 
   broadcastEventToOtherPlayers(eventName: string, data: any){
-      this.connectionService.sendPacket({ eventName: eventName, data: data })
-  }
-
-  keyboardEvents(key, action){
-
-      if (this.gameReady){
-            if (action === 'down'){
-              switch (key) {
-                case 'ArrowUp': {
-                  this.mainPlayer.keydown('up')
-                }
-                  break;
-                case 'ArrowRight': {
-                  this.mainPlayer.keydown('right')
-                }
-                  break;
-                case 'ArrowDown': {
-                  this.mainPlayer.keydown('down')
-                }
-                  break;
-                case 'ArrowLeft': {
-                  this.mainPlayer.keydown('left')
-                }
-                  break;
-                case 'r': this.mainPlayer.useAbility(AbilityName['Siphon Tree']); break;
-                case ' ': this.mainPlayer.useAbility(AbilityName['Throw Bomb']); break;
-              }
-            }
-            if (action === 'up'){
-              switch (key) {
-                case 'ArrowUp': {
-                  this.mainPlayer.keyReleased('up')
-                }
-                  break;
-                case 'ArrowRight': {
-                  this.mainPlayer.keyReleased('right')
-                }
-                  break;
-                case 'ArrowDown': {
-                  this.mainPlayer.keyReleased('down')
-                }
-                  break;
-                case 'ArrowLeft': {
-                  this.mainPlayer.keyReleased('left')
-                }
-                  break;
-              }
-            }
-      }
+    this.connectionService.sendPacket({ eventName: eventName, data: data })
   }
 
   getPlayerByPlayerNumber(playerNumber: number): Player{
-    let matchingPlayer: Player;
-    this.players.forEach(player => {
-        if (player.playerNumber === playerNumber){
-            matchingPlayer = player;
-        }
-    });
-    if (matchingPlayer){
-        return matchingPlayer
-    }
-    console.log('player number not found')
+    return this.players.find(player => player.playerNumber === playerNumber);
   }
 
   onWindowResize(windowDimensions){
-        this.windowWidth = windowDimensions.width;
-        this.windowHeight = windowDimensions.height;
-        this.moveBoard(this.mainPlayer.tile)
-    }
+    this.windowWidth = windowDimensions.width;
+    this.windowHeight = windowDimensions.height;
+    this.moveBoard(this.mainPlayer.tile)
+  }
 
 
   moveBoard(focusTile: Tile){
     const numOfTilesToTheLeft = focusTile.column - 1;
-    const tileSpaceToLeft = numOfTilesToTheLeft * this.serverGameObject.gameSettings.tileSize;
+    const tileSpaceToLeft = numOfTilesToTheLeft * this.tileSize;
     const numOfTilesAbove = focusTile.row - 1;
-    const tileSpaceAbove = numOfTilesAbove * this.serverGameObject.gameSettings.tileSize;
-    const hudAtTheBottom = 100;
-
+    const tileSpaceAbove = numOfTilesAbove * this.tileSize;
+    // const hudAtTheBottom = 100;
+    
     this.cdRef.detach();
-    this.leftVal = (this.windowWidth / 2 - this.serverGameObject.gameSettings.tileSize / 2 - tileSpaceToLeft);
-    this.topVal = (this.windowHeight / 2 - this.serverGameObject.gameSettings.tileSize / 2 - tileSpaceAbove - hudAtTheBottom);
+    this.leftVal = (this.windowWidth / 2 - this.tileSize / 2 - tileSpaceToLeft);
+    this.topVal = (this.windowHeight / 2 - this.tileSize / 2 - tileSpaceAbove/* - hudAtTheBottom*/);
     this.cdRef.detectChanges();
   }
+  
+  getTileByPlayerStartLocation(playerNumber: number): Tile{
+    let describedLocation;
+    switch (playerNumber){
+      case 1: describedLocation = 'top left'; break;
+      case 2: describedLocation = 'bottom right'; break;
+      case 3: describedLocation = 'top right'; break;
+      case 4: describedLocation = 'bottom left'; break;
+    }
+    return this.getTileByDescribedLocation(describedLocation);
+  }
 
+  getTileByDescribedLocation(location: string): Tile{
+    let columnAndRow;
+    switch (location){
+      case 'top left': columnAndRow = {
+        row: 3,
+        col: 3
+      }; break;
+      case 'bottom right': columnAndRow = {
+        row: this.serverGameObject.gameSettings.gameRows - 3,
+        col: this.serverGameObject.gameSettings.gameCols - 3
+      }; break;
+      case 'top right': columnAndRow = {
+        row: 3,
+        col: this.serverGameObject.gameSettings.gameCols - 3
+      }; break;
+      case 'bottom left': columnAndRow = {
+        row: this.serverGameObject.gameSettings.gameRows - 3,
+        col: 3
+      }; break;
+    }
+    return this.getTileByColumnAndRow(columnAndRow.col, columnAndRow.row);
+  }
+
+  getTileByColumnAndRow(column, row): Tile{
+  
+    return this.tiles.find(tile =>
+      tile.column === column &&
+      tile.row === row
+    );
+  }
+
+  getTileRelativeToAnotherTile(baseTile: Tile, direction: string): Tile{
+    let params: {col: number; row: number;};
+    switch(direction){
+      case 'up': (baseTile.row !== 1) &&
+        (params = {col: baseTile.column, row: baseTile.row - 1}); break;
+      case 'down': (baseTile.row !== this.serverGameObject.gameSettings.gameRows) &&
+        (params = {col: baseTile.column, row: baseTile.row + 1});break;
+      case 'left': (baseTile.column !== 1) &&
+        (params = {col: baseTile.column - 1, row: baseTile.row});break;
+      case 'right': (baseTile.row !== this.serverGameObject.gameSettings.gameCols) &&
+        (params = {col: baseTile.column + 1, row: baseTile.row});break;
+    }
+    (!params) && console.log('target tile is out of bounds');
+    return (params && this.getTileByColumnAndRow(params.col, params.row));
+  }
+
+  getTileById(id): Tile{
+    for (let i = 0; this.tiles.length; i++){
+      if (this.tiles[i].id === id){
+        return this.tiles[i];
+      }
+    }
+  }
+
+  getTilesWithXRadius(radius: number, centerTile: Tile): Tile[]{
+    const matchingTiles: Tile[] = [];
+    for (let i = 0; i < this.tiles.length; i++){
+      if (this.tiles[i].column >= (centerTile.column - radius)){
+        if (this.tiles[i].column <= (centerTile.column + radius)){
+          if (this.tiles[i].row >= (centerTile.row - radius)){
+            if (this.tiles[i].row <= centerTile.row + radius){
+              matchingTiles.push(this.tiles[i])
+            }
+          }
+        }
+      }
+    }
+    return matchingTiles
+  }
+
+  getDestinationTile(tile: Tile, direction: string): Tile{
+    const destinationTile: Tile =
+      direction === 'up' && tile.row !== 1 &&
+      this.getTileByColumnAndRow(tile.column, tile.row - 1)
+      ||
+      direction === 'right' && tile.column !== this.serverGameObject.gameSettings.gameCols &&
+      this.getTileByColumnAndRow(tile.column + 1, tile.row)
+      ||
+      direction === 'down' && tile.row !== this.serverGameObject.gameSettings.gameRows &&
+      this.getTileByColumnAndRow(tile.column, tile.row + 1)
+      ||
+      direction === 'left' && tile.column !== 1 &&
+      this.getTileByColumnAndRow(tile.column - 1, tile.row);
+
+    if (!destinationTile){
+      console.log('destination tile out of bounds')
+    }else{
+      return destinationTile
+    }
+  }
 
 }
 

@@ -1,5 +1,5 @@
 
-import { Packet, Loot } from '../definitions/class-definitions';
+import { Packet } from '../definitions/class-definitions';
 import { AbilityName } from '../definitions/enum-definitions';
 
 import { TheGame } from './the-game.component';
@@ -54,19 +54,19 @@ export class ManageServerUpdates{
     moveToStartLocationUpdate(data){
         console.log('server moveToStartLocation update');
         const player: Player = this.theGame.getPlayerByPlayerNumber(data.playerNumber);
-        player.moveToStartLocation();
+        // player.moveToStartLocation();
     }
 
     treeExplodeUpdate(data){
         console.log('server tree explode update');
-        const tile = this.theGame.tileService.getTileById(data.tileId);
-        tile.doTreeExplode();
+        const tile = this.theGame.getTileById(data.tileId);
+        tile.treeInTile.treeAcidAnimate();
     }
 
     lootDropUpdate(data){
         console.log('loot drop update');
-        const tile = this.theGame.tileService.getTileById(data.tileId);
-        tile.lootDropped(<Loot>data.loot);
+        const tile = this.theGame.getTileById(data.tileId);
+        tile.lootDropped(data.loot);
     }
 
     throwBombEvent(data){

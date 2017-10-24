@@ -33,9 +33,8 @@ treeRegrowthRate = {
 }
 
 var gameSettings = {
-    tileSize: 80,
-    gameCols: 12,
-    gameRows: 7,
+    gameCols: 18,
+    gameRows: 14,
     initialTreeLocations: []
 };
 
@@ -121,16 +120,14 @@ setGameInitialRandomTreeLocationsTileIdArray = function(){
   var tiles = gameSettings.gameRows*gameSettings.gameCols;
   var numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
   for(var i = 0; i < numberOfRandomTrees; i++){
-
     var randomTile = Math.round(Math.random()*(tiles - 1));
-    if(randomTileIds.indexOf(randomTile) === -1){
+    if(!randomTileIds.indexOf(randomTile) >= 0){
       randomTileIds.push(randomTile)
     }else{
-      while(randomTileIds.indexOf(randomTile) !== -1){
-        if(randomTileIds.indexOf(randomTile) === -1){
+      while(!randomTileIds.indexOf(randomTile) >= 0){
+        var randomTile = Math.round(Math.random()*(tiles - 1));
+        if(!randomTileIds.indexOf(randomTile) >= 0){
           randomTileIds.push(randomTile)
-        }else{
-          randomTile = Math.round(Math.random()*(tiles - 1))
         }
       }
     }
@@ -185,6 +182,8 @@ newGame = function(){
     gameSettings: gameSettings
   };
 
+  gameObject.gameSettings.volatileDetectorLocations = getVolatileDetectorLocations()
+
   for(var j=0; j < playersCurrentlySearchingForGames.length; j++){
     var player = {
       playerNumber: j+1
@@ -205,6 +204,20 @@ newGame = function(){
   console.log('Enough players ('+numberOfPlayersInEachGame+') -> Starting Game');
   console.log('Number of active games: ', activeGames.length);
   playersCurrentlySearchingForGames = []
-  
+
   startTreeRegrowthAlgorithm(gameObject.gameId)
 };
+
+
+getVolatileDetectorLocations = function(){
+  const returnLocations = []
+  const numberOfDetectors = Math.ceil(gameSettings.gameCols*gameSettings.gameRows/50)
+  console.log('num: ', numberOfDetectors)
+  const tiles = gameSettings.gameCols*gameSettings.gameRows;
+  for(var i = 0; i < numberOfDetectors; i++){
+    const randomTile = Math.round(Math.random()*(tiles - 1));
+    returnLocations.push(randomTile)
+  }
+
+  return returnLocations;
+}

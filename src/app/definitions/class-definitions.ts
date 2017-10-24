@@ -1,6 +1,11 @@
+import { Injectable, TemplateRef } from '@angular/core'
 import { Player } from '../the-game/player/player.component'
 import { Tile } from '../the-game/tile/tile.component'
 import { GameBoardEntity } from './interface-definitions';
+import { Direction } from './enum-definitions';
+import {Inject} from '@angular/core';
+
+
 
 export class Packet{
     eventName: string;
@@ -24,7 +29,9 @@ export class TileData{
 export class ServerGameObject{
     gameId: number;
     yourPlayerNumber: number;
-    players: number[];
+    players: [{
+      playerNumber: number;
+    }];
     gameSettings: GameSettings
 }
 
@@ -33,21 +40,16 @@ export interface GameSettings{
     tileSize: number;
     gameCols: number;
     gameRows: number;
+    volatileDetectorLocations: number[];
 }
 
-export class Loot implements GameBoardEntity{
-    tile: Tile;
-    bombs: string;
-    essenceColour: string;
-    essencePosition: { x: number, y: number };
-    remove: Function;
-
-    constructor(tile: Tile, bombs: string, essenceColour: string, essencePosition: any){
-        this.tile = tile;
-        this.bombs = bombs;
-        this.essenceColour = essenceColour;
-        this.essencePosition = essencePosition
-    }
+export class CreateGameBoardEntityObject{
+  assets?: [{
+    name: string;
+    value: any;
+  }];
+  tile: Tile;
+  template: TemplateRef<any>;
 }
 
 export class Explosion{
@@ -61,8 +63,14 @@ export class TreeAcid{
 }
 
 
+export class PlayerStatus{
+  facing: Direction = Direction.down;
+  takingDamage: boolean;
+  dead: boolean;
+}
+
 export class PlayerStats{
-    maxHealth = 6;
+    maxHealth = 2;
     maxLives = 3;
     health: number = this.maxHealth;
     lives: number = this.maxLives;
@@ -70,22 +78,10 @@ export class PlayerStats{
     yellowEssence = 0;
     greenEssence = 0;
     purpleEssence = 0;
-    bombThrowRange = 2;
+    bombThrowRange = 3;
     bombExplosionSize = 1;
     maximumBombs = 3;
     bombs: number = this.maximumBombs;
-}
-export class EssenceAbilities{
-    blue: EssenceAbility[];
-    yellow: EssenceAbility[];
-    green: EssenceAbility[];
-    purple: EssenceAbility[];
-}
-export class EssenceAbility{
-    thisRequired: number;
-    purpleRequired: number;
-    name: string;
-    doLevelUp: Function;
 }
 
 export class PlayerHud{
@@ -101,9 +97,27 @@ export class PlayerHud{
   maxHealth = 2;
 }
 
-export class ActivatedAbility{
-  cooldown: number;
-  icon: string;
-  useActivatedAbility: void;
-  triggerKey: string;
+
+@Injectable()
+export class Sounds{
+  acidBurnSound = new Audio('../../assets/acid_burn.mp3');
+  acidBurstSound = new Audio('../../assets/acid_burst.mp3');
+  bombExplodeSound = new Audio('../../assets/bomb_explode.mp3');
+  
+  constructor(){
+    this.acidBurnSound.load()
+    this.acidBurstSound.load();
+    this.bombExplodeSound.load();
+    
+  }
+  doAcidBurnSound(){
+    this.acidBurnSound.play();
+  }
+  doAcidBurstSound(){
+    this.acidBurstSound.play();
+  }
+  doBombExplodeSound(){
+    this.bombExplodeSound.play();
+  }
+
 }

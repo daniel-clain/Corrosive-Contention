@@ -1,33 +1,41 @@
-import { NgModule } from '@angular/core';
+import { NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { TheGame } from './the-game/the-game.component';
 import { Tile } from './the-game/tile/tile.component';
+import { Bomb } from './the-game/game-board-entities/bomb';
+import { Tree } from './the-game/game-board-entities/tree';
+import { VolatileDetector } from './the-game/game-board-entities/volatile-detector';
+import { Loot } from './the-game/game-board-entities/loot';
 import { Player } from './the-game/player/player.component';
+import { User } from './the-game/player/user.component';
 import { GameHud } from './the-game/hud/game-hud.component';
-
-/*
-import { GameService } from './the-game/game.service'
-import { TileService } from './the-game/game.service'
-import { AbilitesService } from './the-game/abilities-and-upgrades/abilites'
-*/
-
+import { ConnectionService } from './connection-service/connection-service';
+import { KeysPipe } from './definitions/pipe-definitions';
+import { Sounds } from './definitions/class-definitions';
 
 @NgModule({
   declarations: [
     AppComponent,
     TheGame,
     Tile,
-    Player,
-    GameHud
+    User,
+    GameHud,
+    KeysPipe,
+    Bomb,
+    Tree,
+    VolatileDetector,
+    Loot,
+    Player
   ],
-  /* providers: [
-    GameService,
-    TilesService,
-    AbilitiesService,
-    ServerUpdatesService,
-    UserInputService
-  ], */
+  entryComponents: [
+    Bomb,
+    Tree,
+    VolatileDetector,
+    Loot,
+    Player
+  ],
+  providers: [ConnectionService, Sounds],
   imports: [BrowserModule],
   bootstrap: [AppComponent]
 })
