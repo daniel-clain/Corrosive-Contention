@@ -70,7 +70,7 @@ export class PlayerStatus{
 }
 
 export class PlayerStats{
-    maxHealth = 2;
+    maxHealth = 4;
     maxLives = 3;
     health: number = this.maxHealth;
     lives: number = this.maxLives;
@@ -81,7 +81,7 @@ export class PlayerStats{
     bombThrowRange = 3;
     bombExplosionSize = 1;
     maximumBombs = 3;
-    bombs: number = this.maximumBombs;
+    bombs = 0;
 }
 
 export class PlayerHud{

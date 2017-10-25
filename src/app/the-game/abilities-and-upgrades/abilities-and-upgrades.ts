@@ -331,13 +331,14 @@ export class ThrowBomb extends Ability{
 
   useAbility(player: Player): Boolean{
     if (super.useAbility(player)){
-      this.abilityEffect(player);
+      player.stats.bombs > 0 ? this.abilityEffect(player) : console.log('player doesn\'t have any bombs');
       return true;
     }
   }
 
 
   abilityEffect(player: Player){
+    player.stats.bombs--;
     const createBombObject: CreateGameBoardEntityObject = {
       template: this.theGame.bombTemplate,
       tile: player.tile,

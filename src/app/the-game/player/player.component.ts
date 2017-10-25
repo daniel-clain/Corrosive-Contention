@@ -11,6 +11,7 @@ import { Subject } from 'rxjs/Subject';
   selector: 'player',
   template: `
   <div class="playerModel"
+    [style.zIndex]="tile.row"
     [style.top.rem]="topVal"
     [style.left.rem]="leftVal">
     
@@ -134,7 +135,7 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
   };
 
   pickUpLoot(loot: Loot){
-    if (loot.bombs){
+    if (loot.bombs && this.stats.bombs !== this.stats.maximumBombs){
       this.stats.bombs += BombItem[loot.bombs];
       this.theGame.gameHud.updateStats( 'bombs', this.stats.bombs)
     }
@@ -203,7 +204,7 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
     }else {
       setTimeout(() => {
         this.stats.health = this.stats.maxHealth;
-        this.stats.bombs = this.stats.maximumBombs;
+        // this.stats.bombs = this.stats.maximumBombs;
         this.theGame.gameHud.updateStats('health', this.stats.health);
         this.setStatus('dead', false);
       }, 5000)

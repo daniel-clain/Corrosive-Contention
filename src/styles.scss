@@ -315,71 +315,70 @@ bomb{
 
 
 .abilitiesHud {
-    //background-image: url('assets/abilityHudBg.jpg');
-    position: absolute;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100px;
-    padding: 20px;
-    box-sizing: border-box;
-    font-family: cursive;
-    font-weight: bold;
-    font-size: 16px;
-    z-index: 49;
-    line-height: 1.6;
-    text-align: center;
+  //background-image: url('assets/abilityHudBg.jpg');
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7rem;
+  box-sizing: border-box;
+  font-family: cursive;
+  font-weight: bold;
+  font-size: 16px;
+  z-index: 49;
+  line-height: 1.6;
+  text-align: center;
 
-    .essenceGlowing{
-        width: 150px;
-        height: 150px;
-        background-size: cover;
-        margin-top: -50px;
-        display: inline-block;
-        cursor: pointer;
-        transition: margin-top 1s linear;
+  .essenceGlowing{
+    width: 6rem;
+    height: 6rem;
+    background-size: cover;
+    margin-top: 10px;
+    display: inline-block;
+    cursor: pointer;
+    transition: margin-top 1s linear;
 
-        &.up{
-            margin-top: -60px;
-        }
-
-        &:hover{
-            filter: saturate(1.1);
-            animation: none;
-        }
-
-        &.yellow{
-            background-image: url('assets/e-yellow.png');
-        }
-        &.blue{
-            background-image: url('assets/e-blue.png');
-        }
-        &.green{
-            background-image: url('assets/e-green.png');
-        }
-        &.purple{
-            background-image: url('assets/e-purple.png');
-        }
-
-        .upgradeOptions{
-            position:absolute;
-            top: -100px;
-            width:150px;
-            height:100px;
-            background: #fff;
-            text-align: center;
-            padding: 10px 0;
-            .upgradeOption{
-                background: #eaefe3;
-                margin-bottom:5px;
-            }
-        }
-
-        .upgradeOption:hover{
-            display: block;
-        }
+    &.up{
+      margin-top: 0;
     }
+
+    &:hover{
+      filter: saturate(1.1);
+      animation: none;
+    }
+
+    &.yellow{
+      background-image: url('assets/e-yellow.png');
+    }
+    &.blue{
+      background-image: url('assets/e-blue.png');
+    }
+    &.green{
+      background-image: url('assets/e-green.png');
+    }
+    &.purple{
+      background-image: url('assets/e-purple.png');
+    }
+
+    .upgradeOptions{
+      position:absolute;
+      top: -100px;
+      width:150px;
+      height:100px;
+      background: #fff;
+      text-align: center;
+      padding: 10px 0;
+      .upgradeOption{
+        background: #eaefe3;
+        margin-bottom:5px;
+      }
+    }
+
+    .upgradeOption:hover{
+        display: block;
+    }
+  }
 }
 
 .preloadImages{

@@ -11,6 +11,7 @@ import { Player } from '../player/player.component';
   template: `
     <div
       class="treeModel"
+      [style.zIndex]="tile.row"
       [style.left.rem]="leftVal"
       [style.top.rem]="topVal">
       <div
@@ -72,7 +73,7 @@ export class Tree implements GameBoardEntity, OnInit{
     
     setTimeout(() => {
       this.treeAcidAnimation = false;
-      this.elementRef.detectChanges();
+      (!this.elementRef.destroyed) && this.elementRef.detectChanges();
       return promiseResolve();
     }, 1000);
   
@@ -104,13 +105,13 @@ export class Tree implements GameBoardEntity, OnInit{
 
     if (spawnType === 'siphon'){
       oneBombChance = 50;
-      threeBombChance = 5;
+      threeBombChance = 0;
       essenceChance = 70
     }
     if (spawnType === 'explode'){
-      oneBombChance = 5;
-      threeBombChance = 1;
-      essenceChance = 20
+      oneBombChance = 10;
+      threeBombChance = 5;
+      essenceChance = 30
     }
 
     bombItemDrop = StaticMethods.percentageChance(oneBombChance);
@@ -140,7 +141,7 @@ export class Tree implements GameBoardEntity, OnInit{
       template: this.theGame.lootTemplate,
       tile: this.tile,
       assets: [
-        {name: 'bombsItem', value: bombsItem},
+        {name: 'bombs', value: bombsItem},
         {name: 'essenceColour', value: essenceColour},
         {name: 'essencePosition', value: essencePosition}
       ]

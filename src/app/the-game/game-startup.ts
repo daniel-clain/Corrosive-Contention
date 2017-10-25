@@ -85,7 +85,7 @@ export class GameStartup{
 
   private spawnInitialTrees(){
     const tileIds = this.gameSettings.initialTreeLocations;
-    const chanceToBeVolatile = 30;
+    const chanceToBeVolatile = 50;
     const tiles: Tile[] = this.theGame.tiles;
     for(let i = 0; i < tiles.length; i++){
       if(tileIds.indexOf(tiles[i].id) >= 0){

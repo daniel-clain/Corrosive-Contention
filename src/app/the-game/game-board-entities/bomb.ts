@@ -11,6 +11,7 @@ import { TheGame } from '../the-game.component';
   selector: 'bomb',
   template: `
     <div class="bombModel"
+         [style.zIndex]="tile.row"
          [style.left.rem]="leftVal"
          [style.top.rem]="topVal">
       <div [class]="'bombGraphic'" *ngIf = "!exploded"> </div>

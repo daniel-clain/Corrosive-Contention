@@ -33,8 +33,8 @@ treeRegrowthRate = {
 }
 
 var gameSettings = {
-    gameCols: 18,
-    gameRows: 14,
+    gameCols: 60,
+    gameRows: 7,
     initialTreeLocations: []
 };
 
@@ -211,7 +211,7 @@ newGame = function(){
 
 getVolatileDetectorLocations = function(){
   const returnLocations = []
-  const numberOfDetectors = Math.ceil(gameSettings.gameCols*gameSettings.gameRows/50)
+  const numberOfDetectors = Math.ceil(gameSettings.gameCols*gameSettings.gameRows*0.08)
   console.log('num: ', numberOfDetectors)
   const tiles = gameSettings.gameCols*gameSettings.gameRows;
   for(var i = 0; i < numberOfDetectors; i++){

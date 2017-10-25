@@ -9,7 +9,7 @@ import { TheGame } from '../the-game.component';
     <div class="lootModel"
      [style.left.rem]="leftVal"
      [style.top.rem]="topVal"
-     [style.zIndex]="39"
+     [style.zIndex]="tile.row"
     >
       <div class="essenceLoot"
          *ngIf = "essenceColour"

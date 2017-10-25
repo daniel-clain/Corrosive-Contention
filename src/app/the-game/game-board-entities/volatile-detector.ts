@@ -13,6 +13,7 @@ import { TheGame } from '../the-game.component';
   selector: 'volatile-detector',
   template: `
     <div class="volatileDetectorModel"
+         [style.zIndex]="tile.row"
          [style.left.rem]="leftVal"
          [style.top.rem]="topVal">
       <div class="pulseAnimation" *ngIf = "volatileDetectorPulseAnimation"></div>
@@ -128,7 +129,7 @@ class PulseSignal{
 
         this.volatileDetector.theGame.getTilesWithXRadius(1, affectedTile).forEach((tile: Tile) => {
           const treeInTile = tile.checkWhatsInTile();
-          if (treeInTile instanceof Tree && treeInTile.isVolatile) {
+          if (treeInTile instanceof Tree && !treeInTile.isVolatile) {
             surroundingVolatileTrees++;
           }
         });
