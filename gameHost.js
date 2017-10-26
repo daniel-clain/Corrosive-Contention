@@ -9,7 +9,7 @@ var activeGames = [];
 
 var treeInitialPercentageCoverage = 80;
 
-treeRegrowthRate = {
+var treeRegrowthRate = {
   'whenUnder5%': {
     treesSpawnedPerPeriod: 3,
     period: 5
@@ -30,7 +30,7 @@ treeRegrowthRate = {
     treesSpawnedPerPeriod: 0,
     period: 20
   }
-}
+};
 
 var gameSettings = {
     gameCols: 60,
@@ -54,7 +54,7 @@ io.on('connection', function(socket){
   });
 });
 
-processPacketFromClient = function(socket, packet){
+var processPacketFromClient = function(socket, packet){
   if(packet.eventName === 'searching for game'){
     console.log('player is searching for game');
     searchingForGame(socket);
@@ -72,7 +72,7 @@ processPacketFromClient = function(socket, packet){
 };
 
 
-searchingForGame = function(socket){
+var searchingForGame = function(socket){
   playersCurrentlySearchingForGames.push(socket);
   if(playersCurrentlySearchingForGames.length === numberOfPlayersInEachGame){
     newGame()
@@ -82,7 +82,7 @@ searchingForGame = function(socket){
 };
 
 
-readyToStart = function(socket){
+var readyToStart = function(socket){
     socket.emit('sentFromServer', {
         eventName: 'start game',
         data: {blerg:'narl'}
@@ -90,7 +90,7 @@ readyToStart = function(socket){
     console.log('game starts after is ready to start')
 };
 
-getPlayersGameObject = function(gameId){
+var getPlayersGameObject = function(gameId){
   var game;
   for(var i = 0; i < activeGames.length; i++){
     if(activeGames[i].gameId === gameId){
@@ -101,7 +101,7 @@ getPlayersGameObject = function(gameId){
   return game;
 };
 
-broadcastToAllOtherPlayers = function(gamePlayers, socketId, packet){
+var broadcastToAllOtherPlayers = function(gamePlayers, socketId, packet){
   console.log('broadcast: ',packet.eventName);
   for(var j = 0; j < gamePlayers.length; j++){
     if(gamePlayers[j].socketInstance.id !==socketId){
@@ -110,22 +110,23 @@ broadcastToAllOtherPlayers = function(gamePlayers, socketId, packet){
   }
 };
 
-standardGameBroadcast = function(socket, packet){
+var standardGameBroadcast = function(socket, packet){
   var game = getPlayersGameObject(packet.data.gameId);
   broadcastToAllOtherPlayers(game.players, socket.id, packet);
 };
 
-setGameInitialRandomTreeLocationsTileIdArray = function(){
+var setGameInitialRandomTreeLocationsTileIdArray = function(){
   var randomTileIds = [];
   var tiles = gameSettings.gameRows*gameSettings.gameCols;
   var numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
+  var randomTile;
   for(var i = 0; i < numberOfRandomTrees; i++){
-    var randomTile = Math.round(Math.random()*(tiles - 1));
+    randomTile = Math.round(Math.random()*(tiles - 1));
     if(!randomTileIds.indexOf(randomTile) >= 0){
       randomTileIds.push(randomTile)
     }else{
       while(!randomTileIds.indexOf(randomTile) >= 0){
-        var randomTile = Math.round(Math.random()*(tiles - 1));
+        randomTile = Math.round(Math.random()*(tiles - 1));
         if(!randomTileIds.indexOf(randomTile) >= 0){
           randomTileIds.push(randomTile)
         }
@@ -135,13 +136,13 @@ setGameInitialRandomTreeLocationsTileIdArray = function(){
   return randomTileIds
 };
 
-startTreeRegrowthAlgorithm = function(gameId){
+var startTreeRegrowthAlgorithm = function(gameId){
 
   calculateTreeRegrowth(treeInitialPercentageCoverage, gameId)
 
-}
+};
 
-calculateTreeRegrowth = function(percentageCoverage, gameId){
+var calculateTreeRegrowth = function(percentageCoverage, gameId){
 
   var regrowthObj;
 
@@ -170,10 +171,10 @@ calculateTreeRegrowth = function(percentageCoverage, gameId){
   for(var j = 0; j < gamePlayers.length; j++){
     gamePlayers[j].socketInstance.emit('sentFromServer', packet)
   }
-}
+};
 
 
-newGame = function(){
+var newGame = function(){
   var timeNow = new Date().getTime();
   gameSettings.initialTreeLocations = setGameInitialRandomTreeLocationsTileIdArray();
   var gameObject = {
@@ -182,7 +183,7 @@ newGame = function(){
     gameSettings: gameSettings
   };
 
-  gameObject.gameSettings.volatileDetectorLocations = getVolatileDetectorLocations()
+  gameObject.gameSettings.volatileDetectorLocations = getVolatileDetectorLocations();
 
   for(var j=0; j < playersCurrentlySearchingForGames.length; j++){
     var player = {
@@ -203,16 +204,16 @@ newGame = function(){
   activeGames.push(gameObject);
   console.log('Enough players ('+numberOfPlayersInEachGame+') -> Starting Game');
   console.log('Number of active games: ', activeGames.length);
-  playersCurrentlySearchingForGames = []
+  playersCurrentlySearchingForGames = [];
 
   startTreeRegrowthAlgorithm(gameObject.gameId)
 };
 
 
-getVolatileDetectorLocations = function(){
-  const returnLocations = []
-  const numberOfDetectors = Math.ceil(gameSettings.gameCols*gameSettings.gameRows*0.08)
-  console.log('num: ', numberOfDetectors)
+var getVolatileDetectorLocations = function(){
+  const returnLocations = [];
+  const numberOfDetectors = Math.ceil(gameSettings.gameCols*gameSettings.gameRows*0.06);
+  console.log('num: ', numberOfDetectors);
   const tiles = gameSettings.gameCols*gameSettings.gameRows;
   for(var i = 0; i < numberOfDetectors; i++){
     const randomTile = Math.round(Math.random()*(tiles - 1));
@@ -220,4 +221,4 @@ getVolatileDetectorLocations = function(){
   }
 
   return returnLocations;
-}
+};

@@ -2,7 +2,6 @@ import { Component, Input, ChangeDetectorRef, OnInit } from '@angular/core';
 import { PlayerStats } from '../../definitions/class-definitions';
 import { TheGame } from '../the-game.component';
 import { EssenceColour } from '../../definitions/enum-definitions';
-import { KeysPipe } from '../../definitions/pipe-definitions';
 import { Ability, EssenceAbility, EssenceAbilities } from '../abilities-and-upgrades/abilities-and-upgrades';
 
 @Component({
@@ -73,16 +72,14 @@ export class GameHud implements OnInit {
 
   checkIfUpgradeAvailable(essenceColour: string, essenceColourRef: string): EssenceAbility{
     let returnAbility: EssenceAbility = null;
-    const abilities = this.essenceAbilitiesList[essenceColour];
-    for(const abilityName in abilities){
-      const ability = abilities[abilityName];
-      if(ability.thisEssenceCost <= this.playerStats[essenceColourRef] && 
+    this.essenceAbilitiesList[essenceColour].forEach(ability => {
+      if(ability.thisEssenceCost <= this.playerStats[essenceColourRef] &&
         ability.purpleEssenceCost <= this.playerStats.purpleEssence){
         if (!returnAbility || returnAbility.thisEssenceCost <= ability.thisEssenceCost){
           returnAbility = ability;
         }
       }
-    }
+    });
     return returnAbility;
   }
 
