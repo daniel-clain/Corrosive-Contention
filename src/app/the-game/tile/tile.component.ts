@@ -7,7 +7,7 @@ import { Tree } from '../game-board-entities/tree';
 import { Bomb } from '../game-board-entities/bomb';
 import { Loot } from '../game-board-entities/loot';
 import { VolatileDetector } from '../game-board-entities/volatile-detector';
-
+import { Subject } from 'rxjs/Subject';
 import { GameBoardEntity } from '../../definitions/interface-definitions';
 
 @Component({
@@ -33,8 +33,9 @@ export class Tile implements OnInit, TileInterface, AfterViewInit {
 
   showVolatileRunes = false;
   pauseRuneAnimation = false;
+  
+  entityEnterTileSubject: Subject<GameBoardEntity> = new Subject();
 
-  takingDamage: Boolean;
 
   @Input() tileInstance: TileData;
   @Input() theGame: TheGame;
@@ -55,6 +56,7 @@ export class Tile implements OnInit, TileInterface, AfterViewInit {
   }
 
   entityEnterTile(entity: GameBoardEntity){
+    this.entityEnterTileSubject.next(entity)
     if (entity instanceof Player){
       this.playerInTile = entity;
       if (this.lootInTile){

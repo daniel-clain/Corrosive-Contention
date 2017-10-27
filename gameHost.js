@@ -3,6 +3,11 @@ var server = app.listen(3000);
 var io = require('socket.io')(server);
 var fs = require('fs');
 
+
+app.use(express.static(__dirname + '/dist'));
+
+app.listen(process.env.PORT || 8080);
+
 var playersCurrentlySearchingForGames = [];
 var numberOfPlayersInEachGame = 1;
 var activeGames = [];
@@ -38,9 +43,6 @@ var gameSettings = {
     initialTreeLocations: []
 };
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
 
 
 io.on('connection', function(socket){

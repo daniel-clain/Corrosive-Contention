@@ -87,7 +87,7 @@ export class User implements OnInit{
       case ' ': abilityName = 'Throw Bomb'; break;
       case 'q': abilityName = 'yellow'; break;
       case 'w': abilityName = 'Go Invisible'; break;
-      case 'e': abilityName = 'green'; break;
+      case 'e': abilityName = 'Spawn Tentacle'; break;
       case 'Shift': abilityName = 'Drag Volatile Detector'; break;
 
     }

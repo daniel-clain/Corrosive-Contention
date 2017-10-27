@@ -136,17 +136,19 @@ export class Tree implements GameBoardEntity, OnInit{
       const y = Math.floor(Math.random() * 50);
       essencePosition = {x: x, y: y}
     }
-  
-    const createLootObject: CreateGameBoardEntityObject = {
-      template: this.theGame.lootTemplate,
-      tile: this.tile,
-      assets: [
-        {name: 'bombs', value: bombsItem},
-        {name: 'essenceColour', value: essenceColour},
-        {name: 'essencePosition', value: essencePosition}
-      ]
-    };
-    this.theGame.createGameBoardEntityComponent(createLootObject)
     
+    if(essenceItemDrop || bombItemDrop) {
+      const createLootObject: CreateGameBoardEntityObject = {
+        template: this.theGame.lootTemplate,
+        tile: this.tile,
+        assets: [
+          {name: 'bombs', value: bombsItem},
+          {name: 'essenceColour', value: essenceColour},
+          {name: 'essencePosition', value: essencePosition}
+        ]
+      }
+      this.theGame.createGameBoardEntityComponent(createLootObject);
+    }
   }
 }
+

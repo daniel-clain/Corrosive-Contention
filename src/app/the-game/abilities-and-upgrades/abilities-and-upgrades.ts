@@ -171,6 +171,56 @@ export interface ActivatedAbilityInterface{
   triggerKey: string;
 }
 
+export class SpawnTentacle extends EssenceAbility implements EssenceAbility, UpgradeableAbility, ActivatedAbilityInterface{
+  onCoolDown = false;
+  icon = '';
+  upgradeIcon = '';
+  coolDown = 20;
+  primaryEssenceColor: EssenceColour = EssenceColour.green
+  purpleEssenceCost = 0;
+  thisEssenceCost = 1;
+  maxUpgrades = 3
+  maxTentacles=3
+  private holdDuration: number;
+  
+  constructor(protected theGame: TheGame){
+    super(theGame)
+  }
+  
+  useAbility(player: Player,): Boolean{
+    if (super.useAbility(player)){
+      this.abilityEffect(player);
+      return true;
+    }
+  }
+  
+  
+  abilityEffect(player: Player){
+    this.maxTentacles ++;
+  
+    const createTentacleObject: CreateGameBoardEntityObject = {
+      template: this.theGame.tentacleTemplate,
+      tile: player.tile,
+      assets: [
+        {name: 'player', value: player},
+        {name: 'holdDuration', value: this.holdDuration},
+      ]
+    };
+    this.theGame.createGameBoardEntityComponent(createTentacleObject)
+    
+  }
+  
+  doUpgrade(){
+    super.upgradeEffect = this.upgradeEffect;
+    super.doUpgrade();
+  }
+  
+  upgradeEffect() {
+    this.holdDuration = this.upgradeLevel  + 3;
+  }
+  
+}
+
 
 export class Invisibility extends EssenceAbility implements EssenceAbility, UpgradeableAbility, ActivatedAbilityInterface{
   onCoolDown = false;

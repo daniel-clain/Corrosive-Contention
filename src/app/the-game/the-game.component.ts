@@ -41,6 +41,7 @@ export class TheGame implements OnInit {
   @ViewChild('treeTemplate') treeTemplate: TemplateRef<any>;
   @ViewChild('lootTemplate') lootTemplate: TemplateRef<any>;
   @ViewChild('playerTemplate') playerTemplate: TemplateRef<any>;
+  @ViewChild('tentacleTemplate') tentacleTemplate: TemplateRef<any>;
   
   @ViewChild('gameBoardEntitiesContainer', {read: ViewContainerRef}) gameBoardEntitiesContainer: ViewContainerRef;
   

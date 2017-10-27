@@ -1,6 +1,7 @@
 import { Injectable, TemplateRef } from '@angular/core'
 import { Player } from '../the-game/player/player.component'
 import { Tile } from '../the-game/tile/tile.component'
+import { Tentacle } from '../the-game/game-board-entities/tentacle';
 import { GameBoardEntity } from './interface-definitions';
 import { Direction } from './enum-definitions';
 import {Inject} from '@angular/core';
@@ -66,6 +67,7 @@ export class TreeAcid{
 export class PlayerStatus{
   facing: Direction = Direction.down;
   takingDamage: boolean;
+  grabbedByTentacle: Tentacle;
   dead: boolean;
 }
 

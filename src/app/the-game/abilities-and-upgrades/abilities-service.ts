@@ -3,16 +3,16 @@ import { EssenceColour } from '../../definitions/enum-definitions';
 import { Tile } from '../tile/tile.component';
 import { Bomb } from '../game-board-entities/bomb';
 import { TheGame } from '../the-game.component';
-import { Ability, EssenceAbilities, EssenceAbility, Interact, ThrowBomb, Invisibility, Upgrade, BombThrowRange, DragVolatileDetector } from './abilities-and-upgrades';
+import { Ability, EssenceAbilities, EssenceAbility, Interact, ThrowBomb, Invisibility, SpawnTentacle, Upgrade, BombThrowRange, DragVolatileDetector } from './abilities-and-upgrades';
 
 
 export class AbilitiesService{
 
   activatedAbilities: Ability[];
   defaultAbilitiesList = {
-    'Go Invisible': new Invisibility(this.theGame), /*
+    'Go Invisible': new Invisibility(this.theGame),
+    'Spawn Tentacle': new SpawnTentacle(this.theGame),/*
     new PlayerDetector(this.theGame),
-    new Tentacle(this.theGame),
     new AcidTrap(this.theGame),
     new ForceField(this.theGame),
     new BuldTowerDefence(this.theGame), */

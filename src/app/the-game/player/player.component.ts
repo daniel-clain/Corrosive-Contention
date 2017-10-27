@@ -6,6 +6,7 @@ import { Loot } from '../game-board-entities/loot'
 import { Tile } from '../tile/tile.component';
 import { TheGame } from '../the-game.component';
 import { Subject } from 'rxjs/Subject';
+import {Tentacle} from '../game-board-entities/tentacle';
 
 @Component({
   selector: 'player',
@@ -101,7 +102,7 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
   moveKeyDown(direction: Direction){
     this.moveDirection = direction;
     this.moveKeyActive = true;
-    if(!this.status.dead && !this.moveLoopActive) {
+    if(!this.status.dead && !this.status.grabbedByTentacle && !this.moveLoopActive) {
       this.move(this.moveDirection);
     }
   }
@@ -221,4 +222,14 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
   hitByTreeAcid(explosion: TreeAcid){
     this.playerHealthChange(-explosion.damage);
   };
+  
+  grabbedByTentacle(tentacle: Tentacle){
+    this.setStatus('grabbedByTentacle', tentacle)
+  }
+  
+  releasedByTentacle(){
+    this.setStatus('grabbedByTentacle', null)
+  }
+  
+  
 }
