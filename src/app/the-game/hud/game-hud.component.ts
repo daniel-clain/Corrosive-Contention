@@ -2,7 +2,6 @@ import { Component, Input, ChangeDetectorRef, OnInit } from '@angular/core';
 import { PlayerStats } from '../../definitions/class-definitions';
 import { TheGame } from '../the-game.component';
 import { EssenceColour } from '../../definitions/enum-definitions';
-import { KeysPipe } from '../../definitions/pipe-definitions';
 import { Ability, EssenceAbility, EssenceAbilities } from '../abilities-and-upgrades/abilities-and-upgrades';
 
 @Component({
