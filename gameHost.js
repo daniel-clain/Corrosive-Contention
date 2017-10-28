@@ -1,9 +1,9 @@
 var app = require('express')();
-var server = app.listen(3000);
 var io = require('socket.io')(server);
 var fs = require('fs');
 
 
+var server = app.listen(8080);
 var playersCurrentlySearchingForGames = [];
 var numberOfPlayersInEachGame = 1;
 var activeGames = [];

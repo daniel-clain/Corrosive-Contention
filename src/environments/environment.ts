@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  gameHostAPI: 'http://localhost:3000'
+  gameHostAPI: 'http://localhost'
 };
