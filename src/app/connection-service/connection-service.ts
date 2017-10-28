@@ -14,7 +14,7 @@ export class ConnectionService{
 
   constructor(){
     // console.log('game host path: ', environment.gameHostAPI);
-    this.connection = io('https://localhost');
+    this.connection = io('https://localhost:80');
     this.connection.on('sentFromServer', fromServer => this.serverEvents.next(fromServer));
     this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent));
   }
