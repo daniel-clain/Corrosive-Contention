@@ -21,8 +21,7 @@ app.get('/*', function(req, res) {
   res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
-var server = app.listen(8080);
-var io = require('socket.io')(server);
+var io = require('socket.io')(3000);
 var fs = require('fs');
 
 
