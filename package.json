@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "http-server dist/ && gameHost",
+    "start": "gameHost",
     "deploy": "git push origin master && git push heroku master",
     "preinstall":   "npm install -g http-server",
     "postinstall":  "ng build --prod",
