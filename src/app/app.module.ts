@@ -5,6 +5,7 @@ import { TheGame } from './the-game/the-game.component';
 import { Tile } from './the-game/tile/tile.component';
 import { Bomb } from './the-game/game-board-entities/bomb';
 import { Tree } from './the-game/game-board-entities/tree';
+import { Tentacle } from './the-game/game-board-entities/tentacle';
 import { VolatileDetector } from './the-game/game-board-entities/volatile-detector';
 import { Loot } from './the-game/game-board-entities/loot';
 import { Player } from './the-game/player/player.component';
@@ -24,6 +25,7 @@ import { Sounds } from './definitions/class-definitions';
     KeysPipe,
     Bomb,
     Tree,
+    Tentacle,
     VolatileDetector,
     Loot,
     Player
@@ -31,6 +33,7 @@ import { Sounds } from './definitions/class-definitions';
   entryComponents: [
     Bomb,
     Tree,
+    Tentacle,
     VolatileDetector,
     Loot,
     Player
