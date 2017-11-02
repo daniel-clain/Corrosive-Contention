@@ -6,7 +6,6 @@
     "ng": "ng",
     "start": "node gameHost",
     "deploy": "git push origin master && git push heroku master",
-    "preinstall":   "npm install -g http-server",
     "postinstall":  "ng build --prod",
     "build": "ng build --prod",
     "test": "ng test",
