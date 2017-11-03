@@ -13,7 +13,7 @@ export class ConnectionService{
   gameId: number;
 
   constructor(){
-    // console.log('game host path: ', environment.gameHostAPI);
+     console.log('game host path: ', environment.gameHostAPI);
     this.connection = io('ws://corrosive-contention.herokuapp.com');
     this.connection.on('sentFromServer', fromServer => this.serverEvents.next(fromServer));
     this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent));
