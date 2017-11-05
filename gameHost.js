@@ -1,8 +1,30 @@
 var app = require('express')();
-var server = app.listen(3000);
-var io = require('socket.io')(server);
+const http = require('http');
+// var server = app.listen(3000);
+// var io = require('socket.io')(server);
+var WebSocket = require("ws")
 var fs = require('fs');
 
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+server.listen(8080, function listening() {
+  console.log('Listening on %d', server.address().port);
+});
+
+wss.on('connection', function(socket){
+  console.log('a user connected');
+
+
+  socket.on('message', function(string) {
+    var sentFromGame = JSON.parse(string);
+    processPacketFromClient(socket, sentFromGame)
+  });
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+});
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -45,16 +67,6 @@ var gameSettings = {
 
 
 
-io.on('connection', function(socket){
-  console.log('a user connected');
-
-  socket.on('sentFromGame', function(sentFromGame) {
-    processPacketFromClient(socket, sentFromGame)
-  });
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
-});
 
 var processPacketFromClient = function(socket, packet){
   if(packet.eventName === 'searching for game'){
@@ -85,11 +97,8 @@ var searchingForGame = function(socket){
 
 
 var readyToStart = function(socket){
-    socket.emit('sentFromServer', {
-        eventName: 'start game',
-        data: {blerg:'narl'}
-    });
-    console.log('game starts after is ready to start')
+  sendToSocket(socket, {eventName: 'start game'})
+  console.log('game starts after is ready to start')
 };
 
 var getPlayersGameObject = function(gameId){
@@ -107,7 +116,7 @@ var broadcastToAllOtherPlayers = function(gamePlayers, socketId, packet){
   console.log('broadcast: ',packet.eventName);
   for(var j = 0; j < gamePlayers.length; j++){
     if(gamePlayers[j].socketInstance.id !==socketId){
-      gamePlayers[j].socketInstance.emit('sentFromServer', packet)
+      sendToSocket(gamePlayers[j].socketInstance, packet)
     }
   }
 };
@@ -171,9 +180,14 @@ var calculateTreeRegrowth = function(percentageCoverage, gameId){
 
   var gamePlayers = getPlayersGameObject(gameId).players;
   for(var j = 0; j < gamePlayers.length; j++){
-    gamePlayers[j].socketInstance.emit('sentFromServer', packet)
+    sendToSocket(gamePlayers[j].socketInstance, packet)
   }
 };
+
+sendToSocket = function(socket, obj){
+  var stringObj = JSON.stringify(obj)
+  socket.send(stringObj)
+}
 
 
 var newGame = function(){
@@ -196,7 +210,7 @@ var newGame = function(){
 
   for(var i=0; i < playersCurrentlySearchingForGames.length; i++){
     gameObject.yourPlayerNumber = i+1;
-    playersCurrentlySearchingForGames[i].emit('sentFromServer', {eventName: 'game found', data: gameObject})
+    sendToSocket(playersCurrentlySearchingForGames[i], {eventName: 'game found', data: gameObject})
   }
 
 

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Packet, ServerGameObject } from '../definitions/class-definitions';
-import * as io from 'socket.io-client';
 import { Subject } from 'rxjs/Subject';
 import { environment } from '../../environments/environment';
 
@@ -9,13 +8,14 @@ export class ConnectionService{
 
   connection;
   serverEvents = new Subject;
+  connected = new Subject;
   serverGameObject: ServerGameObject;
   gameId: number;
 
   constructor(){
-     console.log('game host path: ', environment.gameHostAPI);
-    this.connection = io('ws://corrosive-contention.herokuapp.com');
-    this.connection.on('sentFromServer', fromServer => this.serverEvents.next(fromServer));
+    this.connection = new WebSocket(environment.gameHostAPI);
+    this.connection.onopen = () => this.connected.next();
+    this.connection.onmessage = messageEvent => this.serverEvents.next(JSON.parse(messageEvent.data))
     this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent));
   }
 
@@ -23,8 +23,7 @@ export class ConnectionService{
     if (this.serverGameObject){
         packet.data.gameId = this.serverGameObject.gameId;
     }
-    // console.log('send packet - ' + packet.eventName + ': ', packet.data);
-    this.connection.emit('sentFromGame', packet);
+    this.connection.send(JSON.stringify(packet));
   }
 
   manageEventsFromServer(serverEvent: Packet){

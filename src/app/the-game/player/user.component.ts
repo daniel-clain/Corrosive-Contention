@@ -19,7 +19,6 @@ export class User implements OnInit{
   abilitySubject: Subject<any> = new Subject();
 
   constructor(private cdRef: ChangeDetectorRef, private connectionService: ConnectionService){
-    this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
 
   }
 
@@ -41,8 +40,8 @@ export class User implements OnInit{
 
   ngOnInit(){
     this.sendUserInstanceToApp.emit(this)
-
-    this.queForGame()
+    this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
+    this.connectionService.connected.subscribe(() => this.queForGame());
 
   }
   setName(name: string){

@@ -5,5 +5,5 @@
 
 export const environment = {
   production: false,
-  gameHostAPI: 'ws://corrosive-contention.herokuapp.com'
+  gameHostAPI: 'ws://localhost:8080'
 };
