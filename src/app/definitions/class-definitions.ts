@@ -110,14 +110,20 @@ export class Sounds{
     this.acidBurnSound.load()
     this.acidBurstSound.load();
     this.bombExplodeSound.load();
-    
+    this.acidBurnSound.volume = 0.2;
+    this.acidBurstSound.volume = 0.2;
+    this.bombExplodeSound.volume =0.2;
   }
+  
+  
   doAcidBurnSound(){
     this.acidBurnSound.play();
   }
+  
   doAcidBurstSound(){
     this.acidBurstSound.play();
   }
+  
   doBombExplodeSound(){
     this.bombExplodeSound.play();
   }
