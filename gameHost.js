@@ -1,34 +1,23 @@
-var app = require('express')();
+const express = require('express');
+const app = express();
+const WebSocket = require('ws');
 const http = require('http');
-// var server = app.listen(3000);
-// var io = require('socket.io')(server);
-var WebSocket = require("ws")
-var fs = require('fs');
-
-
+const path = require('path');
 const server = http.createServer(app);
+
+// sets port 8080 to default or unless otherwise specified in the environment
+app.set('port', process.env.PORT || 3000);
+
+
+app.use(express.static(path.join(__dirname, 'dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/index.html'));
+});
+
+server.listen(app.get('port'), () => console.log(`Listening on ${ app.get('port') }`));
+
 const wss = new WebSocket.Server({ server });
-
-server.listen(8080, function listening() {
-  console.log('Listening on %d', server.address().port);
-});
-
-wss.on('connection', function(socket){
-  console.log('a user connected');
-
-
-  socket.on('message', function(string) {
-    var sentFromGame = JSON.parse(string);
-    processPacketFromClient(socket, sentFromGame)
-  });
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
-});
-
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/index.html');
-});
 
 var playersCurrentlySearchingForGames = [];
 var numberOfPlayersInEachGame = 1;
@@ -67,6 +56,18 @@ var gameSettings = {
 
 
 
+wss.on('connection', function(socket){
+  console.log('a user connected');
+
+  socket.on('message', jsonString => {
+    const dataObject = JSON.parse(jsonString);
+    console.log('dataObject: ',dataObject)
+    processPacketFromClient(socket, dataObject)
+  });
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+});
 
 var processPacketFromClient = function(socket, packet){
   if(packet.eventName === 'searching for game'){
@@ -95,10 +96,14 @@ var searchingForGame = function(socket){
   }
 };
 
+sendToSocket = (socket, dataObject) => {
+  const jsonString = JSON.stringify(dataObject);
+  socket.send(jsonString);
+}
+
 
 var readyToStart = function(socket){
-  sendToSocket(socket, {eventName: 'start game'})
-  console.log('game starts after is ready to start')
+  sendToSocket(socket, {eventName: 'start game'});
 };
 
 var getPlayersGameObject = function(gameId){
@@ -116,7 +121,7 @@ var broadcastToAllOtherPlayers = function(gamePlayers, socketId, packet){
   console.log('broadcast: ',packet.eventName);
   for(var j = 0; j < gamePlayers.length; j++){
     if(gamePlayers[j].socketInstance.id !==socketId){
-      sendToSocket(gamePlayers[j].socketInstance, packet)
+      sendToSocket(gamePlayers[j].socketInstance, packet);
     }
   }
 };
@@ -180,14 +185,9 @@ var calculateTreeRegrowth = function(percentageCoverage, gameId){
 
   var gamePlayers = getPlayersGameObject(gameId).players;
   for(var j = 0; j < gamePlayers.length; j++){
-    sendToSocket(gamePlayers[j].socketInstance, packet)
+    sendToSocket(gamePlayers[j].socketInstance, packet);
   }
 };
-
-sendToSocket = function(socket, obj){
-  var stringObj = JSON.stringify(obj)
-  socket.send(stringObj)
-}
 
 
 var newGame = function(){
@@ -210,7 +210,7 @@ var newGame = function(){
 
   for(var i=0; i < playersCurrentlySearchingForGames.length; i++){
     gameObject.yourPlayerNumber = i+1;
-    sendToSocket(playersCurrentlySearchingForGames[i], {eventName: 'game found', data: gameObject})
+    sendToSocket(playersCurrentlySearchingForGames[i], {eventName: 'game found', data: gameObject});
   }
 
 
