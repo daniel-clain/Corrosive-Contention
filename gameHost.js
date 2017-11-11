@@ -6,9 +6,7 @@ const path = require('path');
 const server = http.createServer(app);
 
 // sets port 8080 to default or unless otherwise specified in the environment
-//app.set('port', process.env.PORT || 3000);
-
-app.set('port', 3000);
+app.set('port', process.env.PORT || 3000);
 
 
 app.use(express.static(path.join(__dirname, 'dist')));
