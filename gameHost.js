@@ -4,15 +4,13 @@ const app = express();
 const http = require('http');
 const path = require('path');
 const server = http.createServer(app);
+const io = require('socket.io')(server);
 const GameController = require('./gameController.js');
 
-const io = require('socket.io')(server);
 
 const gameController = new GameController();
 
-// sets port 8080 to default or unless otherwise specified in the environment
 app.set('port', process.env.PORT || 3000);
-
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
