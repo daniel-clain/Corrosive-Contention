@@ -1,6 +1,7 @@
 
 import { TileData, GameSettings, CreateGameBoardEntityObject } from '../definitions/class-definitions';
 import { Tile } from './tile/tile.component';
+import { Player } from './player/player.component';
 
 import { TheGame } from './the-game.component'
 import { GameHud } from './hud/game-hud.component'
@@ -21,6 +22,8 @@ export class GameStartup{
 
 
     this.theGame.players = [];
+    
+    
     this.gameSettings = this.theGame.serverGameObject.gameSettings;
     this.renderGameBoard(this.gameSettings.gameCols, this.gameSettings.gameRows, this.theGame.tileSize);
 
@@ -63,6 +66,10 @@ export class GameStartup{
       createPlayerObject.assets[0].value = player.playerNumber;
       this.theGame.createGameBoardEntityComponent(createPlayerObject);
     })
+  }
+  
+  registerPlayer(player: Player){
+    this.theGame.players.push(player);
   }
   
 

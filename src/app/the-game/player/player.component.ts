@@ -58,6 +58,7 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
   constructor(){}
 
   ngOnInit(){
+    this.theGame.gameStartup.registerPlayer(this);
     this.startLocation = this.theGame.getTileByPlayerStartLocation(this.playerNumber);
     this.abilities = this.theGame.abilitiesService.defaultAbilitiesList;
     const userPlayerNum = this.theGame.serverGameObject.yourPlayerNumber;
@@ -116,7 +117,12 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
       this.status.facing = Direction[direction];
       this.tile = destinationTile;
       this.setLocation();
-      this.theGame.broadcastEventToOtherPlayers('player move update', { playerNumber: this.playerNumber, direction: direction });
+      if(this.playerNumber === this.theGame.mainPlayer.playerNumber) {
+        this.theGame.broadcastEventToOtherPlayers('player move update', {
+          playerNumber: this.playerNumber,
+          direction: direction
+        });
+      }
 
       setTimeout(() => {
         this.tile.entityEnterTile(this);

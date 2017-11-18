@@ -103,6 +103,7 @@ export class TheGame implements OnInit {
   
 
   broadcastEventToOtherPlayers(eventName: string, data: any){
+    console.log('broadcastEventToOtherPlayers: ', eventName)
     this.connectionService.sendPacket({ eventName: eventName, data: data })
   }
 

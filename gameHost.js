@@ -32,13 +32,10 @@ const onlinePlayers = [];
 
 io.on('connection', function(socket){
   console.log('a user connected');
-  const id = new Date().getTime();
-  socket.id = id;
   const newPlayer = {
     socket: socket,
-    id: id
+    id: new Date().getTime()
   }
-
   newPlayer.socket.emit('sentFromServer', {eventName: 'connected', data: {connectionId: newPlayer.id}});
 
   onlinePlayers.push(newPlayer);
@@ -54,20 +51,14 @@ io.on('connection', function(socket){
 
 
 const processPacketFromClient = function(packet){
-  if(packet.eventName === 'searching for game'){
-    console.log('player is searching for game');
-    searchingForGame(packet.connectionId);
-  }
-  else if(packet.eventName === 'ready for game to start'){
-    console.log('player is ready for game to start');
-    readyToStart(socket);
-  }/*else if(packet.eventName === 'tree regrowth cycle'){
-    console.log('tree regrow');
-    readyToStart(socket);
-  }*/
-  else if(packet.data && packet.data.gameId){
-    const gamePlayers = games.find(game => game.id === packet.data.gameId).players;
-    broadcastToAllOtherPlayers(gamePlayers, playerId, packet);
+  switch(packet.eventName){
+    case 'searching for game': searchingForGame(packet.data.connectionId); break;
+    case 'ready for game to start': readyToStart(packet.data.connectionId); break;
+    case 'tree regrowth cycle': console.log('tree regrow'); break;
+    default:
+    if(packet.data && packet.data.gameId){
+      broadcastToAllOtherPlayers(packet.data.gameId, packet.data.connectionId, packet);
+    }
   }
 };
 
@@ -86,7 +77,7 @@ const searchingForGame = function(connectionId){
       gameObject.yourPlayerNumber = i+1;
       sendToSocket(player.socket, {
         eventName: 'game found',
-        data: gameObject
+        data: {gameObject: gameObject}
       })
     });
     delete gameObject.yourPlayerNumber;
@@ -135,13 +126,14 @@ function broadcastToAllGamePlayers(gameId, packet){
 
 
 const broadcastToAllOtherPlayers = function (gameId, mainPlayerId, packet) {
-  console.log('broadcast packet: ', packet);
-  const gamePlayers = games.find(game => game.id === gameId).players;
+  const game = games.find(game => game.id === gameId);
 
-  gamePlayers.forEach(player => {
-    if(player.id !== mainPlayerId)
-      sendToSocket(player.socket, packet);
-  })
+  game.players.forEach(gamePlayer => {
+    if(gamePlayer.id !== mainPlayerId){
+      const player = onlinePlayers.find(onlinePlayer => gamePlayer.id === onlinePlayer.id);
+      player.socket.emit('sentFromServer',packet)
+    }
+  });
 };
 
 

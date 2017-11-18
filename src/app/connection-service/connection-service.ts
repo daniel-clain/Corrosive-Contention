@@ -23,12 +23,14 @@ export class ConnectionService{
     }
 
   sendPacket(packet: Packet){
-    packet.connectionId = this.connectionId;
-      if(this.serverGameObject){
-          packet.data.gameId = this.serverGameObject.gameId;
-      }
-      console.log('send packet - ' + packet.eventName + ': ', packet.data);
-      this.connection.emit('sentFromGame', packet);
+    console.log('send packet - ' + packet.eventName + ': ', packet.data);
+    if(this.connectionId) {
+      packet.data ? packet.data.connectionId = this.connectionId : packet.data = {connectionId: this.connectionId};
+    }
+    if(this.connectionId) {
+      packet.data ? packet.data.gameId = this.gameId : packet.data = {gameId: this.gameId};
+    }
+    this.connection.emit('sentFromGame', packet);
   }
   
   manageEventsFromServer(serverEvent){
@@ -38,7 +40,8 @@ export class ConnectionService{
         this.connectionId = serverEvent.data.connectionId;
         break;
       case 'game found':
-        this.startGameSubject.next(serverEvent.data);
+        this.startGameSubject.next(serverEvent.data.gameObject);
+        this.gameId = serverEvent.data.gameObject.id;
         break;
     }
   }
