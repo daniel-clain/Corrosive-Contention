@@ -18,10 +18,8 @@ export class User implements OnInit{
   moveSubject: Subject<any> = new Subject();
   abilitySubject: Subject<any> = new Subject();
 
-  constructor(private cdRef: ChangeDetectorRef, private connectionService: ConnectionService){
-
-  }
-
+  constructor(private cdRef: ChangeDetectorRef, private connectionService: ConnectionService){}
+  
   @HostListener('window:keydown', ['$event'])
   keyDown(e){
     if (e.repeat){
@@ -41,7 +39,6 @@ export class User implements OnInit{
   ngOnInit(){
     this.sendUserInstanceToApp.emit(this)
     this.connectionService.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
-    this.connectionService.connected.subscribe(() => this.queForGame());
 
   }
   setName(name: string){
@@ -49,11 +46,17 @@ export class User implements OnInit{
   }
 
   manageEventsFromServer(serverEvent){
-    const eventsObject = {
-      'game found': serverEvent => this.gameFound(serverEvent)
-    };
-    if (eventsObject[serverEvent.eventName]){
-      eventsObject[serverEvent.eventName](serverEvent.data);
+    console.log('serverEvent.eventName: ', serverEvent.eventName)
+  
+    switch(serverEvent.eventName){
+      case 'connected':
+        console.log('connected')
+        this.queForGame();
+        break;
+      case 'game found':
+        console.log('game found')
+        this.gameFound(serverEvent.data);
+        break;
     }
   }
 
@@ -62,6 +65,7 @@ export class User implements OnInit{
   }
 
   queForGame(){
+    console.log('searching')
       this.connectionService.sendPacket({eventName: 'searching for game'})
   }
 

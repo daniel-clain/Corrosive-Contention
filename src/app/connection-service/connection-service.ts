@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, HostListener } from '@angular/core';
 import { Packet, ServerGameObject } from '../definitions/class-definitions';
+import * as io from 'socket.io-client';
 import { Subject } from 'rxjs/Subject';
 import { environment } from '../../environments/environment';
 
@@ -8,27 +9,43 @@ export class ConnectionService{
 
   connection;
   serverEvents = new Subject;
-  connected = new Subject;
+  startGameSubject: Subject<ServerGameObject> = new Subject;
   serverGameObject: ServerGameObject;
   gameId: number;
+  connected: boolean;
+  connectionId: number;
+  
 
-  constructor(){
-    this.connection = new WebSocket(environment.gameHostAPI);
-    this.connection.onopen = () => this.connected.next();
-    this.connection.onmessage = messageEvent => this.serverEvents.next(JSON.parse(messageEvent.data))
-    this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent));
-  }
+    constructor(){
+      this.connection = io(environment.gameHostAPI);
+      this.connection.on('sentFromServer', fromServer => this.serverEvents.next(fromServer));
+      this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
+    }
 
   sendPacket(packet: Packet){
-    if (this.serverGameObject){
-        packet.data.gameId = this.serverGameObject.gameId;
+    packet.connectionId = this.connectionId;
+      if(this.serverGameObject){
+          packet.data.gameId = this.serverGameObject.gameId;
+      }
+      console.log('send packet - ' + packet.eventName + ': ', packet.data);
+      this.connection.emit('sentFromGame', packet);
+  }
+  
+  manageEventsFromServer(serverEvent){
+    
+    switch(serverEvent.eventName){
+      case 'connected':
+        this.connectionId = serverEvent.data.connectionId;
+        break;
+      case 'game found':
+        this.startGameSubject.next(serverEvent.data);
+        break;
     }
-    this.connection.send(JSON.stringify(packet));
+  }
+  
+  closeConnection(){
+    this.connection.close();
+    this.connected = false;
   }
 
-  manageEventsFromServer(serverEvent: Packet){
-    if (serverEvent.eventName === 'game found'){
-        this.serverGameObject = serverEvent.data;
-    }
-  }
 }

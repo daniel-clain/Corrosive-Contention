@@ -9,8 +9,9 @@ import {Inject} from '@angular/core';
 
 
 export class Packet{
-    eventName: string;
-    data?: any;
+  eventName: string;
+  connectionId?: number;
+  data?: any;
 }
 
 export class WindowDimensions{

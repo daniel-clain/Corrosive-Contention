@@ -1,9 +1,14 @@
+'use strict';
 const express = require('express');
 const app = express();
-const WebSocket = require('ws');
 const http = require('http');
 const path = require('path');
 const server = http.createServer(app);
+const GameController = require('./gameController.js');
+
+const io = require('socket.io')(server);
+
+const gameController = new GameController();
 
 // sets port 8080 to default or unless otherwise specified in the environment
 app.set('port', process.env.PORT || 3000);
@@ -17,224 +22,130 @@ app.get('*', (req, res) => {
 
 server.listen(app.get('port'), () => console.log(`Listening on ${ app.get('port') }`));
 
-const wss = new WebSocket.Server({ server });
+// const WebSocket = require('ws');
+// const wss = new WebSocket.Server({ server });
 
-var playersCurrentlySearchingForGames = [];
-var numberOfPlayersInEachGame = 1;
-var activeGames = [];
+const playersSearching = [];
+const numberOfPlayersInEachGame = 2;
+const games = [];
+const onlinePlayers = [];
 
-var treeInitialPercentageCoverage = 80;
-
-var treeRegrowthRate = {
-  'whenUnder5%': {
-    treesSpawnedPerPeriod: 3,
-    period: 5
-  },
-  'whenUnder25%': {
-    treesSpawnedPerPeriod: 2,
-    period: 10
-  },
-  'whenUnder50%': {
-    treesSpawnedPerPeriod: 2,
-    period: 20
-  },
-  'whenUnder75%': {
-    treesSpawnedPerPeriod: 1,
-    period: 20
-  },
-  'whenUnder95%': {
-    treesSpawnedPerPeriod: 0,
-    period: 20
-  }
-};
-
-var gameSettings = {
-    gameCols: 60,
-    gameRows: 7,
-    initialTreeLocations: []
-};
-
-
-
-wss.on('connection', function(socket){
+io.on('connection', function(socket){
   console.log('a user connected');
+  const id = new Date().getTime();
+  socket.id = id;
+  const newPlayer = {
+    socket: socket,
+    id: id
+  }
 
-  socket.on('message', jsonString => {
-    const dataObject = JSON.parse(jsonString);
-    console.log('dataObject: ',dataObject)
-    processPacketFromClient(socket, dataObject)
+  newPlayer.socket.emit('sentFromServer', {eventName: 'connected', data: {connectionId: newPlayer.id}});
+
+  onlinePlayers.push(newPlayer);
+  console.log('onlinePlayers: ', onlinePlayers.length)
+
+  socket.on('sentFromGame', packet => {
+    processPacketFromClient(packet)
   });
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
 });
 
-var processPacketFromClient = function(socket, packet){
+
+const processPacketFromClient = function(packet){
   if(packet.eventName === 'searching for game'){
     console.log('player is searching for game');
-    searchingForGame(socket);
+    searchingForGame(packet.connectionId);
   }
   else if(packet.eventName === 'ready for game to start'){
     console.log('player is ready for game to start');
     readyToStart(socket);
-  }else if(packet.eventName === 'tree regrowth cycle'){
+  }/*else if(packet.eventName === 'tree regrowth cycle'){
     console.log('tree regrow');
     readyToStart(socket);
-  }
+  }*/
   else if(packet.data && packet.data.gameId){
-    standardGameBroadcast(socket, packet);
+    const gamePlayers = games.find(game => game.id === packet.data.gameId).players;
+    broadcastToAllOtherPlayers(gamePlayers, playerId, packet);
   }
 };
 
 
-var searchingForGame = function(socket){
-  playersCurrentlySearchingForGames.push(socket);
-  if(playersCurrentlySearchingForGames.length === numberOfPlayersInEachGame){
-    newGame()
+const searchingForGame = function(connectionId){
+  const player = onlinePlayers.find(player => player.id === connectionId)
+  playersSearching.push(player);
+
+  if(playersSearching.length === numberOfPlayersInEachGame){
+
+    console.log('Enough players ('+playersSearching.length+') -> Starting Game');
+
+    const gameObject = gameController.newGame(playersSearching);
+
+    playersSearching.forEach((player, i) => {
+      gameObject.yourPlayerNumber = i+1;
+      sendToSocket(player.socket, {
+        eventName: 'game found',
+        data: gameObject
+      })
+    });
+    delete gameObject.yourPlayerNumber;
+
+
+    games.push(gameObject);
+    console.log('Number of active games: ', games.length);
+    playersSearching.length = 0;
+
+    const regrowthObj = gameController.startTreeRegrowthAlgorithm(gameObject.gameId);
+
+    const packet = {
+      eventName: 'tree regrowth',
+      data: regrowthObj
+    };
+
+    const gamePlayers = gameObject.players;
+    /*for (let j = 0; j < gamePlayers.length; j++){
+      sendToSocket(gamePlayers[j].socket, packet);
+    }*/
   }else{
-    console.log('Number of players searching for game: '+playersCurrentlySearchingForGames.length)
+    console.log('Number of players searching for game: '+ playersSearching.length)
   }
 };
 
-sendToSocket = (socket, dataObject) => {
-  const jsonString = JSON.stringify(dataObject);
-  socket.send(jsonString);
+function sendToSocket(socket, packet){
+  socket.emit('sentFromServer',packet)
+};
+
+
+
+function readyToStart(playerId){
+  const playerSocket = onlinePlayers.find(player => player.id === playerId).socket;
+  sendToSocket(playerSocket, {eventName: 'start game'});
+};
+
+
+function broadcastToAllGamePlayers(gameId, packet){
+  const game = games.find(game => game.id === gameId);
+
+  game.players.forEach(gamePlayer => {
+    const player = onlinePlayers.find(onlinePlayer => gamePlayer.id === onlinePlayer.id);
+    player.socket.emit('sentFromServer',packet)
+  });
 }
 
 
-var readyToStart = function(socket){
-  sendToSocket(socket, {eventName: 'start game'});
-};
+const broadcastToAllOtherPlayers = function (gameId, mainPlayerId, packet) {
+  console.log('broadcast packet: ', packet);
+  const gamePlayers = games.find(game => game.id === gameId).players;
 
-var getPlayersGameObject = function(gameId){
-  var game;
-  for(var i = 0; i < activeGames.length; i++){
-    if(activeGames[i].gameId === gameId){
-      game = activeGames[i];
-      break;
-    }
-  }
-  return game;
-};
-
-var broadcastToAllOtherPlayers = function(gamePlayers, socketId, packet){
-  console.log('broadcast: ',packet.eventName);
-  for(var j = 0; j < gamePlayers.length; j++){
-    if(gamePlayers[j].socketInstance.id !==socketId){
-      sendToSocket(gamePlayers[j].socketInstance, packet);
-    }
-  }
-};
-
-var standardGameBroadcast = function(socket, packet){
-  var game = getPlayersGameObject(packet.data.gameId);
-  broadcastToAllOtherPlayers(game.players, socket.id, packet);
-};
-
-var setGameInitialRandomTreeLocationsTileIdArray = function(){
-  var randomTileIds = [];
-  var tiles = gameSettings.gameRows*gameSettings.gameCols;
-  var numberOfRandomTrees = tiles*treeInitialPercentageCoverage/100;
-  var randomTile;
-  for(var i = 0; i < numberOfRandomTrees; i++){
-    randomTile = Math.round(Math.random()*(tiles - 1));
-    if(!randomTileIds.indexOf(randomTile) >= 0){
-      randomTileIds.push(randomTile)
-    }else{
-      while(!randomTileIds.indexOf(randomTile) >= 0){
-        randomTile = Math.round(Math.random()*(tiles - 1));
-        if(!randomTileIds.indexOf(randomTile) >= 0){
-          randomTileIds.push(randomTile)
-        }
-      }
-    }
-  }
-  return randomTileIds
-};
-
-var startTreeRegrowthAlgorithm = function(gameId){
-
-  calculateTreeRegrowth(treeInitialPercentageCoverage, gameId)
-
-};
-
-var calculateTreeRegrowth = function(percentageCoverage, gameId){
-
-  var regrowthObj;
-
-  if(percentageCoverage < 5){
-    regrowthObj = treeRegrowthRate['whenUnder5%']
-  }
-  if(percentageCoverage < 25){
-    regrowthObj = treeRegrowthRate['whenUnder25%']
-  }
-  if(percentageCoverage < 50){
-    regrowthObj = treeRegrowthRate['whenUnder50%']
-  }
-  if(percentageCoverage < 75){
-    regrowthObj = treeRegrowthRate['whenUnder75%']
-  }
-  if(percentageCoverage < 95){
-    regrowthObj = treeRegrowthRate['whenUnder95%']
-  }
-
-  var packet = {
-    eventName: 'tree regrowth',
-    data: regrowthObj
-  };
-
-  var gamePlayers = getPlayersGameObject(gameId).players;
-  for(var j = 0; j < gamePlayers.length; j++){
-    sendToSocket(gamePlayers[j].socketInstance, packet);
-  }
+  gamePlayers.forEach(player => {
+    if(player.id !== mainPlayerId)
+      sendToSocket(player.socket, packet);
+  })
 };
 
 
-var newGame = function(){
-  var timeNow = new Date().getTime();
-  gameSettings.initialTreeLocations = setGameInitialRandomTreeLocationsTileIdArray();
-  var gameObject = {
-    gameId: timeNow,
-    players: [],
-    gameSettings: gameSettings
-  };
-
-  gameObject.gameSettings.volatileDetectorLocations = getVolatileDetectorLocations();
-
-  for(var j=0; j < playersCurrentlySearchingForGames.length; j++){
-    var player = {
-      playerNumber: j+1
-    };
-    gameObject.players.push(player)
-  }
-
-  for(var i=0; i < playersCurrentlySearchingForGames.length; i++){
-    gameObject.yourPlayerNumber = i+1;
-    sendToSocket(playersCurrentlySearchingForGames[i], {eventName: 'game found', data: gameObject});
-  }
 
 
-  for(var q=0; q < gameObject.players.length; q++){
-    gameObject.players[q].socketInstance = playersCurrentlySearchingForGames[q]
-  }
-  activeGames.push(gameObject);
-  console.log('Enough players ('+numberOfPlayersInEachGame+') -> Starting Game');
-  console.log('Number of active games: ', activeGames.length);
-  playersCurrentlySearchingForGames = [];
-
-  startTreeRegrowthAlgorithm(gameObject.gameId)
-};
 
 
-var getVolatileDetectorLocations = function(){
-  const returnLocations = [];
-  const numberOfDetectors = Math.ceil(gameSettings.gameCols*gameSettings.gameRows*0.06);
-  console.log('num: ', numberOfDetectors);
-  const tiles = gameSettings.gameCols*gameSettings.gameRows;
-  for(var i = 0; i < numberOfDetectors; i++){
-    const randomTile = Math.round(Math.random()*(tiles - 1));
-    returnLocations.push(randomTile)
-  }
-
-  return returnLocations;
-};
