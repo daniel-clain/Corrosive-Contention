@@ -16,14 +16,13 @@ export class ConnectionService{
   connectionId: number;
   
 
-    constructor(){
-      this.connection = io(environment.gameHostAPI);
-      this.connection.on('sentFromServer', fromServer => this.serverEvents.next(fromServer));
-      this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
-    }
+  constructor(){
+    this.connection = io(environment.gameHostAPI);
+    this.connection.on('sentFromServer', fromServer => this.serverEvents.next(fromServer));
+    this.serverEvents.subscribe((serverEvent: Packet) => this.manageEventsFromServer(serverEvent))
+  }
 
   sendPacket(packet: Packet){
-    console.log('send packet - ' + packet.eventName + ': ', packet.data);
     if(this.connectionId) {
       packet.data ? packet.data.connectionId = this.connectionId : packet.data = {connectionId: this.connectionId};
     }
@@ -34,13 +33,11 @@ export class ConnectionService{
   }
   
   manageEventsFromServer(serverEvent){
-    
     switch(serverEvent.eventName){
       case 'connected':
         this.connectionId = serverEvent.data.connectionId;
         break;
       case 'game found':
-        this.startGameSubject.next(serverEvent.data.gameObject);
         this.gameId = serverEvent.data.gameObject.id;
         break;
     }

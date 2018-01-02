@@ -1,7 +1,7 @@
 
 import { EssenceColour } from '../../definitions/enum-definitions';
 import { Tile } from '../tile/tile.component';
-import { Bomb } from '../game-board-entities/bomb';
+import { Bomb } from '../game-board-entities/bomb.component';
 import { TheGame } from '../the-game.component';
 import { Ability, EssenceAbilities, EssenceAbility, Interact, ThrowBomb, Invisibility, SpawnTentacle, Upgrade, BombThrowRange, DragVolatileDetector } from './abilities-and-upgrades';
 

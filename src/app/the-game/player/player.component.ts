@@ -2,11 +2,11 @@ import {Component, OnInit, Input, ViewRef} from '@angular/core';
 import { PlayerDefinition, GameBoardEntity } from '../../definitions/interface-definitions';
 import {BombItem, AbilityName, Direction} from '../../definitions/enum-definitions';
 import { Explosion, TreeAcid, PlayerStats, PlayerStatus } from '../../definitions/class-definitions';
-import { Loot } from '../game-board-entities/loot'
+import { Loot } from '../game-board-entities/loot.component'
 import { Tile } from '../tile/tile.component';
 import { TheGame } from '../the-game.component';
 import { Subject } from 'rxjs/Subject';
-import {Tentacle} from '../game-board-entities/tentacle';
+import {Tentacle} from '../game-board-entities/tentacle.component';
 
 @Component({
   selector: 'player',
@@ -37,7 +37,7 @@ import {Tentacle} from '../game-board-entities/tentacle';
 
 export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
   @Input() theGame: TheGame;
-  
+
   playerNumber: number;
   facing = 'down';
   tile: Tile;
@@ -54,6 +54,7 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
   abilities: any;
   moveDirection: Direction;
   playerMoveSubject: Subject<Tile> = new Subject();
+  moveSpeed = 400;
 
   constructor(){}
 
@@ -65,7 +66,7 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
     (this.playerNumber === userPlayerNum) && this.mainPlayerSetup();
     this.moveToStartLocation();
   }
-  
+
   setLocation(){
     this.topVal = (this.tile.row - 1) * 6;
     this.leftVal = (this.tile.column - 1) * 6;
@@ -73,20 +74,14 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
     this.tile.entityEnterTile(this);
     this.elementRef.detectChanges();
   }
-  
+
   mainPlayerSetup(){
     this.theGame.mainPlayer = this;
-    this.theGame.user.moveSubject.subscribe(moveObj => {
-      switch(moveObj.action){
-        case 'up': this.moveKeyUp(moveObj.direction); break;
-        case 'down': this.moveKeyDown(moveObj.direction); break;
-      }
-    });
-  
+
     this.playerMoveSubject.subscribe(tile => {
       this.theGame.moveBoard(tile)
     });
-    this.theGame.user.abilitySubject.subscribe(abilityName => this.useAbility(abilityName));
+    
     this.theGame.gameHud.setupStats(this.stats);
   }
 
@@ -95,50 +90,49 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
     this.status[status] = val;
     this.elementRef.detectChanges();
   }
-
-  moveKeyUp(direction: string){
+  
+  
+  moveKeyUp(direction: Direction){
     (direction === this.moveDirection) && (this.moveKeyActive = false);
   }
   
   moveKeyDown(direction: Direction){
-    this.moveDirection = direction;
     this.moveKeyActive = true;
     if(!this.status.dead && !this.status.grabbedByTentacle && !this.moveLoopActive) {
-      this.move(this.moveDirection);
+      this.moveDirection = direction;
+      this.move(direction);
     }
   }
-
-  move(direction: Direction){
+  
+  move(direction: Direction) {
     this.moveLoopActive = true;
     const destinationTile: Tile = this.theGame.getDestinationTile(this.tile, direction);
-
-    if (destinationTile && destinationTile.playerMovingInToTile()){
+    if (destinationTile && destinationTile.playerMovingInToTile()) {
       this.tile.entityLeaveTile(this);
       this.status.facing = Direction[direction];
       this.tile = destinationTile;
       this.setLocation();
-      if(this.playerNumber === this.theGame.mainPlayer.playerNumber) {
-        this.theGame.broadcastEventToOtherPlayers('player move update', {
-          playerNumber: this.playerNumber,
-          direction: direction
-        });
-      }
-
       setTimeout(() => {
         this.tile.entityEnterTile(this);
         this.moveKeyActive ? this.move(this.moveDirection) : this.moveLoopActive = false;
-      }, 400)
+      }, this.moveSpeed)
     } else {
       this.setStatus('facing', direction);
       setTimeout(() => {
         this.moveLoopActive = false;
-      }, 1)
+      }, 1);
+      
     }
   }
-
+  
+  
+  
+  
+  
+  
+  
   useAbility(abilityName: AbilityName){
     this.abilities[abilityName].useAbility(this);
-    this.theGame.broadcastEventToOtherPlayers('player use ability update', { playerNumber: this.playerNumber, ability: abilityName });
   };
 
   pickUpLoot(loot: Loot){
@@ -188,7 +182,6 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
     this.theGame.gameHud.updateStats('health', this.stats.health);
     if (this.stats.health <= 0){
       this.playerDies();
-      this.theGame.broadcastEventToOtherPlayers('player dies update', { playerNumber: this.playerNumber })
     }
   }
 
@@ -228,14 +221,14 @@ export class Player implements PlayerDefinition, GameBoardEntity, OnInit{
   hitByTreeAcid(explosion: TreeAcid){
     this.playerHealthChange(-explosion.damage);
   };
-  
+
   grabbedByTentacle(tentacle: Tentacle){
     this.setStatus('grabbedByTentacle', tentacle)
   }
-  
+
   releasedByTentacle(){
     this.setStatus('grabbedByTentacle', null)
   }
-  
-  
+
+
 }

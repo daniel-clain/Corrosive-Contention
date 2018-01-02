@@ -1,7 +1,7 @@
 import { EssenceColour, BombItem, AbilityName } from '../../definitions/enum-definitions';
-import { Tree } from '../game-board-entities/tree';
-import { Bomb } from '../game-board-entities/bomb';
-import { VolatileDetector } from '../game-board-entities/volatile-detector';
+import { Tree } from '../game-board-entities/tree.component';
+import { Bomb } from '../game-board-entities/bomb.component';
+import { VolatileDetector } from '../game-board-entities/volatile-detector.component';
 
 import { CreateGameBoardEntityObject } from '../../definitions/class-definitions'
 
@@ -325,7 +325,7 @@ export class Interact extends Ability{
   }
 
   abilityEffect(player: Player){
-    const interactionTarget: GameBoardEntity = this.getInteractionTarget()
+    const interactionTarget: GameBoardEntity = this.getInteractionTarget(player)
     if (interactionTarget && interactionTarget instanceof Tree){
       (this.siphonTreeAbility || (this.siphonTreeAbility = new SiphonTree(this.theGame))).useAbility(player);
     }
@@ -335,8 +335,7 @@ export class Interact extends Ability{
     }
   }
 
-  getInteractionTarget(): GameBoardEntity{
-    const player: Player = this.theGame.mainPlayer;
+  getInteractionTarget(player: Player): GameBoardEntity{
     const targetTile: Tile = this.theGame.getDestinationTile(player.tile, player.status.facing)
     return targetTile && targetTile.checkWhatsInTile()
 
@@ -354,19 +353,18 @@ export class SiphonTree extends Ability{
 
   useAbility(player: Player,): Boolean{
     if (super.useAbility(player)){
-      this.abilityEffect();
+      this.abilityEffect(player);
       return true;
     }
   }
 
 
-  abilityEffect(){
-    const targetTile: Tile = this.theGame.getTileRelativeToAnotherTile(this.theGame.mainPlayer.tile, this.theGame.mainPlayer.status.facing);
+  abilityEffect(player: Player){
+    const targetTile: Tile = this.theGame.getTileRelativeToAnotherTile(player.tile, player.status.facing);
     if (targetTile && targetTile.treeInTile){
       if (targetTile.treeInTile.isVolatile){
         targetTile.treeInTile.treeExplode();
         console.log('tree is volatile and exploded');
-        this.theGame.broadcastEventToOtherPlayers('treeExplode update', { tileId: targetTile.id });
       } else {
           targetTile.treeInTile.treeIsSiphoned();
       }
@@ -389,6 +387,10 @@ export class ThrowBomb extends Ability{
 
   abilityEffect(player: Player){
     player.stats.bombs--;
+    this.createBomb(player);
+  };
+  
+  createBomb(player){
     const createBombObject: CreateGameBoardEntityObject = {
       template: this.theGame.bombTemplate,
       tile: player.tile,
@@ -397,8 +399,7 @@ export class ThrowBomb extends Ability{
       ]
     };
     this.theGame.createGameBoardEntityComponent(createBombObject)
-    this.theGame.broadcastEventToOtherPlayers('player throwBomb update', { playerNumber: this.theGame.mainPlayer.playerNumber });
-  };
+  }
 }
 export class BombThrowRange extends Upgrade{
   doUpgrade(){

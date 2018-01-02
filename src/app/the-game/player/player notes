@@ -1,0 +1,4 @@
+* player component should only be for the dom related item, everything else should not
+* all player updates come in from server events
+* player service handles the code for all player actions, any player component changes are sent to player component
+* player service should be abstracted into, general

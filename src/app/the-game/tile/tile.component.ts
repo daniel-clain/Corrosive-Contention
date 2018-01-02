@@ -3,10 +3,10 @@ import { TheGame } from '../the-game.component';
 import { TileData } from '../../definitions/class-definitions';
 import { TileInterface } from '../../definitions/interface-definitions';
 import { Player } from '../player/player.component'
-import { Tree } from '../game-board-entities/tree';
-import { Bomb } from '../game-board-entities/bomb';
-import { Loot } from '../game-board-entities/loot';
-import { VolatileDetector } from '../game-board-entities/volatile-detector';
+import { Tree } from '../game-board-entities/tree.component';
+import { Bomb } from '../game-board-entities/bomb.component';
+import { Loot } from '../game-board-entities/loot.component';
+import { VolatileDetector } from '../game-board-entities/volatile-detector.component';
 import { Subject } from 'rxjs/Subject';
 import { GameBoardEntity } from '../../definitions/interface-definitions';
 
@@ -93,50 +93,43 @@ export class Tile implements OnInit, TileInterface, AfterViewInit {
     }
   }
 
-    entityRemovedFromTile(entity: GameBoardEntity){
-      if (entity instanceof Player){
-        this.playerInTile = null;
-      }
-      if (entity instanceof Bomb){
-        this.bombInTile = null;
-      }
-      if (entity instanceof Loot){
-        this.lootInTile = null;
-      }
-      if (entity instanceof Tree){
-        this.treeInTile = null;
-      }
+  entityRemovedFromTile(entity: GameBoardEntity){
+    if (entity instanceof Player){
+      this.playerInTile = null;
     }
-
-
-    playerMovingInToTile(): Boolean {
-      return !(this.treeInTile || this.volatileDetectorInTile);
+    if (entity instanceof Bomb){
+      this.bombInTile = null;
     }
-    checkWhatsInTile(): GameBoardEntity{
-      if (this.playerInTile){
-        return this.playerInTile
-      }
-      if (this.treeInTile){
-        return this.treeInTile
-      }
-      if (this.bombInTile){
-        return this.bombInTile
-      }
-      if (this.lootInTile){
-        return this.lootInTile
-      }
-      if (this.volatileDetectorInTile){
-        return this.volatileDetectorInTile
-      }
+    if (entity instanceof Loot){
+      this.lootInTile = null;
     }
-
-
-  lootDropped(loot: Loot){
-    this.theGame.broadcastEventToOtherPlayers('loot drop update', {
-        tileId: this.id,
-        itemsDropped: {loot: loot}
-    })
+    if (entity instanceof Tree){
+      this.treeInTile = null;
+    }
   }
+
+
+  playerMovingInToTile(): Boolean {
+    return !(this.treeInTile || this.volatileDetectorInTile);
+  }
+  checkWhatsInTile(): GameBoardEntity{
+    if (this.playerInTile){
+      return this.playerInTile
+    }
+    if (this.treeInTile){
+      return this.treeInTile
+    }
+    if (this.bombInTile){
+      return this.bombInTile
+    }
+    if (this.lootInTile){
+      return this.lootInTile
+    }
+    if (this.volatileDetectorInTile){
+      return this.volatileDetectorInTile
+    }
+  }
+
 
   doShowSurroundingVolatileTrees(val: boolean){
     this.cdRef.detach();

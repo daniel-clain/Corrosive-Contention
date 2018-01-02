@@ -4,8 +4,7 @@ import { GameBoardEntity } from '../definitions/interface-definitions';
 import { ConnectionService } from '../connection-service/connection-service';
 import { GameStartup } from './game-startup';
 import { Player } from './player/player.component';
-import { User } from './player/user.component';
-import { Bomb } from './game-board-entities/bomb';
+import { User } from './player/user';
 import { Tile } from './tile/tile.component';
 import { GameHud } from './hud/game-hud.component';
 import { ManageServerUpdates } from './manage-sever-updates';
@@ -73,8 +72,6 @@ export class TheGame implements OnInit {
 
 
   gameSetupDone(){
-
-    this.broadcastEventToOtherPlayers('player ready', {playerNumber: this.serverGameObject.yourPlayerNumber});
     if (this.players.length === 0 || this.players.forEach(player => player.ready)){
       this.startGame()
     }else{
@@ -215,17 +212,17 @@ export class TheGame implements OnInit {
 
   getDestinationTile(tile: Tile, direction: string): Tile{
     const destinationTile: Tile =
-      direction === 'up' && tile.row !== 1 &&
-      this.getTileByColumnAndRow(tile.column, tile.row - 1)
-      ||
-      direction === 'right' && tile.column !== this.serverGameObject.gameSettings.gameCols &&
-      this.getTileByColumnAndRow(tile.column + 1, tile.row)
-      ||
-      direction === 'down' && tile.row !== this.serverGameObject.gameSettings.gameRows &&
-      this.getTileByColumnAndRow(tile.column, tile.row + 1)
-      ||
-      direction === 'left' && tile.column !== 1 &&
-      this.getTileByColumnAndRow(tile.column - 1, tile.row);
+    direction === 'up' && tile.row !== 1 &&
+    this.getTileByColumnAndRow(tile.column, tile.row - 1)
+    ||
+    direction === 'right' && tile.column !== this.serverGameObject.gameSettings.gameCols &&
+    this.getTileByColumnAndRow(tile.column + 1, tile.row)
+    ||
+    direction === 'down' && tile.row !== this.serverGameObject.gameSettings.gameRows &&
+    this.getTileByColumnAndRow(tile.column, tile.row + 1)
+    ||
+    direction === 'left' && tile.column !== 1 &&
+    this.getTileByColumnAndRow(tile.column - 1, tile.row);
 
     if (!destinationTile){
       console.log('destination tile out of bounds')

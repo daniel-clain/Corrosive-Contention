@@ -11,26 +11,31 @@ module.exports = class GameController{
     this.gameSettings = new GameSettings();
   }
 
-  setGameInitialRandomTreeLocationsTileIdArray(){
+  randomTileIdArray(){
     const randomTileIds = [];
     const tiles = this.gameSettings.gameRows * this.gameSettings.gameCols;
-    const numberOfRandomTrees = tiles * this.gameSettings.treeInitialPercentageCoverage / 100;
+    const numberOfTrees = tiles * this.gameSettings.treeInitialPercentageCoverage / 100;
     let randomTile;
-    for (let i = 0; i < numberOfRandomTrees; i++){
-      randomTile = Math.round(Math.random()*(tiles - 1));
-      if(!randomTileIds.indexOf(randomTile) >= 0){
-        randomTileIds.push(randomTile)
+
+    const getRandomTile = () => {
+      const randomTile = Math.round(Math.random()*(tiles - 1));
+      if(randomTileIds.indexOf(randomTile) === -1){
+        return randomTile
       }else{
-        while(!randomTileIds.indexOf(randomTile) >= 0){
-          randomTile = Math.round(Math.random()*(tiles - 1));
-          if(!randomTileIds.indexOf(randomTile) >= 0){
-            randomTileIds.push(randomTile)
-          }
-        }
+        return getRandomTile();
       }
     }
-    return randomTileIds
+
+    for (let i = 0; i < numberOfTrees; i++){
+      randomTile = getRandomTile();
+      randomTileIds.push(randomTile);
+    }
+    console.log('randomTileIds: ', randomTileIds);
+    return randomTileIds;
+
+
   };
+
 
   newGame(playerObjects){
     const players = playerObjects.map((player, i) => {
@@ -47,12 +52,96 @@ module.exports = class GameController{
     };
 
 
-
-    gameObject.gameSettings.initialTreeLocations = this.setGameInitialRandomTreeLocationsTileIdArray();
+    gameObject.gameSettings.initialTreeObjects = this.getInitialTreeObjects();
     gameObject.gameSettings.volatileDetectorLocations = this.getVolatileDetectorLocations();
 
     return gameObject;
   };
+
+  getInitialTreeObjects(){
+    const ids = this.randomTileIdArray();
+    let treeObjects = [];
+    const chanceToBeVolatile = 50;
+
+    for(let i = 0; i < ids.length; i++){
+      let treeObject = {};
+      treeObject.volatile = Math.random() * 100 < chanceToBeVolatile;
+      if(!treeObject.volatile){
+        treeObject.siphonLoot = this.getRandomSiphonLoot();
+      }
+      treeObject.treeModelType = Math.floor(Math.random() * 2);
+      treeObject.tileId = ids[i];
+      treeObjects.push(treeObject)
+    }
+
+    return treeObjects;
+
+  }
+  getRandomSiphonLoot(){
+    let bombsItem;
+    let essenceColour;
+    let essencePosition;
+
+    let bombItemDrop;
+    let essenceItemDrop;
+
+    let oneBombChance;
+    let threeBombChance;
+    let essenceChance;
+
+
+    const testChances = (spawnType) => {
+
+      if (spawnType === 'siphon'){
+        oneBombChance = 50;
+        threeBombChance = 0;
+        essenceChance = 70
+      }
+      if (spawnType === 'explode'){
+        oneBombChance = 10;
+        threeBombChance = 5;
+        essenceChance = 30
+      }
+
+      bombItemDrop = (Math.random() * 100) < oneBombChance;
+      if (bombItemDrop){
+        bombsItem = 'oneBomb'
+      } else {
+        bombItemDrop = (Math.random() * 100) < threeBombChance;
+        if (bombItemDrop){
+          bombsItem = 'threeBombs'
+        } else {
+          bombsItem = 'noBombs'
+        }
+      }
+
+      essenceItemDrop = (Math.random() * 100) < essenceChance;
+      if (essenceItemDrop){
+        const numberOfColours = 4;
+        const randomNum = Math.floor(Math.random() * numberOfColours);
+        const colors = ['blue', 'green', 'yellow', 'purple'];
+        essenceColour = colors[randomNum];
+        const x = Math.floor(Math.random() * 50);
+        const y = Math.floor(Math.random() * 50);
+        essencePosition = {x: x, y: y}
+      }
+
+      const returnResults = {
+        bombsItem: bombsItem,
+        essenceColour: essenceColour,
+        essencePosition: essencePosition
+      }
+
+      return returnResults;
+
+    }
+
+    const explodeResults = testChances('explode')
+    const siphonResults = testChances('siphon')
+
+    return {explodeResults: explodeResults, siphonResults: siphonResults}
+
+  }
 
 
   getVolatileDetectorLocations(){

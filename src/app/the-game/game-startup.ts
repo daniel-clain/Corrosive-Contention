@@ -91,22 +91,25 @@ export class GameStartup{
 
 
   private spawnInitialTrees(){
-    const tileIds = this.gameSettings.initialTreeLocations;
-    const chanceToBeVolatile = 50;
-    const tiles: Tile[] = this.theGame.tiles;
-    for(let i = 0; i < tiles.length; i++){
-      if(tileIds.indexOf(tiles[i].id) >= 0){
-        const createTreeObject: CreateGameBoardEntityObject = {
-          template: this.theGame.treeTemplate,
-          tile: tiles[i],
-          assets: [
-            {name: 'treeModelType', value: Math.floor(Math.random() * 2)},
-            {name: 'isVolatile', value: Math.random() * 100 < chanceToBeVolatile}
-          ]
-        };
-        this.theGame.createGameBoardEntityComponent(createTreeObject)
+    const treeObjects = this.gameSettings.initialTreeObjects;
+    
+    treeObjects.forEach(treeObject => {
+      const createTreeObject: CreateGameBoardEntityObject = {
+        template: this.theGame.treeTemplate,
+        tile: this.theGame.getTileById(treeObject.tileId),
+        assets: [
+          {name: 'treeModelType', value: treeObject.treeModelType},
+          {name: 'isVolatile', value: treeObject.volatile}
+        ]
+      };
+      if(!treeObject.volatile){
+        createTreeObject.assets.push({
+          name: 'siphonLoot', value: treeObject.siphonLoot
+        })
       }
-    }
+      this.theGame.createGameBoardEntityComponent(createTreeObject)
+    })
+    
   }
 
   private placeVolatileDetectors(){

@@ -2,9 +2,8 @@
 module.exports = class GameSettings {
   constructor() {
     this.treeInitialPercentageCoverage = 80;
-    this.gameCols = 8;
+    this.gameCols = 12;
     this.gameRows = 8;
-    this.initialTreeLocations = [];
     this.volatileDetectorLocations = [];
     this.treeRegrowthRate = {
       'whenUnder5%': {

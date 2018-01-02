@@ -1,0 +1,23 @@
+scenario
+player uses syphon tree on a tree and then moves to pick up the loot
+
+given
+player is facing a tree
+tree has 100% chance to drop loot
+
+when
+player presses interact button
+
+then
+broadcast to all users playerNumber has pressed interact
+
+then
+all player wil have that playerNumber use siphon tree on the tree infront
+the tree will drop loot
+
+then
+the player will press the move key
+
+then
+broadcast to all player that playerNumber has moved into that tile with the loot
+all player have loot removed and player stats updated

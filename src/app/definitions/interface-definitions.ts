@@ -3,9 +3,9 @@ import { Explosion, TreeAcid, PlayerStats } from './class-definitions';
 import { Tile } from '../the-game/tile/tile.component';
 import { Player } from '../the-game/player/player.component';
 import { Ability } from '../the-game/abilities-and-upgrades/abilities-and-upgrades';
-import { Bomb } from '../the-game/game-board-entities/bomb';
-import { Tree } from '../the-game/game-board-entities/tree';
-import { Loot } from '../the-game/game-board-entities/loot';
+import { Bomb } from '../the-game/game-board-entities/bomb.component';
+import { Tree } from '../the-game/game-board-entities/tree.component';
+import { Loot } from '../the-game/game-board-entities/loot.component';
 import { AbilityName } from './enum-definitions';
 import {TheGame} from '../the-game/the-game.component';
 

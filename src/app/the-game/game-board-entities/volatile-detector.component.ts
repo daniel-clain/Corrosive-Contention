@@ -5,7 +5,7 @@ import { Sounds } from '../../definitions/class-definitions'
 import { NumberNames } from '../../definitions/enum-definitions'
 
 import { Tile } from '../tile/tile.component';
-import { Tree } from './tree'
+import { Tree } from './tree.component'
 import { TheGame } from '../the-game.component';
 
 

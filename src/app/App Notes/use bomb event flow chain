@@ -1,0 +1,18 @@
+scenario
+player uses bomb ability
+
+given
+player has a bomb
+
+when
+player presses throw bomb
+
+then
+broadcast to all players that playerNumber has pressed throw bomb
+
+then
+all players will have that player use the throw bomb ability
+bomb will travel on repeat until it hits some thing or maxes out its distance
+when the bomb explodes
+  all players will in the explosion will take damage
+  any trees in the explosion will be destroyed

@@ -1,27 +1,43 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { Packet, ServerGameObject} from './definitions/class-definitions';
-import { User } from './the-game/player/user.component'
+import {Component, OnInit, HostListener, ViewContainerRef, ViewChild, TemplateRef} from '@angular/core';
+import {KeyboardInput, Packet, ServerGameObject} from './definitions/class-definitions';
+import { User } from './the-game/player/user'
 import { ConnectionService } from './connection-service/connection-service'
+import {TheGame} from './the-game/the-game.component';
+import {Subject} from 'rxjs/Subject';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
-
-  gameOn = false;
-  user: User;
-  serverGameObject: ServerGameObject;
   
-  @HostListener('window:beforeunload', ['$event'])disconnect(e){
-    // e.returnValue = 'Doing this will disconnect you from the game.'
-    // this.connectionService.closeConnection();
+  keyboardEvents: Subject<KeyboardInput> = new Subject();
+  user = new User(this.keyboardEvents, this.connectionService);
+  gameOn = false;
+  serverGameObject: ServerGameObject;
+  @ViewChild('gameTemplate') gameTemplate: TemplateRef<TheGame>;
+  @ViewChild('gameContainer', {read: ViewContainerRef}) gameContainer: ViewContainerRef;
+  
+  @HostListener('window:keydown', ['$event'])
+  keyDown(e){
+    if (e.repeat){
+      return false;
+    }
+    this.keyboardEvents.next({key: e.key, action: 'down'})
+  }
+  
+  @HostListener('window:keyup', ['$event'])
+  keyUp(e){
+    if (e.repeat){
+      return false;
+    }
+    this.keyboardEvents.next({key: e.key, action: 'up'})
   }
   constructor( private connectionService: ConnectionService){
-    this.connectionService.startGameSubject.subscribe(serverGameObject => this.startGame(serverGameObject))
   }
 
   ngOnInit(){
+    this.user.gameFoundEvent.subscribe(serverGameObject => this.startGame(serverGameObject));
   }
   
 
@@ -31,6 +47,9 @@ export class AppComponent implements OnInit {
   
   startGame(serverGameObject: ServerGameObject){
     this.serverGameObject = serverGameObject;
+    const theGame = this.gameTemplate.createEmbeddedView(null);
+    this.gameContainer.insert(theGame);
     this.gameOn = true
+  
   }
 }

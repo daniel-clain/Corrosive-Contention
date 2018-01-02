@@ -55,8 +55,9 @@ const processPacketFromClient = function(packet){
     case 'tree regrowth cycle': console.log('tree regrow'); break;
     default:
     if(packet.data && packet.data.gameId){
-      broadcastToAllOtherPlayers(packet.data.gameId, packet.data.connectionId, packet);
+      broadcastToAllGamePlayers(packet.data.gameId, packet);
     }
+
   }
 };
 
@@ -115,7 +116,6 @@ function readyToStart(playerId){
 
 function broadcastToAllGamePlayers(gameId, packet){
   const game = games.find(game => game.id === gameId);
-
   game.players.forEach(gamePlayer => {
     const player = onlinePlayers.find(onlinePlayer => gamePlayer.id === onlinePlayer.id);
     player.socket.emit('sentFromServer',packet)

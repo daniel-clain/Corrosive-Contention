@@ -1,0 +1,9 @@
+* should be a class not a component
+* new user on app initiate
+* user will have player number
+* the user class will listen to any keyboard actions made in the app
+  - when there is an action it will check if it has registered action, if it does
+  - send that action to the server
+  - broadcast that action and that player to all players
+  - all players receive that players action
+  - all players fulfil that action against that player number
